@@ -1,0 +1,2179 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cisco IOS Routing &amp; Switching Command Reference</title>
+<style>
+/* ===== VARIABLES ===== */
+:root {
+  --bg: #0d1117;
+  --sidebar-bg: #161b22;
+  --border: #30363d;
+  --text: #e6edf3;
+  --muted: #8b949e;
+  --switching: #3fb950;
+  --routing: #f78166;
+  --cmd-color: #79c0ff;
+  --param-color: #ffa657;
+  --optional-color: #a5d6ff;
+  --choice-color: #d2a8ff;
+  --keyword-color: #e6edf3;
+  --badge-l2: #0d7377;
+  --badge-l3: #2d7a2d;
+  --badge-router: #8a4f00;
+  --badge-all: #5a3e8a;
+  --topbar-bg: #010409;
+  --topbar-h: 52px;
+  --sidebar-w: 260px;
+  --table-head: #1c2128;
+  --table-row-alt: #161b22;
+  --table-row: #0d1117;
+  --card-bg: #161b22;
+  --shadow: 0 1px 3px rgba(0,0,0,.5);
+  --radius: 6px;
+  --toast-bg: #238636;
+  --search-bg: #21262d;
+  --search-border: #30363d;
+  --focus-ring: #1f6feb;
+  --shortcut-bg: #21262d;
+}
+[data-theme="light"] {
+  --bg: #ffffff;
+  --sidebar-bg: #f6f8fa;
+  --border: #d0d7de;
+  --text: #1f2328;
+  --muted: #57606a;
+  --topbar-bg: #24292f;
+  --table-head: #f6f8fa;
+  --table-row-alt: #f6f8fa;
+  --table-row: #ffffff;
+  --card-bg: #f6f8fa;
+  --search-bg: #ffffff;
+  --search-border: #d0d7de;
+  --shortcut-bg: #eaeef2;
+  --shadow: 0 1px 3px rgba(0,0,0,.12);
+}
+
+/* ===== RESET ===== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  background: var(--bg);
+  color: var(--text);
+  transition: background .2s, color .2s;
+}
+a { color: var(--cmd-color); text-decoration: none; }
+a:hover { text-decoration: underline; }
+code, pre, .mono {
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 12px;
+}
+
+/* ===== TOP BAR ===== */
+#topbar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  height: var(--topbar-h);
+  background: var(--topbar-bg);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 12px;
+  padding: 0 16px;
+}
+#topbar .brand {
+  font-size: 15px; font-weight: 600; white-space: nowrap;
+  color: var(--text); flex-shrink: 0;
+}
+#topbar .brand span { color: var(--routing); }
+#search-wrap {
+  flex: 1; max-width: 380px; position: relative;
+}
+#search-input {
+  width: 100%; padding: 6px 12px 6px 32px;
+  background: var(--search-bg); border: 1px solid var(--search-border);
+  border-radius: var(--radius); color: var(--text);
+  font-size: 13px; outline: none;
+  transition: border-color .15s;
+}
+#search-input:focus { border-color: var(--focus-ring); }
+#search-wrap .search-icon {
+  position: absolute; left: 9px; top: 50%; transform: translateY(-50%);
+  color: var(--muted); pointer-events: none; font-size: 13px;
+}
+#search-kbd {
+  position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+  font-size: 10px; color: var(--muted);
+  background: var(--shortcut-bg); border-radius: 3px; padding: 1px 5px;
+  pointer-events: none;
+}
+#device-filter { display: flex; gap: 4px; flex-shrink: 0; }
+.filter-btn {
+  padding: 4px 10px; border-radius: var(--radius); border: 1px solid var(--border);
+  background: transparent; color: var(--muted); cursor: pointer; font-size: 12px;
+  transition: background .15s, color .15s, border-color .15s;
+}
+.filter-btn:hover { background: var(--card-bg); color: var(--text); }
+.filter-btn.active { background: var(--focus-ring); border-color: var(--focus-ring); color: #fff; }
+#theme-btn {
+  padding: 5px 8px; border-radius: var(--radius); border: 1px solid var(--border);
+  background: transparent; color: var(--muted); cursor: pointer; font-size: 15px;
+  transition: background .15s; flex-shrink: 0;
+}
+#theme-btn:hover { background: var(--card-bg); color: var(--text); }
+#help-btn {
+  padding: 4px 8px; border-radius: var(--radius); border: 1px solid var(--border);
+  background: transparent; color: var(--muted); cursor: pointer; font-size: 12px;
+  flex-shrink: 0;
+}
+#help-btn:hover { background: var(--card-bg); color: var(--text); }
+
+/* ===== LAYOUT ===== */
+#layout {
+  display: flex;
+  margin-top: var(--topbar-h);
+  min-height: calc(100vh - var(--topbar-h));
+}
+
+/* ===== SIDEBAR ===== */
+#sidebar {
+  width: var(--sidebar-w);
+  flex-shrink: 0;
+  background: var(--sidebar-bg);
+  border-right: 1px solid var(--border);
+  position: sticky; top: var(--topbar-h);
+  height: calc(100vh - var(--topbar-h));
+  overflow-y: auto; overflow-x: hidden;
+  padding: 12px 0 24px;
+}
+#sidebar::-webkit-scrollbar { width: 4px; }
+#sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+.toc-group { margin-bottom: 4px; }
+.toc-group-title {
+  display: block; padding: 6px 16px;
+  font-size: 10px; font-weight: 700; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--muted);
+}
+.toc-group-title.switching { color: var(--switching); }
+.toc-group-title.routing { color: var(--routing); }
+.toc-link {
+  display: block; padding: 4px 16px 4px 24px;
+  font-size: 12px; color: var(--muted);
+  cursor: pointer; border-left: 2px solid transparent;
+  transition: color .15s, border-color .15s, background .15s;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.toc-link:hover { color: var(--text); background: var(--bg); }
+.toc-link.active { color: var(--text); border-left-color: var(--cmd-color); background: var(--bg); }
+
+/* ===== MAIN ===== */
+#main {
+  flex: 1; padding: 24px 24px 64px;
+  min-width: 0;
+  max-width: calc(100vw - var(--sidebar-w));
+}
+
+/* ===== LEGEND ===== */
+#legend {
+  background: var(--card-bg); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 12px 16px;
+  margin-bottom: 24px;
+}
+#legend summary {
+  cursor: pointer; font-size: 12px; font-weight: 600;
+  color: var(--muted); user-select: none;
+  list-style: none; display: flex; align-items: center; gap: 6px;
+}
+#legend summary::before { content: "▶"; font-size: 9px; transition: transform .2s; }
+#legend[open] summary::before { transform: rotate(90deg); }
+#legend .legend-grid {
+  display: flex; flex-wrap: wrap; gap: 16px; margin-top: 10px;
+}
+.legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; }
+.legend-item code { font-size: 12px; }
+
+/* ===== CATEGORY SECTION ===== */
+.cat-section { margin-bottom: 40px; }
+.cat-header {
+  display: flex; align-items: center; gap: 12px;
+  cursor: pointer; user-select: none;
+  padding: 10px 0; border-bottom: 2px solid var(--border);
+  margin-bottom: 20px;
+}
+.cat-header h2 {
+  font-size: 20px; font-weight: 700; letter-spacing: .03em;
+}
+.cat-header.switching h2 { color: var(--switching); }
+.cat-header.routing h2 { color: var(--routing); }
+.cat-chevron {
+  margin-left: auto; font-size: 12px; color: var(--muted);
+  transition: transform .2s;
+}
+.cat-section.collapsed .cat-chevron { transform: rotate(-90deg); }
+.cat-section.collapsed .cat-body { display: none; }
+
+/* ===== SUBSECTION ===== */
+.subsection { margin-bottom: 28px; }
+.subsection-header {
+  display: flex; align-items: center; gap: 8px;
+  cursor: pointer; user-select: none;
+  padding: 6px 0; margin-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+.subsection-header h3 {
+  font-size: 14px; font-weight: 600; color: var(--text);
+}
+.sub-chevron {
+  margin-left: auto; font-size: 10px; color: var(--muted);
+  transition: transform .2s;
+}
+.subsection.collapsed .sub-chevron { transform: rotate(-90deg); }
+.subsection.collapsed .sub-body { display: none; }
+.cmd-count {
+  font-size: 10px; background: var(--card-bg); color: var(--muted);
+  border: 1px solid var(--border); border-radius: 10px; padding: 1px 7px;
+}
+
+/* ===== COMMAND TABLE ===== */
+.cmd-table-wrap { overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--border); }
+.cmd-table {
+  width: 100%; border-collapse: collapse; font-size: 13px;
+}
+.cmd-table thead th {
+  background: var(--table-head); padding: 8px 12px;
+  text-align: left; font-size: 11px; font-weight: 600;
+  color: var(--muted); text-transform: uppercase; letter-spacing: .06em;
+  border-bottom: 1px solid var(--border); white-space: nowrap;
+}
+.cmd-table tbody tr {
+  border-bottom: 1px solid var(--border);
+  background: var(--table-row);
+  transition: background .1s;
+}
+.cmd-table tbody tr:nth-child(even) { background: var(--table-row-alt); }
+.cmd-table tbody tr:hover { background: var(--card-bg); }
+.cmd-table tbody tr.hidden { display: none; }
+.cmd-table td { padding: 8px 12px; vertical-align: top; }
+.cmd-table .td-cmd { white-space: nowrap; }
+.cmd-table .td-syntax { min-width: 220px; }
+.cmd-table .td-args { min-width: 160px; }
+.cmd-table .td-desc { min-width: 200px; color: var(--text); }
+.cmd-table .td-devices { white-space: nowrap; }
+
+/* ===== COMMAND NAME ===== */
+.cmd-name {
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 12px; color: var(--cmd-color); font-weight: 600;
+}
+.cmd-name.routing { color: var(--routing); }
+
+/* ===== SYNTAX HIGHLIGHTING ===== */
+.syntax {
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 12px; white-space: pre-wrap; word-break: break-all;
+  line-height: 1.5;
+}
+.syn-keyword { color: var(--keyword-color); }
+.syn-required { color: var(--param-color); }
+.syn-optional { color: var(--optional-color); }
+.syn-choice { color: var(--choice-color); }
+.syn-pipe { color: var(--muted); }
+
+/* ===== SYNTAX CELL (with copy btn) ===== */
+.syntax-cell { display: flex; align-items: flex-start; gap: 6px; }
+.copy-btn {
+  flex-shrink: 0; background: none; border: none; cursor: pointer;
+  color: var(--muted); padding: 2px 4px; border-radius: 4px;
+  font-size: 11px; opacity: 0; transition: opacity .15s, background .15s;
+  margin-top: 1px;
+}
+.cmd-table tbody tr:hover .copy-btn { opacity: 1; }
+.copy-btn:hover { background: var(--card-bg); color: var(--text); }
+
+/* ===== ARGS DETAILS ===== */
+.args-details summary {
+  cursor: pointer; font-size: 11px; color: var(--muted);
+  list-style: none; display: flex; align-items: center; gap: 4px;
+  white-space: nowrap;
+}
+.args-details summary::before { content: "▶"; font-size: 8px; transition: transform .2s; }
+.args-details[open] summary::before { transform: rotate(90deg); }
+.args-table {
+  margin-top: 6px; border-collapse: collapse; font-size: 11px; width: 100%;
+}
+.args-table th {
+  color: var(--muted); font-weight: 600; padding: 2px 8px 2px 0;
+  text-align: left; white-space: nowrap; border-bottom: 1px solid var(--border);
+}
+.args-table td {
+  padding: 3px 8px 3px 0; vertical-align: top; border-bottom: 1px solid var(--border);
+}
+.args-table tr:last-child td { border-bottom: none; }
+.arg-name { color: var(--param-color); font-family: monospace; }
+.arg-req { color: var(--switching); font-size: 10px; font-weight: 700; }
+.arg-opt { color: var(--muted); font-size: 10px; }
+
+/* ===== DEVICE BADGES ===== */
+.badge {
+  display: inline-block; padding: 1px 6px; border-radius: 10px;
+  font-size: 10px; font-weight: 600; margin: 1px 2px; white-space: nowrap;
+}
+.badge-l2 { background: var(--badge-l2); color: #a0e6e8; }
+.badge-l3 { background: var(--badge-l3); color: #90d890; }
+.badge-router { background: var(--badge-router); color: #ffcf88; }
+.badge-all { background: var(--badge-all); color: #d4b8ff; }
+
+/* ===== SEARCH RESULTS OVERLAY ===== */
+#search-results {
+  position: fixed; top: calc(var(--topbar-h) + 4px); left: 0; right: 0;
+  z-index: 200; display: none;
+  justify-content: center; pointer-events: none;
+}
+#search-results.visible { display: flex; }
+#search-results-inner {
+  background: var(--sidebar-bg); border: 1px solid var(--border);
+  border-radius: var(--radius); box-shadow: 0 8px 24px rgba(0,0,0,.4);
+  width: 600px; max-height: 400px; overflow-y: auto;
+  pointer-events: all;
+}
+.sr-header {
+  padding: 8px 12px; font-size: 11px; color: var(--muted);
+  border-bottom: 1px solid var(--border); sticky; top: 0;
+  background: var(--sidebar-bg);
+}
+.sr-item {
+  padding: 8px 12px; cursor: pointer; border-bottom: 1px solid var(--border);
+  display: flex; flex-direction: column; gap: 2px;
+  transition: background .1s;
+}
+.sr-item:hover, .sr-item.focused { background: var(--card-bg); }
+.sr-item:last-child { border-bottom: none; }
+.sr-cmd { font-size: 12px; color: var(--cmd-color); font-family: monospace; font-weight: 600; }
+.sr-desc { font-size: 11px; color: var(--muted); }
+.sr-section { font-size: 10px; color: var(--muted); margin-left: auto; white-space: nowrap; }
+.sr-top { display: flex; align-items: baseline; gap: 8px; }
+mark { background: #e3b34133; color: var(--param-color); border-radius: 2px; padding: 0 1px; }
+
+/* ===== TOAST ===== */
+#toast {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px);
+  background: var(--toast-bg); color: #fff;
+  padding: 8px 16px; border-radius: var(--radius);
+  font-size: 13px; font-weight: 500; pointer-events: none;
+  opacity: 0; transition: opacity .2s, transform .2s; z-index: 300;
+}
+#toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ===== SHORTCUTS MODAL ===== */
+#shortcuts-modal {
+  display: none; position: fixed; inset: 0; z-index: 400;
+  background: rgba(0,0,0,.6); align-items: center; justify-content: center;
+}
+#shortcuts-modal.visible { display: flex; }
+#shortcuts-box {
+  background: var(--sidebar-bg); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 24px; width: 360px;
+  box-shadow: 0 8px 32px rgba(0,0,0,.5);
+}
+#shortcuts-box h3 { font-size: 15px; margin-bottom: 16px; }
+.shortcut-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 5px 0; border-bottom: 1px solid var(--border); font-size: 13px;
+}
+.shortcut-row:last-child { border-bottom: none; }
+.shortcut-key {
+  background: var(--shortcut-bg); border: 1px solid var(--border);
+  border-radius: 4px; padding: 2px 8px; font-family: monospace; font-size: 12px;
+}
+#shortcuts-box .close-btn {
+  display: block; margin-top: 16px; text-align: center; cursor: pointer;
+  color: var(--muted); font-size: 12px;
+}
+
+/* ===== PRINT ===== */
+@media print {
+  #topbar, #sidebar, #shortcuts-modal, #toast, #search-results { display: none !important; }
+  #layout { margin-top: 0; }
+  #main { max-width: 100%; padding: 0; }
+  .cat-section.collapsed .cat-body,
+  .subsection.collapsed .sub-body { display: block !important; }
+  .cat-header, .subsection-header { cursor: default; }
+  .copy-btn { display: none; }
+  body { background: #fff; color: #000; font-size: 11px; }
+  .cmd-table { font-size: 10px; }
+  .badge { border: 1px solid #ccc; }
+  .cmd-name { color: #0969da; }
+  .syn-required { color: #9a6700; }
+  .syn-optional { color: #0550ae; }
+  .syn-choice { color: #6639ba; }
+}
+
+/* ===== SCROLLBAR ===== */
+#main::-webkit-scrollbar { width: 6px; }
+#main::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* ===== MISC ===== */
+.no-results {
+  text-align: center; padding: 40px; color: var(--muted); font-size: 14px;
+}
+.section-note {
+  font-size: 12px; color: var(--muted); margin-bottom: 10px; font-style: italic;
+}
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div id="topbar">
+  <div class="brand">Cisco IOS <span>Reference</span></div>
+  <div id="search-wrap">
+    <span class="search-icon">⌕</span>
+    <input type="text" id="search-input" placeholder="Search commands…" autocomplete="off" spellcheck="false">
+    <span id="search-kbd">/</span>
+  </div>
+  <div id="device-filter">
+    <button class="filter-btn active" data-filter="all">All</button>
+    <button class="filter-btn" data-filter="l2">L2 Switch</button>
+    <button class="filter-btn" data-filter="l3">L3 Switch</button>
+    <button class="filter-btn" data-filter="router">Router</button>
+  </div>
+  <button id="theme-btn" title="Toggle theme (T)">☀</button>
+  <button id="help-btn" title="Keyboard shortcuts (?)">?</button>
+</div>
+
+<!-- SEARCH OVERLAY -->
+<div id="search-results">
+  <div id="search-results-inner">
+    <div class="sr-header" id="sr-header">No results</div>
+    <div id="sr-list"></div>
+  </div>
+</div>
+
+<!-- LAYOUT -->
+<div id="layout">
+  <!-- SIDEBAR -->
+  <nav id="sidebar">
+    <div id="toc"></div>
+  </nav>
+
+  <!-- MAIN -->
+  <main id="main">
+    <!-- LEGEND -->
+    <details id="legend">
+      <summary>Syntax Notation &amp; Badge Legend</summary>
+      <div class="legend-grid">
+        <div class="legend-item"><code class="syn-required">&lt;param&gt;</code> Required variable</div>
+        <div class="legend-item"><code class="syn-optional">[param]</code> Optional parameter</div>
+        <div class="legend-item"><code class="syn-choice">{a|b}</code> Choose one value</div>
+        <div class="legend-item"><code class="syn-keyword">KEYWORD</code> Exact IOS keyword</div>
+        <div class="legend-item"><span class="badge badge-l2">L2 Switch</span> Layer 2 switch</div>
+        <div class="legend-item"><span class="badge badge-l3">L3 Switch</span> Layer 3 switch</div>
+        <div class="legend-item"><span class="badge badge-router">Router</span> Router / L3 device</div>
+        <div class="legend-item"><span class="badge badge-all">All</span> Any IOS device</div>
+      </div>
+    </details>
+
+    <!-- COMMAND SECTIONS RENDERED BY JS -->
+    <div id="sections-root"></div>
+  </main>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- SHORTCUTS MODAL -->
+<div id="shortcuts-modal">
+  <div id="shortcuts-box">
+    <h3>Keyboard Shortcuts</h3>
+    <div class="shortcut-row"><span>Focus search</span><span class="shortcut-key">/</span></div>
+    <div class="shortcut-row"><span>Close search / modal</span><span class="shortcut-key">Esc</span></div>
+    <div class="shortcut-row"><span>Toggle theme</span><span class="shortcut-key">T</span></div>
+    <div class="shortcut-row"><span>Expand all sections</span><span class="shortcut-key">E</span></div>
+    <div class="shortcut-row"><span>Collapse all sections</span><span class="shortcut-key">C</span></div>
+    <div class="shortcut-row"><span>Show shortcuts</span><span class="shortcut-key">?</span></div>
+    <div class="shortcut-row"><span>Navigate search results</span><span class="shortcut-key">↑ / ↓</span></div>
+    <div class="shortcut-row"><span>Select search result</span><span class="shortcut-key">Enter</span></div>
+    <span class="close-btn" id="shortcuts-close">Close</span>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   COMMAND DATA
+   ============================================================ */
+
+// devices: array of 'l2','l3','router','all'
+// args: array of {name, type, range, required, default, desc}
+
+const SECTIONS = [
+/* ==================== SWITCHING ==================== */
+
+{
+  id: 'switching', title: 'SWITCHING', type: 'switching',
+  subsections: [
+    {
+      id: 'sw-basic', title: '1. Basic Switch Configuration',
+      commands: [
+        { cmd:'enable', syntax:'enable [<privilege-level>]', devices:['all'],
+          desc:'Enter privileged EXEC mode (level 15 by default).',
+          args:[{name:'privilege-level',type:'integer',range:'0–15',req:false,def:'15',desc:'Exec privilege level to enter'}]},
+        { cmd:'configure terminal', syntax:'configure terminal', devices:['all'],
+          desc:'Enter global configuration mode from privileged EXEC.',args:[]},
+        { cmd:'hostname', syntax:'hostname <name>', devices:['all'],
+          desc:'Set the device hostname displayed in the prompt and used in LLDP/CDP.',
+          args:[{name:'name',type:'string',range:'1–63 chars',req:true,def:'-',desc:'Alphanumeric hostname; hyphens allowed, no spaces'}]},
+        { cmd:'enable secret', syntax:'enable secret [0|5|8|9] <password>', devices:['all'],
+          desc:'Set encrypted enable password using MD5 (type 5) or PBKDF2/scrypt (types 8/9). Preferred over enable password.',
+          args:[
+            {name:'0|5|8|9',type:'keyword',range:'-',req:false,def:'0',desc:'Encryption type; 0=cleartext input, 5=MD5 stored, 8=PBKDF2, 9=scrypt'},
+            {name:'password',type:'string',range:'1–25 chars',req:true,def:'-',desc:'Secret string'}]},
+        { cmd:'enable password', syntax:'enable password [0|7] <password>', devices:['all'],
+          desc:'Set plain or type-7 obfuscated enable password. Superseded by enable secret.',
+          args:[
+            {name:'0|7',type:'keyword',range:'-',req:false,def:'0',desc:'0=cleartext, 7=Vigenère obfuscated'},
+            {name:'password',type:'string',range:'1–25 chars',req:true,def:'-',desc:'Password string'}]},
+        { cmd:'service password-encryption', syntax:'service password-encryption', devices:['all'],
+          desc:'Apply type-7 obfuscation to all plaintext passwords in running-config.',args:[]},
+        { cmd:'banner motd', syntax:'banner motd <delimiter> <message> <delimiter>', devices:['all'],
+          desc:'Set Message-of-the-Day banner shown to all users before login.',
+          args:[
+            {name:'delimiter',type:'char',range:'any single char',req:true,def:'-',desc:'Character that marks start/end of banner text (e.g. #)'},
+            {name:'message',type:'string',range:'unlimited',req:true,def:'-',desc:'Banner text; may span multiple lines'}]},
+        { cmd:'banner login', syntax:'banner login <delimiter> <message> <delimiter>', devices:['all'],
+          desc:'Banner displayed after MOTD and before login prompt.',args:[
+            {name:'delimiter',type:'char',range:'any single char',req:true,def:'-',desc:'Delimiter character'},
+            {name:'message',type:'string',range:'unlimited',req:true,def:'-',desc:'Login banner text'}]},
+        { cmd:'line console 0', syntax:'line console 0', devices:['all'],
+          desc:'Enter console line configuration mode.',args:[]},
+        { cmd:'line vty', syntax:'line vty <first-line> <last-line>', devices:['all'],
+          desc:'Enter virtual terminal (Telnet/SSH) line configuration mode.',
+          args:[
+            {name:'first-line',type:'integer',range:'0–4 (or 0–15)',req:true,def:'-',desc:'First VTY line number'},
+            {name:'last-line',type:'integer',range:'0–4 (or 0–15)',req:true,def:'-',desc:'Last VTY line number'}]},
+        { cmd:'password', syntax:'password <string>', devices:['all'],
+          desc:'Set line password (used with login keyword). Use under line config mode.',
+          args:[{name:'string',type:'string',range:'1–25',req:true,def:'-',desc:'Password for the line'}]},
+        { cmd:'login', syntax:'login', devices:['all'],
+          desc:'Enable password checking on the line using the line password.',args:[]},
+        { cmd:'login local', syntax:'login local', devices:['all'],
+          desc:'Authenticate VTY/console sessions against the local username database.',args:[]},
+        { cmd:'transport input', syntax:'transport input {telnet|ssh|all|none}', devices:['all'],
+          desc:'Restrict allowed protocols on VTY lines.',
+          args:[{name:'protocol',type:'keyword',range:'telnet|ssh|all|none',req:true,def:'all',desc:'Allowed protocol(s)'}]},
+        { cmd:'username', syntax:'username <name> privilege <level> secret [0|5] <password>', devices:['all'],
+          desc:'Create a local user account with privilege level and encrypted password.',
+          args:[
+            {name:'name',type:'string',range:'1–64 chars',req:true,def:'-',desc:'Username'},
+            {name:'level',type:'integer',range:'0–15',req:false,def:'1',desc:'Privilege level'},
+            {name:'password',type:'string',range:'1–25',req:true,def:'-',desc:'User password'}]},
+        { cmd:'copy running-config startup-config', syntax:'copy running-config startup-config', devices:['all'],
+          desc:'Save running configuration to NVRAM. Equivalent to write memory.',args:[]},
+        { cmd:'write memory', syntax:'write memory', devices:['all'],
+          desc:'Alias for copy running-config startup-config.',args:[]},
+        { cmd:'reload', syntax:'reload [in <hh:mm>] [at <hh:mm> [<date>]] [text <reason>]', devices:['all'],
+          desc:'Reload (reboot) the device, optionally scheduling it.',
+          args:[
+            {name:'in hh:mm',type:'time',range:'-',req:false,def:'-',desc:'Reload after relative time delay'},
+            {name:'at hh:mm',type:'time',range:'-',req:false,def:'-',desc:'Reload at absolute time'}]},
+        { cmd:'show running-config', syntax:'show running-config [interface <intf>|section <regex>]', devices:['all'],
+          desc:'Display the current active configuration.',args:[
+            {name:'interface',type:'keyword',range:'-',req:false,def:'-',desc:'Filter to specific interface config'},
+            {name:'section',type:'regex',range:'-',req:false,def:'-',desc:'Show only sections matching regex'}]},
+        { cmd:'show version', syntax:'show version', devices:['all'],
+          desc:'Display IOS version, uptime, hardware, memory and license information.',args:[]},
+      ]
+    },
+    {
+      id: 'sw-vlan', title: '2. VLAN Configuration',
+      commands: [
+        { cmd:'vlan', syntax:'vlan <vlan-id>', devices:['l2','l3'],
+          desc:'Create a VLAN or enter VLAN configuration mode. VLANs 1–4094; 1 and 1002–1005 are reserved.',
+          args:[{name:'vlan-id',type:'integer',range:'1–4094',req:true,def:'-',desc:'VLAN number to create or configure'}]},
+        { cmd:'name', syntax:'name <vlan-name>', devices:['l2','l3'],
+          desc:'Assign a descriptive name to a VLAN (under vlan config mode).',
+          args:[{name:'vlan-name',type:'string',range:'1–32 chars',req:true,def:'VLANxxxx',desc:'Human-readable VLAN name'}]},
+        { cmd:'state', syntax:'state {active|suspend}', devices:['l2','l3'],
+          desc:'Set VLAN operational state.',
+          args:[{name:'state',type:'keyword',range:'active|suspend',req:true,def:'active',desc:'active=forwarding, suspend=blocked'}]},
+        { cmd:'switchport access vlan', syntax:'switchport access vlan <vlan-id>', devices:['l2','l3'],
+          desc:'Assign an access port to a specific VLAN.',
+          args:[{name:'vlan-id',type:'integer',range:'1–4094',req:true,def:'1',desc:'VLAN to assign the port to'}]},
+        { cmd:'switchport mode access', syntax:'switchport mode access', devices:['l2','l3'],
+          desc:'Force port to permanent access mode, preventing trunking negotiation.',args:[]},
+        { cmd:'interface vlan', syntax:'interface vlan <vlan-id>', devices:['l2','l3'],
+          desc:'Create or enter a Switched Virtual Interface (SVI) for inter-VLAN routing or management.',
+          args:[{name:'vlan-id',type:'integer',range:'1–4094',req:true,def:'-',desc:'VLAN number for the SVI'}]},
+        { cmd:'ip address (SVI)', syntax:'ip address <ip-address> <subnet-mask>', devices:['l2','l3'],
+          desc:'Assign an IP address to a SVI for management access or inter-VLAN routing.',
+          args:[
+            {name:'ip-address',type:'ip',range:'-',req:true,def:'-',desc:'IPv4 address'},
+            {name:'subnet-mask',type:'mask',range:'-',req:true,def:'-',desc:'Dotted-decimal subnet mask'}]},
+        { cmd:'show vlan brief', syntax:'show vlan brief', devices:['l2','l3'],
+          desc:'Display VLAN ID, name, status, and assigned ports in compact form.',args:[]},
+        { cmd:'show vlan id', syntax:'show vlan id <vlan-id>', devices:['l2','l3'],
+          desc:'Show detailed information for a specific VLAN.',
+          args:[{name:'vlan-id',type:'integer',range:'1–4094',req:true,def:'-',desc:'VLAN to display'}]},
+        { cmd:'show interfaces vlan', syntax:'show interfaces vlan <vlan-id>', devices:['l2','l3'],
+          desc:'Show status and statistics for a SVI.',
+          args:[{name:'vlan-id',type:'integer',range:'1–4094',req:true,def:'-',desc:'SVI VLAN number'}]},
+        { cmd:'no vlan', syntax:'no vlan <vlan-id>', devices:['l2','l3'],
+          desc:'Delete a VLAN from the VLAN database. Ports assigned to the VLAN become inactive.',
+          args:[{name:'vlan-id',type:'integer',range:'2–4094',req:true,def:'-',desc:'VLAN to delete (VLAN 1 cannot be deleted)'}]},
+      ]
+    },
+    {
+      id: 'sw-trunk', title: '3. Trunking (802.1Q)',
+      commands: [
+        { cmd:'switchport trunk encapsulation dot1q', syntax:'switchport trunk encapsulation dot1q', devices:['l2','l3'],
+          desc:'Set trunk encapsulation to IEEE 802.1Q. Required on switches that also support ISL before setting trunk mode.',args:[]},
+        { cmd:'switchport mode trunk', syntax:'switchport mode trunk', devices:['l2','l3'],
+          desc:'Force the port into permanent trunk mode.',args:[]},
+        { cmd:'switchport mode dynamic auto', syntax:'switchport mode dynamic auto', devices:['l2','l3'],
+          desc:'Port will become a trunk only if the neighbor actively requests it (DTP passive). Default on many platforms.',args:[]},
+        { cmd:'switchport mode dynamic desirable', syntax:'switchport mode dynamic desirable', devices:['l2','l3'],
+          desc:'Port actively tries to negotiate a trunk with the neighbor via DTP.',args:[]},
+        { cmd:'switchport nonegotiate', syntax:'switchport nonegotiate', devices:['l2','l3'],
+          desc:'Disable DTP frame generation. Use on trunk ports connected to non-Cisco devices.',args:[]},
+        { cmd:'switchport trunk native vlan', syntax:'switchport trunk native vlan <vlan-id>', devices:['l2','l3'],
+          desc:'Set the native (untagged) VLAN on an 802.1Q trunk. Must match on both ends to avoid VLAN hopping.',
+          args:[{name:'vlan-id',type:'integer',range:'1–4094',req:true,def:'1',desc:'Native VLAN; should be an unused VLAN for security'}]},
+        { cmd:'switchport trunk allowed vlan', syntax:'switchport trunk allowed vlan <vlan-list>', devices:['l2','l3'],
+          desc:'Replace the allowed VLAN list on the trunk with the specified VLANs.',
+          args:[{name:'vlan-list',type:'range',range:'1–4094',req:true,def:'all',desc:'Comma/range format: 10,20,30-40'}]},
+        { cmd:'switchport trunk allowed vlan add', syntax:'switchport trunk allowed vlan add <vlan-list>', devices:['l2','l3'],
+          desc:'Add VLANs to the existing allowed list without replacing it.',
+          args:[{name:'vlan-list',type:'range',range:'1–4094',req:true,def:'-',desc:'VLANs to add to trunk'}]},
+        { cmd:'switchport trunk allowed vlan remove', syntax:'switchport trunk allowed vlan remove <vlan-list>', devices:['l2','l3'],
+          desc:'Remove VLANs from the trunk allowed list.',
+          args:[{name:'vlan-list',type:'range',range:'1–4094',req:true,def:'-',desc:'VLANs to remove from trunk'}]},
+        { cmd:'show interfaces trunk', syntax:'show interfaces [<interface>] trunk', devices:['l2','l3'],
+          desc:'Display trunk ports, encapsulation, native VLAN, and allowed/active VLANs.',
+          args:[{name:'interface',type:'string',range:'-',req:false,def:'-',desc:'Limit output to specific interface'}]},
+      ]
+    },
+    {
+      id: 'sw-stp', title: '4. Spanning Tree Protocol (STP/RSTP/MSTP)',
+      commands: [
+        { cmd:'spanning-tree mode', syntax:'spanning-tree mode {pvst|rapid-pvst|mst}', devices:['l2','l3'],
+          desc:'Select the STP variant. rapid-pvst (IEEE 802.1w per-VLAN) recommended for modern networks.',
+          args:[{name:'mode',type:'keyword',range:'pvst|rapid-pvst|mst',req:true,def:'pvst',desc:'pvst=802.1D per-VLAN, rapid-pvst=802.1w, mst=802.1s'}]},
+        { cmd:'spanning-tree vlan priority', syntax:'spanning-tree vlan <vlan-list> priority <priority>', devices:['l2','l3'],
+          desc:'Set bridge priority for specified VLANs. Lower value = more likely to be root. Must be a multiple of 4096.',
+          args:[
+            {name:'vlan-list',type:'range',range:'1–4094',req:true,def:'-',desc:'VLAN(s) to apply priority'},
+            {name:'priority',type:'integer',range:'0–61440 (multiples of 4096)',req:true,def:'32768',desc:'Bridge priority; 0 forces root election'}]},
+        { cmd:'spanning-tree vlan root primary', syntax:'spanning-tree vlan <vlan-list> root primary', devices:['l2','l3'],
+          desc:'Macro that sets priority to 24576 (or 4096 less than current root) to make this switch root.',
+          args:[{name:'vlan-list',type:'range',range:'1–4094',req:true,def:'-',desc:'VLANs to become root for'}]},
+        { cmd:'spanning-tree vlan root secondary', syntax:'spanning-tree vlan <vlan-list> root secondary', devices:['l2','l3'],
+          desc:'Macro that sets priority to 28672 to make this switch backup root.',
+          args:[{name:'vlan-list',type:'range',range:'1–4094',req:true,def:'-',desc:'VLANs to become secondary root for'}]},
+        { cmd:'spanning-tree portfast', syntax:'spanning-tree portfast [trunk]', devices:['l2','l3'],
+          desc:'Skip Listening/Learning states on access ports directly connected to end hosts. Trunk keyword extends to trunk ports.',
+          args:[{name:'trunk',type:'keyword',range:'-',req:false,def:'-',desc:'Apply PortFast to a trunk port (use carefully)'}]},
+        { cmd:'spanning-tree portfast default', syntax:'spanning-tree portfast default', devices:['l2','l3'],
+          desc:'Enable PortFast on all non-trunking access ports globally.',args:[]},
+        { cmd:'spanning-tree bpduguard enable', syntax:'spanning-tree bpduguard enable', devices:['l2','l3'],
+          desc:'Err-disable the port if a BPDU is received. Apply to PortFast ports to prevent rogue switches.',args:[]},
+        { cmd:'spanning-tree bpduguard default', syntax:'spanning-tree bpduguard default', devices:['l2','l3'],
+          desc:'Enable BPDU Guard globally on all PortFast-enabled ports.',args:[]},
+        { cmd:'spanning-tree bpdufilter enable', syntax:'spanning-tree bpdufilter enable', devices:['l2','l3'],
+          desc:'Prevent BPDUs from being sent or received on the port. Use with caution — disables STP on the port.',args:[]},
+        { cmd:'spanning-tree guard root', syntax:'spanning-tree guard root', devices:['l2','l3'],
+          desc:'Enable Root Guard on a port. Blocks superior BPDUs to prevent a downstream device from becoming root.',args:[]},
+        { cmd:'spanning-tree loopguard default', syntax:'spanning-tree loopguard default', devices:['l2','l3'],
+          desc:'Enable Loop Guard globally. Moves ports to loop-inconsistent state instead of forwarding when BPDUs stop.',args:[]},
+        { cmd:'spanning-tree vlan hello-time', syntax:'spanning-tree vlan <vlan-list> hello-time <seconds>', devices:['l2','l3'],
+          desc:'Set BPDU hello interval for specified VLANs.',
+          args:[{name:'seconds',type:'integer',range:'1–10',req:true,def:'2',desc:'Hello interval in seconds'}]},
+        { cmd:'spanning-tree vlan forward-time', syntax:'spanning-tree vlan <vlan-list> forward-time <seconds>', devices:['l2','l3'],
+          desc:'Set the forwarding delay (Listening and Learning state duration).',
+          args:[{name:'seconds',type:'integer',range:'4–30',req:true,def:'15',desc:'Forward delay in seconds'}]},
+        { cmd:'spanning-tree vlan max-age', syntax:'spanning-tree vlan <vlan-list> max-age <seconds>', devices:['l2','l3'],
+          desc:'Set BPDU max-age timer.',
+          args:[{name:'seconds',type:'integer',range:'6–40',req:true,def:'20',desc:'Max-age in seconds (rule: max-age ≤ 2×(fwd-delay−1))'}]},
+        { cmd:'show spanning-tree', syntax:'show spanning-tree [vlan <vlan-id>] [detail|summary|active]', devices:['l2','l3'],
+          desc:'Display STP topology, root bridge, port roles and states.',
+          args:[{name:'vlan',type:'integer',range:'1–4094',req:false,def:'-',desc:'Limit output to specific VLAN'}]},
+      ]
+    },
+    {
+      id: 'sw-etherchannel', title: '5. EtherChannel (LACP / PAgP)',
+      commands: [
+        { cmd:'channel-group', syntax:'channel-group <number> mode {active|passive|on|auto|desirable}', devices:['l2','l3'],
+          desc:'Assign physical interface to an EtherChannel and set negotiation mode.',
+          args:[
+            {name:'number',type:'integer',range:'1–48',req:true,def:'-',desc:'EtherChannel group number (must match on all member ports)'},
+            {name:'mode',type:'keyword',range:'active|passive|on|auto|desirable',req:true,def:'-',desc:'active/passive=LACP, auto/desirable=PAgP, on=forced no negotiation'}]},
+        { cmd:'channel-protocol', syntax:'channel-protocol {lacp|pagp}', devices:['l2','l3'],
+          desc:'Explicitly specify the negotiation protocol for the channel group.',
+          args:[{name:'protocol',type:'keyword',range:'lacp|pagp',req:true,def:'-',desc:'LACP=802.3ad, PAgP=Cisco proprietary'}]},
+        { cmd:'interface port-channel', syntax:'interface port-channel <number>', devices:['l2','l3'],
+          desc:'Enter logical port-channel interface for applying Layer 2/3 configuration.',
+          args:[{name:'number',type:'integer',range:'1–48',req:true,def:'-',desc:'EtherChannel group number'}]},
+        { cmd:'port-channel load-balance', syntax:'port-channel load-balance <method>', devices:['l2','l3'],
+          desc:'Select the hashing algorithm for traffic distribution across member links.',
+          args:[{name:'method',type:'keyword',range:'src-mac|dst-mac|src-dst-mac|src-ip|dst-ip|src-dst-ip|src-port|dst-port|src-dst-port',req:true,def:'src-mac',desc:'Load-balance method'}]},
+        { cmd:'lacp port-priority', syntax:'lacp port-priority <priority>', devices:['l2','l3'],
+          desc:'Set LACP port priority. Lower = preferred in active bundle when > 8 ports configured.',
+          args:[{name:'priority',type:'integer',range:'1–65535',req:true,def:'32768',desc:'Port priority; lower value = higher priority'}]},
+        { cmd:'lacp system-priority', syntax:'lacp system-priority <priority>', devices:['l2','l3'],
+          desc:'Set LACP system priority for this device. Determines which side controls port selection.',
+          args:[{name:'priority',type:'integer',range:'1–65535',req:true,def:'32768',desc:'System priority'}]},
+        { cmd:'show etherchannel summary', syntax:'show etherchannel summary', devices:['l2','l3'],
+          desc:'Display all EtherChannels with member ports, protocol, and status flags (P=bundled, D=down, s=suspended).',args:[]},
+        { cmd:'show etherchannel detail', syntax:'show etherchannel <number> detail', devices:['l2','l3'],
+          desc:'Show detailed EtherChannel info including load-balance, flags, and timers.',
+          args:[{name:'number',type:'integer',range:'1–48',req:true,def:'-',desc:'Channel group number'}]},
+        { cmd:'show lacp neighbor', syntax:'show lacp [<number>] neighbor', devices:['l2','l3'],
+          desc:'Display LACP neighbor information including system ID and port priority.',args:[]},
+        { cmd:'show pagp neighbor', syntax:'show pagp [<number>] neighbor', devices:['l2','l3'],
+          desc:'Display PAgP neighbor information.',args:[]},
+      ]
+    },
+    {
+      id: 'sw-vtp', title: '6. VTP (VLAN Trunking Protocol)',
+      commands: [
+        { cmd:'vtp mode', syntax:'vtp mode {server|client|transparent|off}', devices:['l2','l3'],
+          desc:'Set VTP operational mode. off=VTPv3 only; disables VTP entirely.',
+          args:[{name:'mode',type:'keyword',range:'server|client|transparent|off',req:true,def:'server',desc:'server=creates/propagates VLANs, client=receives only, transparent=passes but ignores, off=disabled'}]},
+        { cmd:'vtp domain', syntax:'vtp domain <domain-name>', devices:['l2','l3'],
+          desc:'Set the VTP administrative domain. All switches in the same VTP domain must share this name.',
+          args:[{name:'domain-name',type:'string',range:'1–32 chars',req:true,def:'-',desc:'Case-sensitive VTP domain name'}]},
+        { cmd:'vtp password', syntax:'vtp password <password> [hidden|secret]', devices:['l2','l3'],
+          desc:'Set VTP authentication password. hidden stores as MD5 hash.',
+          args:[{name:'password',type:'string',range:'8–64 chars',req:true,def:'-',desc:'VTP password'}]},
+        { cmd:'vtp version', syntax:'vtp version {1|2|3}', devices:['l2','l3'],
+          desc:'Set VTP protocol version. v3 adds extended VLAN support and primary server concept.',
+          args:[{name:'version',type:'integer',range:'1–3',req:true,def:'1',desc:'VTP version; v3 recommended'}]},
+        { cmd:'vtp pruning', syntax:'vtp pruning', devices:['l2','l3'],
+          desc:'Enable VTP pruning to limit unnecessary flooding of VLANs on trunks that have no members.',args:[]},
+        { cmd:'show vtp status', syntax:'show vtp status', devices:['l2','l3'],
+          desc:'Display VTP version, mode, domain, revision number, and VLAN counts.',args:[]},
+        { cmd:'show vtp counters', syntax:'show vtp counters', devices:['l2','l3'],
+          desc:'Show VTP packet statistics and error counters.',args:[]},
+      ]
+    },
+    {
+      id: 'sw-portsec', title: '7. Port Security',
+      commands: [
+        { cmd:'switchport port-security', syntax:'switchport port-security', devices:['l2','l3'],
+          desc:'Enable port security on the interface. Port must be in access or trunk mode first.',args:[]},
+        { cmd:'switchport port-security maximum', syntax:'switchport port-security maximum <number>', devices:['l2','l3'],
+          desc:'Set maximum number of secure MAC addresses allowed on the port.',
+          args:[{name:'number',type:'integer',range:'1–8192',req:true,def:'1',desc:'Maximum secure MAC addresses'}]},
+        { cmd:'switchport port-security mac-address sticky', syntax:'switchport port-security mac-address sticky', devices:['l2','l3'],
+          desc:'Dynamically learn and add current MAC addresses to running-config as secure sticky MACs.',args:[]},
+        { cmd:'switchport port-security mac-address', syntax:'switchport port-security mac-address <mac-address>', devices:['l2','l3'],
+          desc:'Manually configure a static secure MAC address.',
+          args:[{name:'mac-address',type:'mac',range:'-',req:true,def:'-',desc:'MAC in format xxxx.xxxx.xxxx'}]},
+        { cmd:'switchport port-security violation', syntax:'switchport port-security violation {protect|restrict|shutdown}', devices:['l2','l3'],
+          desc:'Set the action when a security violation occurs.',
+          args:[{name:'action',type:'keyword',range:'protect|restrict|shutdown',req:true,def:'shutdown',desc:'protect=drop silently, restrict=drop+log+increment counter, shutdown=err-disable port'}]},
+        { cmd:'switchport port-security aging time', syntax:'switchport port-security aging time <minutes>', devices:['l2','l3'],
+          desc:'Set the aging time for dynamically learned secure MAC addresses.',
+          args:[{name:'minutes',type:'integer',range:'1–1440',req:true,def:'0 (no aging)',desc:'Aging time in minutes'}]},
+        { cmd:'switchport port-security aging type', syntax:'switchport port-security aging type {absolute|inactivity}', devices:['l2','l3'],
+          desc:'Set aging type: absolute removes MAC after fixed time; inactivity resets timer on traffic.',
+          args:[{name:'type',type:'keyword',range:'absolute|inactivity',req:true,def:'absolute',desc:'Aging behavior'}]},
+        { cmd:'errdisable recovery cause', syntax:'errdisable recovery cause <cause>', devices:['l2','l3'],
+          desc:'Enable automatic recovery for err-disabled ports caused by the specified condition.',
+          args:[{name:'cause',type:'keyword',range:'psecure-violation|bpduguard|udld|arp-inspection|etc.',req:true,def:'-',desc:'Cause to enable recovery for'}]},
+        { cmd:'errdisable recovery interval', syntax:'errdisable recovery interval <seconds>', devices:['l2','l3'],
+          desc:'Set the time before attempting to re-enable an err-disabled port.',
+          args:[{name:'seconds',type:'integer',range:'30–86400',req:true,def:'300',desc:'Recovery interval in seconds'}]},
+        { cmd:'show port-security', syntax:'show port-security [interface <interface>]', devices:['l2','l3'],
+          desc:'Display port security settings, secure MAC counts, and violation counters.',args:[]},
+        { cmd:'show port-security address', syntax:'show port-security address', devices:['l2','l3'],
+          desc:'List all secure MAC addresses on all port-security-enabled interfaces.',args:[]},
+      ]
+    },
+    {
+      id: 'sw-troubleshoot', title: '8. Layer 2 Troubleshooting',
+      commands: [
+        { cmd:'show interfaces', syntax:'show interfaces [<interface>] [status|counters|description]', devices:['all'],
+          desc:'Display interface status, line/protocol state, error counters, and bandwidth utilization.',
+          args:[{name:'interface',type:'string',range:'-',req:false,def:'-',desc:'Specific interface (e.g. Gi0/1)'}]},
+        { cmd:'show interfaces status', syntax:'show interfaces status', devices:['l2','l3'],
+          desc:'Compact table of all interfaces showing connected/notconnect, VLAN, duplex, speed, and type.',args:[]},
+        { cmd:'show mac address-table', syntax:'show mac address-table [dynamic|static] [vlan <id>] [address <mac>] [interface <intf>]', devices:['l2','l3'],
+          desc:'Display the MAC address table (CAM table) with VLAN, MAC, type, and port.',args:[]},
+        { cmd:'clear mac address-table dynamic', syntax:'clear mac address-table dynamic [address <mac>] [vlan <id>] [interface <intf>]', devices:['l2','l3'],
+          desc:'Clear dynamic MAC address entries from the CAM table.',args:[]},
+        { cmd:'show cdp neighbors', syntax:'show cdp neighbors [<interface>] [detail]', devices:['all'],
+          desc:'Display directly connected Cisco devices via CDP: device ID, interface, capability, and platform.',args:[]},
+        { cmd:'show cdp neighbors detail', syntax:'show cdp neighbors detail', devices:['all'],
+          desc:'Show full CDP neighbor info including IP addresses, IOS version, and native VLAN.',args:[]},
+        { cmd:'show lldp neighbors', syntax:'show lldp neighbors [detail]', devices:['all'],
+          desc:'Display LLDP (IEEE 802.1AB) neighbor information. Works with non-Cisco devices.',args:[]},
+        { cmd:'cdp run', syntax:'[no] cdp run', devices:['all'],
+          desc:'Enable or disable CDP globally.',args:[]},
+        { cmd:'cdp enable', syntax:'[no] cdp enable', devices:['all'],
+          desc:'Enable or disable CDP on a specific interface.',args:[]},
+        { cmd:'lldp run', syntax:'[no] lldp run', devices:['all'],
+          desc:'Enable or disable LLDP globally.',args:[]},
+        { cmd:'debug spanning-tree events', syntax:'debug spanning-tree events', devices:['l2','l3'],
+          desc:'Enable real-time STP event debugging. Use carefully in production.',args:[]},
+        { cmd:'show interfaces counters errors', syntax:'show interfaces [<interface>] counters errors', devices:['all'],
+          desc:'Display error counters (CRC, runts, giants, input/output errors) per interface.',args:[]},
+      ]
+    },
+  ]
+},
+
+/* ==================== ROUTING ==================== */
+{
+  id: 'routing', title: 'ROUTING', type: 'routing',
+  subsections: [
+    {
+      id: 'rt-basic', title: '1. Basic Router Configuration',
+      commands: [
+        { cmd:'ip routing', syntax:'ip routing', devices:['l3','router'],
+          desc:'Enable IP routing on a Layer 3 switch. Required before configuring routing protocols or static routes.',args:[]},
+        { cmd:'ip classless', syntax:'ip classless', devices:['l3','router'],
+          desc:'Allow the router to forward packets using the best supernet or default route (enabled by default in IOS 12.0+).',args:[]},
+        { cmd:'no ip domain-lookup', syntax:'no ip domain-lookup', devices:['all'],
+          desc:'Disable DNS lookup on mistyped commands to prevent long timeouts in the CLI.',args:[]},
+        { cmd:'ip domain-name', syntax:'ip domain-name <domain>', devices:['all'],
+          desc:'Set the DNS domain name, used for generating RSA keys and hostname resolution.',
+          args:[{name:'domain',type:'string',range:'-',req:true,def:'-',desc:'e.g. corp.example.com'}]},
+        { cmd:'ip name-server', syntax:'ip name-server <server-ip> [<server-ip2>]', devices:['all'],
+          desc:'Configure DNS server IP address(es).',
+          args:[{name:'server-ip',type:'ip',range:'-',req:true,def:'-',desc:'Primary DNS server IP'}]},
+        { cmd:'ip default-gateway', syntax:'ip default-gateway <ip-address>', devices:['l2'],
+          desc:'Set default gateway on a Layer 2 switch (when ip routing is NOT enabled) for management traffic.',
+          args:[{name:'ip-address',type:'ip',range:'-',req:true,def:'-',desc:'Gateway IP for management VLAN'}]},
+        { cmd:'crypto key generate rsa', syntax:'crypto key generate rsa modulus <bits>', devices:['all'],
+          desc:'Generate RSA key pair to enable SSHv2.',
+          args:[{name:'bits',type:'integer',range:'512–4096',req:true,def:'512',desc:'Key size; use 2048 or 4096 for security'}]},
+        { cmd:'ip ssh version', syntax:'ip ssh version {1|2}', devices:['all'],
+          desc:'Restrict SSH to the specified version.',
+          args:[{name:'version',type:'integer',range:'1–2',req:true,def:'-',desc:'SSH version; always prefer 2'}]},
+        { cmd:'service timestamps', syntax:'service timestamps {log|debug} datetime [msec] [localtime] [show-timezone]', devices:['all'],
+          desc:'Add timestamps to log or debug messages.',
+          args:[{name:'type',type:'keyword',range:'log|debug',req:true,def:'-',desc:'Apply to syslog messages or debug output'}]},
+        { cmd:'logging buffered', syntax:'logging buffered [<buffer-size>] [<severity>]', devices:['all'],
+          desc:'Enable internal log buffer to store syslog messages.',
+          args:[
+            {name:'buffer-size',type:'integer',range:'4096–2147483647',req:false,def:'8192',desc:'Buffer size in bytes'},
+            {name:'severity',type:'keyword',range:'0-emergencies … 7-debugging',req:false,def:'debugging',desc:'Minimum severity to log'}]},
+      ]
+    },
+    {
+      id: 'rt-interface', title: '2. Interface Configuration',
+      commands: [
+        { cmd:'interface', syntax:'interface <type> <number>', devices:['all'],
+          desc:'Enter interface configuration mode.',
+          args:[
+            {name:'type',type:'keyword',range:'GigabitEthernet|FastEthernet|Serial|Loopback|Tunnel|…',req:true,def:'-',desc:'Interface type'},
+            {name:'number',type:'string',range:'-',req:true,def:'-',desc:'Slot/port or just number (e.g. 0/0/1)'}]},
+        { cmd:'ip address', syntax:'ip address <ip-address> <subnet-mask> [secondary]', devices:['l3','router'],
+          desc:'Assign a primary (or secondary) IPv4 address to an interface.',
+          args:[
+            {name:'ip-address',type:'ip',range:'-',req:true,def:'-',desc:'IPv4 address'},
+            {name:'subnet-mask',type:'mask',range:'-',req:true,def:'-',desc:'Dotted-decimal subnet mask'},
+            {name:'secondary',type:'keyword',range:'-',req:false,def:'-',desc:'Mark as secondary (up to 8 secondary addresses)'}]},
+        { cmd:'no shutdown', syntax:'no shutdown', devices:['all'],
+          desc:'Bring the interface administratively up.',args:[]},
+        { cmd:'shutdown', syntax:'shutdown', devices:['all'],
+          desc:'Administratively disable the interface.',args:[]},
+        { cmd:'description', syntax:'description <text>', devices:['all'],
+          desc:'Add a descriptive label to the interface visible in show commands.',
+          args:[{name:'text',type:'string',range:'1–240 chars',req:true,def:'-',desc:'Interface description'}]},
+        { cmd:'speed', syntax:'speed {10|100|1000|auto}', devices:['all'],
+          desc:'Set interface speed. Both ends must match or use auto.',
+          args:[{name:'speed',type:'keyword',range:'10|100|1000|auto',req:true,def:'auto',desc:'Port speed in Mbps'}]},
+        { cmd:'duplex', syntax:'duplex {auto|full|half}', devices:['all'],
+          desc:'Set duplex mode. Mismatch causes severe performance degradation.',
+          args:[{name:'duplex',type:'keyword',range:'auto|full|half',req:true,def:'auto',desc:'Duplex setting'}]},
+        { cmd:'interface (subinterface)', syntax:'interface <type> <number>.<subint>', devices:['l3','router'],
+          desc:'Create a subinterface for 802.1Q inter-VLAN routing (router-on-a-stick).',
+          args:[{name:'subint',type:'integer',range:'1–4294967295',req:true,def:'-',desc:'Subinterface number (convention: match VLAN ID)'}]},
+        { cmd:'encapsulation dot1q', syntax:'encapsulation dot1q <vlan-id> [native]', devices:['l3','router'],
+          desc:'Configure 802.1Q encapsulation on a subinterface.',
+          args:[
+            {name:'vlan-id',type:'integer',range:'1–4094',req:true,def:'-',desc:'VLAN to associate with this subinterface'},
+            {name:'native',type:'keyword',range:'-',req:false,def:'-',desc:'Mark as native VLAN (untagged traffic)'}]},
+        { cmd:'ip helper-address', syntax:'ip helper-address <server-ip>', devices:['l3','router'],
+          desc:'Forward UDP broadcast packets (DHCP, TFTP, DNS, etc.) to a unicast server. Applied on client-facing interface.',
+          args:[{name:'server-ip',type:'ip',range:'-',req:true,def:'-',desc:'IP of the DHCP/service server'}]},
+        { cmd:'ip mtu', syntax:'ip mtu <bytes>', devices:['all'],
+          desc:'Set the IP MTU on the interface. Important for tunnels to avoid fragmentation.',
+          args:[{name:'bytes',type:'integer',range:'68–65535',req:true,def:'1500',desc:'MTU in bytes'}]},
+        { cmd:'bandwidth', syntax:'bandwidth <kbps>', devices:['all'],
+          desc:'Set the logical bandwidth on the interface. Used by routing protocols (OSPF, EIGRP) for metric calculation, does NOT throttle traffic.',
+          args:[{name:'kbps',type:'integer',range:'1–10000000',req:true,def:'(media default)',desc:'Bandwidth in Kbps'}]},
+        { cmd:'ipv6 address', syntax:'ipv6 address <prefix>/<prefix-length> [eui-64|anycast|link-local]', devices:['l3','router'],
+          desc:'Assign an IPv6 address to the interface.',
+          args:[
+            {name:'prefix/length',type:'ipv6',range:'-',req:true,def:'-',desc:'IPv6 prefix and length (e.g. 2001:db8::/64)'},
+            {name:'eui-64',type:'keyword',range:'-',req:false,def:'-',desc:'Auto-generate interface ID from MAC using EUI-64'}]},
+      ]
+    },
+    {
+      id: 'rt-static', title: '3. Static Routes',
+      commands: [
+        { cmd:'ip route', syntax:'ip route <network> <mask> {<next-hop-ip>|<exit-intf>} [<ad>] [permanent] [name <tag>]', devices:['l3','router'],
+          desc:'Configure an IPv4 static route.',
+          args:[
+            {name:'network',type:'ip',range:'-',req:true,def:'-',desc:'Destination network address'},
+            {name:'mask',type:'mask',range:'-',req:true,def:'-',desc:'Subnet mask of destination'},
+            {name:'next-hop-ip',type:'ip',range:'-',req:true,def:'-',desc:'Next-hop gateway IP (recursive lookup)'},
+            {name:'exit-intf',type:'string',range:'-',req:true,def:'-',desc:'Outbound interface (point-to-point only without next-hop)'},
+            {name:'ad',type:'integer',range:'1–255',req:false,def:'1',desc:'Administrative distance (use >1 for floating static)'},
+            {name:'permanent',type:'keyword',range:'-',req:false,def:'-',desc:'Keep route even if interface goes down'}]},
+        { cmd:'ip route (default)', syntax:'ip route 0.0.0.0 0.0.0.0 {<next-hop-ip>|<exit-intf>}', devices:['l3','router'],
+          desc:'Configure a default (gateway of last resort) static route.',args:[]},
+        { cmd:'ip route (black hole)', syntax:'ip route <network> <mask> null0', devices:['l3','router'],
+          desc:'Create a null route to drop traffic matching the prefix. Used for route summarization and traffic filtering.',
+          args:[{name:'null0',type:'keyword',range:'-',req:true,def:'-',desc:'Null interface — drops all matched packets silently'}]},
+        { cmd:'ip route (floating)', syntax:'ip route <network> <mask> <next-hop> <ad>', devices:['l3','router'],
+          desc:'Floating static route with higher AD than primary route; activates only on primary route failure.',
+          args:[{name:'ad',type:'integer',range:'2–255',req:true,def:'-',desc:'Must be higher than primary route AD'}]},
+        { cmd:'ipv6 route', syntax:'ipv6 route <prefix>/<length> {<next-hop-ipv6>|<exit-intf>} [<ad>]', devices:['l3','router'],
+          desc:'Configure an IPv6 static route.',
+          args:[{name:'prefix/length',type:'ipv6',range:'-',req:true,def:'-',desc:'IPv6 destination prefix'}]},
+        { cmd:'ipv6 route (default)', syntax:'ipv6 route ::/0 {<next-hop-ipv6>|<exit-intf>}', devices:['l3','router'],
+          desc:'IPv6 default route.',args:[]},
+        { cmd:'show ip route', syntax:'show ip route [<network> [<mask>]] [static|ospf|eigrp|bgp|rip|connected]', devices:['l3','router'],
+          desc:'Display the IPv4 routing table.',args:[]},
+        { cmd:'show ipv6 route', syntax:'show ipv6 route [static|ospf|eigrp|connected]', devices:['l3','router'],
+          desc:'Display the IPv6 routing table.',args:[]},
+        { cmd:'show ip route summary', syntax:'show ip route summary', devices:['l3','router'],
+          desc:'Show a count of routes per source protocol and total entries.',args:[]},
+      ]
+    },
+    {
+      id: 'rt-rip', title: '4. RIP / RIPv2 / RIPng',
+      commands: [
+        { cmd:'router rip', syntax:'router rip', devices:['l3','router'],
+          desc:'Enter RIP routing process configuration mode.',args:[]},
+        { cmd:'version', syntax:'version {1|2}', devices:['l3','router'],
+          desc:'Specify RIP version. v2 supports VLSM, authentication, and multicast updates (224.0.0.9).',
+          args:[{name:'version',type:'integer',range:'1–2',req:true,def:'1',desc:'RIP version'}]},
+        { cmd:'network (RIP)', syntax:'network <classful-network>', devices:['l3','router'],
+          desc:'Enable RIP on interfaces matching the classful network. Sends and receives RIP updates.',
+          args:[{name:'classful-network',type:'ip',range:'-',req:true,def:'-',desc:'Class A/B/C network address (no mask)'}]},
+        { cmd:'no auto-summary', syntax:'no auto-summary', devices:['l3','router'],
+          desc:'Disable classful route summarization at network boundaries. Required for VLSM support with RIPv2.',args:[]},
+        { cmd:'passive-interface (RIP)', syntax:'passive-interface {<interface>|default}', devices:['l3','router'],
+          desc:'Stop RIP updates from being sent out the interface (still receives). default suppresses all, then use no passive-interface to re-enable specific ones.',
+          args:[{name:'interface',type:'string',range:'-',req:true,def:'-',desc:'Interface name or "default"'}]},
+        { cmd:'redistribute (RIP)', syntax:'redistribute {static|connected|ospf <pid>|eigrp <asn>} [metric <hops>]', devices:['l3','router'],
+          desc:'Import routes from another source into RIP.',
+          args:[{name:'metric',type:'integer',range:'1–15',req:false,def:'1',desc:'Hop count assigned to redistributed routes'}]},
+        { cmd:'default-information originate (RIP)', syntax:'default-information originate', devices:['l3','router'],
+          desc:'Advertise a default route (0.0.0.0/0) into RIP.',args:[]},
+        { cmd:'timers basic (RIP)', syntax:'timers basic <update> <invalid> <holddown> <flush>', devices:['l3','router'],
+          desc:'Tune RIP timers.',
+          args:[
+            {name:'update',type:'integer',range:'1–4294967295',req:true,def:'30',desc:'Seconds between full updates'},
+            {name:'invalid',type:'integer',range:'-',req:true,def:'180',desc:'Seconds before route marked invalid (6×update)'},
+            {name:'holddown',type:'integer',range:'-',req:true,def:'180',desc:'Seconds route held after metric becomes ∞'},
+            {name:'flush',type:'integer',range:'-',req:true,def:'240',desc:'Seconds before route flushed from table (8×update)'}]},
+        { cmd:'maximum-paths (RIP)', syntax:'maximum-paths <number>', devices:['l3','router'],
+          desc:'Set max equal-cost paths for RIP load balancing.',
+          args:[{name:'number',type:'integer',range:'1–16',req:true,def:'4',desc:'Number of equal-cost paths'}]},
+        { cmd:'ip rip authentication mode', syntax:'ip rip authentication mode md5', devices:['l3','router'],
+          desc:'Enable MD5 authentication on a RIPv2-enabled interface.',args:[]},
+        { cmd:'ip rip authentication key-chain', syntax:'ip rip authentication key-chain <name>', devices:['l3','router'],
+          desc:'Apply a key chain for RIPv2 authentication on the interface.',
+          args:[{name:'name',type:'string',range:'-',req:true,def:'-',desc:'Name of the configured key chain'}]},
+        { cmd:'ipv6 router rip', syntax:'ipv6 router rip <tag>', devices:['l3','router'],
+          desc:'Configure a RIPng (IPv6) process.',
+          args:[{name:'tag',type:'string',range:'-',req:true,def:'-',desc:'RIPng process tag (local significance)'}]},
+        { cmd:'ipv6 rip enable', syntax:'ipv6 rip <tag> enable', devices:['l3','router'],
+          desc:'Enable RIPng on an interface.',
+          args:[{name:'tag',type:'string',range:'-',req:true,def:'-',desc:'RIPng process tag'}]},
+        { cmd:'show ip rip database', syntax:'show ip rip database', devices:['l3','router'],
+          desc:'Display RIP route database including valid routes and their metrics.',args:[]},
+        { cmd:'debug ip rip', syntax:'debug ip rip', devices:['l3','router'],
+          desc:'Enable real-time RIP update debugging.',args:[]},
+      ]
+    },
+    {
+      id: 'rt-ospf', title: '5. OSPF (OSPFv2 + OSPFv3)',
+      commands: [
+        { cmd:'router ospf', syntax:'router ospf <process-id>', devices:['l3','router'],
+          desc:'Create an OSPFv2 routing process.',
+          args:[{name:'process-id',type:'integer',range:'1–65535',req:true,def:'-',desc:'Locally significant process ID; multiple instances allowed'}]},
+        { cmd:'router-id (OSPF)', syntax:'router-id <ip-address>', devices:['l3','router'],
+          desc:'Manually set the OSPF router ID (overrides loopback/interface election). Requires clear ip ospf process to take effect.',
+          args:[{name:'ip-address',type:'ip',range:'-',req:true,def:'-',desc:'32-bit RID in dotted-decimal format'}]},
+        { cmd:'network (OSPF)', syntax:'network <ip-address> <wildcard-mask> area <area-id>', devices:['l3','router'],
+          desc:'Enable OSPF on interfaces matching the address/wildcard and assign to an area.',
+          args:[
+            {name:'ip-address',type:'ip',range:'-',req:true,def:'-',desc:'Network or host address'},
+            {name:'wildcard-mask',type:'mask',range:'-',req:true,def:'-',desc:'Inverse of subnet mask; 0.0.0.0 for host'},
+            {name:'area-id',type:'string',range:'0–4294967295 or A.B.C.D',req:true,def:'-',desc:'OSPF area; 0 is the backbone'}]},
+        { cmd:'ip ospf (interface)', syntax:'ip ospf <process-id> area <area-id>', devices:['l3','router'],
+          desc:'Enable OSPF directly on an interface (preferred method over network command in modern IOS).',
+          args:[
+            {name:'process-id',type:'integer',range:'1–65535',req:true,def:'-',desc:'OSPF process to attach to'},
+            {name:'area-id',type:'string',range:'-',req:true,def:'-',desc:'OSPF area for this interface'}]},
+        { cmd:'passive-interface (OSPF)', syntax:'passive-interface {<interface>|default}', devices:['l3','router'],
+          desc:'Suppress OSPF Hello packets on the interface (included in OSPF but no adjacencies form). Best practice on LAN-facing interfaces with no OSPF neighbors.',args:[]},
+        { cmd:'area stub', syntax:'area <area-id> stub [no-summary]', devices:['l3','router'],
+          desc:'Configure an OSPF stub area. no-summary creates totally stubby area (ABR blocks Type 3 LSAs).',
+          args:[{name:'area-id',type:'string',range:'-',req:true,def:'-',desc:'Stub area ID'},
+            {name:'no-summary',type:'keyword',range:'-',req:false,def:'-',desc:'Totally stubby — ABR only sends default route'}]},
+        { cmd:'area nssa', syntax:'area <area-id> nssa [no-summary] [default-information-originate]', devices:['l3','router'],
+          desc:'Configure a Not-So-Stubby Area (NSSA). Allows Type 7 LSAs (external routes) while blocking Type 4/5.',
+          args:[{name:'area-id',type:'string',range:'-',req:true,def:'-',desc:'NSSA area ID'}]},
+        { cmd:'area authentication', syntax:'area <area-id> authentication [message-digest]', devices:['l3','router'],
+          desc:'Enable OSPF authentication for all interfaces in the area.',
+          args:[{name:'message-digest',type:'keyword',range:'-',req:false,def:'-',desc:'Use MD5 instead of plain-text'}]},
+        { cmd:'ip ospf authentication', syntax:'ip ospf authentication [message-digest|null]', devices:['l3','router'],
+          desc:'Enable OSPF authentication on the interface.',
+          args:[{name:'message-digest',type:'keyword',range:'-',req:false,def:'-',desc:'MD5 authentication'}]},
+        { cmd:'ip ospf message-digest-key', syntax:'ip ospf message-digest-key <key-id> md5 <password>', devices:['l3','router'],
+          desc:'Configure the MD5 key used for OSPF interface authentication.',
+          args:[
+            {name:'key-id',type:'integer',range:'1–255',req:true,def:'-',desc:'Key identifier'},
+            {name:'password',type:'string',range:'1–16 chars',req:true,def:'-',desc:'MD5 key string'}]},
+        { cmd:'ip ospf cost', syntax:'ip ospf cost <cost>', devices:['l3','router'],
+          desc:'Manually set OSPF interface cost. Lower cost = preferred path. Overrides auto-calculation.',
+          args:[{name:'cost',type:'integer',range:'1–65535',req:true,def:'(auto: 100Mbps/bw)',desc:'Interface cost'}]},
+        { cmd:'ip ospf hello-interval', syntax:'ip ospf hello-interval <seconds>', devices:['l3','router'],
+          desc:'Set OSPF Hello packet interval. Must match on both sides of adjacency.',
+          args:[{name:'seconds',type:'integer',range:'1–65535',req:true,def:'10',desc:'Hello interval; 30s default on NBMA networks'}]},
+        { cmd:'ip ospf dead-interval', syntax:'ip ospf dead-interval <seconds>', devices:['l3','router'],
+          desc:'Time without Hellos before neighbor declared dead. Must match on both sides. Default: 4 × hello.',
+          args:[{name:'seconds',type:'integer',range:'1–65535',req:true,def:'40',desc:'Dead interval (typically 4× hello-interval)'}]},
+        { cmd:'ip ospf priority', syntax:'ip ospf priority <priority>', devices:['l3','router'],
+          desc:'Set DR/BDR election priority on broadcast/NBMA networks. 0 = ineligible for DR/BDR.',
+          args:[{name:'priority',type:'integer',range:'0–255',req:true,def:'1',desc:'Higher value = preferred; 0 = never DR/BDR'}]},
+        { cmd:'auto-cost reference-bandwidth', syntax:'auto-cost reference-bandwidth <mbps>', devices:['l3','router'],
+          desc:'Adjust reference bandwidth for cost calculation. Set equal to fastest link speed in network (e.g. 10000 for 10Gbps).',
+          args:[{name:'mbps',type:'integer',range:'1–4294967',req:true,def:'100',desc:'Reference bandwidth in Mbps; default 100 makes GigE cost=1'}]},
+        { cmd:'area range', syntax:'area <area-id> range <network> <mask> [advertise|not-advertise] [cost <cost>]', devices:['l3','router'],
+          desc:'Configure route summarization on an ABR for the specified area.',
+          args:[
+            {name:'area-id',type:'string',range:'-',req:true,def:'-',desc:'Area containing the routes to summarize'},
+            {name:'network/mask',type:'ip/mask',range:'-',req:true,def:'-',desc:'Summary address range'}]},
+        { cmd:'summary-address (OSPF)', syntax:'summary-address <network> <mask>', devices:['l3','router'],
+          desc:'Configure external route summarization on an ASBR.',
+          args:[{name:'network/mask',type:'ip/mask',range:'-',req:true,def:'-',desc:'Summary address for redistributed routes'}]},
+        { cmd:'default-information originate (OSPF)', syntax:'default-information originate [always] [metric <value>] [metric-type {1|2}]', devices:['l3','router'],
+          desc:'Advertise a default route (Type 5 LSA) into OSPF. always= advertise even without a default in routing table.',
+          args:[{name:'always',type:'keyword',range:'-',req:false,def:'-',desc:'Force advertisement regardless of local default route'}]},
+        { cmd:'maximum-paths (OSPF)', syntax:'maximum-paths <number>', devices:['l3','router'],
+          desc:'Configure OSPF equal-cost multipath (ECMP) load balancing.',
+          args:[{name:'number',type:'integer',range:'1–32',req:true,def:'4',desc:'Max ECMP paths'}]},
+        { cmd:'ipv6 router ospf', syntax:'ipv6 router ospf <process-id>', devices:['l3','router'],
+          desc:'Create an OSPFv3 routing process for IPv6.',
+          args:[{name:'process-id',type:'integer',range:'1–65535',req:true,def:'-',desc:'OSPFv3 process ID'}]},
+        { cmd:'ipv6 ospf (interface)', syntax:'ipv6 ospf <process-id> area <area-id>', devices:['l3','router'],
+          desc:'Enable OSPFv3 on an interface.',
+          args:[{name:'process-id',type:'integer',range:'1–65535',req:true,def:'-',desc:'OSPFv3 process to join'},
+            {name:'area-id',type:'string',range:'-',req:true,def:'-',desc:'OSPFv3 area'}]},
+        { cmd:'show ip ospf', syntax:'show ip ospf [<process-id>]', devices:['l3','router'],
+          desc:'Display OSPF process information: router ID, area types, SPF statistics, and timers.',args:[]},
+        { cmd:'show ip ospf neighbor', syntax:'show ip ospf neighbor [detail]', devices:['l3','router'],
+          desc:'Show OSPF neighbor table with state (FULL/2-WAY/EXSTART/etc.), DR/BDR, and dead timer.',args:[]},
+        { cmd:'show ip ospf database', syntax:'show ip ospf database [router|network|summary|asbr-summary|external|nssa-external]', devices:['l3','router'],
+          desc:'Display the OSPF link-state database (LSDB).',args:[]},
+        { cmd:'show ip ospf interface', syntax:'show ip ospf interface [<interface>] [brief]', devices:['l3','router'],
+          desc:'Show OSPF interface details: cost, hello/dead intervals, DR/BDR, neighbor count.',args:[]},
+        { cmd:'clear ip ospf process', syntax:'clear ip ospf [<process-id>] process', devices:['l3','router'],
+          desc:'Reset OSPF process — triggers re-election and SPF recalculation. Causes brief outage.',args:[]},
+      ]
+    },
+  ]
+},
+
+
+/* ==================== EIGRP ==================== */
+/* (appended to routing subsections below via push) */
+]; // end SECTIONS
+
+/* Add EIGRP–ACL subsections to routing section */
+(function(){
+  const rt = SECTIONS.find(s=>s.id==='routing');
+  rt.subsections.push(
+    {
+      id: 'rt-eigrp', title: '6. EIGRP (Classic + Named Mode)',
+      commands: [
+        { cmd:'router eigrp', syntax:'router eigrp <asn>', devices:['l3','router'],
+          desc:'Enter EIGRP classic mode configuration.',
+          args:[{name:'asn',type:'integer',range:'1–65535',req:true,def:'-',desc:'Autonomous System Number (must match on all peers)'}]},
+        { cmd:'network (EIGRP)', syntax:'network <ip-address> [<wildcard-mask>]', devices:['l3','router'],
+          desc:'Enable EIGRP on matching interfaces. Without wildcard, classful matching applies.',
+          args:[
+            {name:'ip-address',type:'ip',range:'-',req:true,def:'-',desc:'Network or host address'},
+            {name:'wildcard-mask',type:'mask',range:'-',req:false,def:'-',desc:'Inverse mask for precise interface matching'}]},
+        { cmd:'eigrp router-id', syntax:'eigrp router-id <ip>', devices:['l3','router'],
+          desc:'Manually set EIGRP router ID. Should be unique in the AS.',
+          args:[{name:'ip',type:'ip',range:'-',req:true,def:'-',desc:'Router ID in dotted-decimal'}]},
+        { cmd:'no auto-summary (EIGRP)', syntax:'no auto-summary', devices:['l3','router'],
+          desc:'Disable classful auto-summarization. Required for VLSM support.',args:[]},
+        { cmd:'variance', syntax:'variance <multiplier>', devices:['l3','router'],
+          desc:'Enable unequal-cost load balancing. Routes with feasible distance ≤ multiplier × successor FD are used.',
+          args:[{name:'multiplier',type:'integer',range:'1–128',req:true,def:'1',desc:'Variance multiplier; 1=equal-cost only'}]},
+        { cmd:'maximum-paths (EIGRP)', syntax:'maximum-paths <number>', devices:['l3','router'],
+          desc:'Set max number of ECMP paths for EIGRP.',
+          args:[{name:'number',type:'integer',range:'1–32',req:true,def:'4',desc:'Max equal-cost paths'}]},
+        { cmd:'passive-interface (EIGRP)', syntax:'passive-interface {<interface>|default}', devices:['l3','router'],
+          desc:'Suppress EIGRP Hello packets on the interface. Interface networks still advertised.',args:[]},
+        { cmd:'eigrp stub', syntax:'eigrp stub {connected|summary|redistributed|receive-only|leak-map <name>}', devices:['l3','router'],
+          desc:'Configure router as EIGRP stub. Limits query scope from hub. receive-only = accepts routes, sends none.',
+          args:[{name:'options',type:'keyword',range:'connected|summary|redistributed|receive-only',req:true,def:'connected summary',desc:'Route types stub advertises'}]},
+        { cmd:'metric weights (EIGRP)', syntax:'metric weights <tos> <k1> <k2> <k3> <k4> <k5>', devices:['l3','router'],
+          desc:'Adjust EIGRP composite metric K-values. Default: 1 0 1 0 0 (BW + delay only).',
+          args:[
+            {name:'k1',type:'integer',range:'0–255',req:true,def:'1',desc:'Bandwidth weight'},
+            {name:'k2',type:'integer',range:'0–255',req:true,def:'0',desc:'Load weight'},
+            {name:'k3',type:'integer',range:'0–255',req:true,def:'1',desc:'Delay weight'},
+            {name:'k4',type:'integer',range:'0–255',req:true,def:'0',desc:'Reliability weight (K4/K5 pair)'},
+            {name:'k5',type:'integer',range:'0–255',req:true,def:'0',desc:'Reliability scale'}]},
+        { cmd:'ip authentication mode eigrp', syntax:'ip authentication mode eigrp <asn> md5', devices:['l3','router'],
+          desc:'Enable MD5 authentication for EIGRP on the interface.',
+          args:[{name:'asn',type:'integer',range:'1–65535',req:true,def:'-',desc:'EIGRP AS number'}]},
+        { cmd:'ip authentication key-chain eigrp', syntax:'ip authentication key-chain eigrp <asn> <key-chain>', devices:['l3','router'],
+          desc:'Bind a key chain to EIGRP MD5 authentication on the interface.',
+          args:[
+            {name:'asn',type:'integer',range:'1–65535',req:true,def:'-',desc:'EIGRP AS number'},
+            {name:'key-chain',type:'string',range:'-',req:true,def:'-',desc:'Name of the key chain'}]},
+        { cmd:'router eigrp (named)', syntax:'router eigrp <virtual-name>', devices:['l3','router'],
+          desc:'Enter EIGRP named mode. Supports IPv4 + IPv6 in a single process, per-AF configuration.',
+          args:[{name:'virtual-name',type:'string',range:'-',req:true,def:'-',desc:'Arbitrary process name (not an ASN)'}]},
+        { cmd:'address-family ipv4 (EIGRP)', syntax:'address-family ipv4 unicast autonomous-system <asn>', devices:['l3','router'],
+          desc:'Enter IPv4 address family under EIGRP named mode.',
+          args:[{name:'asn',type:'integer',range:'1–65535',req:true,def:'-',desc:'AS number for this AF'}]},
+        { cmd:'topology base (EIGRP)', syntax:'topology base', devices:['l3','router'],
+          desc:'Enter topology configuration under EIGRP named mode address-family.',args:[]},
+        { cmd:'redistribute (EIGRP)', syntax:'redistribute {ospf <pid>|rip|bgp <asn>|static|connected} metric <bw> <delay> <rel> <load> <mtu>', devices:['l3','router'],
+          desc:'Import routes into EIGRP. Metric must be specified (bandwidth kbps, delay 10µs units, reliability 1-255, load 1-255, MTU bytes).',
+          args:[
+            {name:'bw',type:'integer',range:'1–4294967295',req:true,def:'-',desc:'Bandwidth in Kbps'},
+            {name:'delay',type:'integer',range:'1–4294967295',req:true,def:'-',desc:'Delay in 10-microsecond units (1000 = 1ms)'}]},
+        { cmd:'show ip eigrp neighbors', syntax:'show ip eigrp neighbors [detail]', devices:['l3','router'],
+          desc:'Display EIGRP neighbor table with hold time, queue counts, and sequence numbers.',args:[]},
+        { cmd:'show ip eigrp topology', syntax:'show ip eigrp topology [all-links]', devices:['l3','router'],
+          desc:'Display EIGRP topology table. all-links shows successors and all feasible successors.',args:[]},
+        { cmd:'show ip eigrp interfaces', syntax:'show ip eigrp interfaces [detail]', devices:['l3','router'],
+          desc:'Show interfaces running EIGRP with hello interval, peer count, and pending routes.',args:[]},
+      ]
+    },
+    {
+      id: 'rt-bgp', title: '7. BGP',
+      commands: [
+        { cmd:'router bgp', syntax:'router bgp <asn>', devices:['l3','router'],
+          desc:'Create the BGP process and specify local AS number.',
+          args:[{name:'asn',type:'integer',range:'1–65535 (2-byte) or 1–4294967295 (4-byte)',req:true,def:'-',desc:'Local autonomous system number'}]},
+        { cmd:'bgp router-id', syntax:'bgp router-id <ip>', devices:['l3','router'],
+          desc:'Manually set the BGP router ID. Should be unique and stable (loopback recommended).',
+          args:[{name:'ip',type:'ip',range:'-',req:true,def:'-',desc:'Router ID in dotted-decimal'}]},
+        { cmd:'neighbor remote-as', syntax:'neighbor <ip> remote-as <asn>', devices:['l3','router'],
+          desc:'Define a BGP neighbor. Same ASN = iBGP; different ASN = eBGP.',
+          args:[
+            {name:'ip',type:'ip',range:'-',req:true,def:'-',desc:'Neighbor IP address'},
+            {name:'asn',type:'integer',range:'1–4294967295',req:true,def:'-',desc:'Neighbor AS number'}]},
+        { cmd:'neighbor update-source', syntax:'neighbor <ip> update-source <interface>', devices:['l3','router'],
+          desc:'Use specified interface (loopback) as BGP TCP source. Required for iBGP multihop sessions.',
+          args:[{name:'interface',type:'string',range:'-',req:true,def:'-',desc:'Source interface (e.g. Loopback0)'}]},
+        { cmd:'neighbor ebgp-multihop', syntax:'neighbor <ip> ebgp-multihop <ttl>', devices:['l3','router'],
+          desc:'Allow eBGP sessions through more than one hop. Required when using loopback for eBGP.',
+          args:[{name:'ttl',type:'integer',range:'1–255',req:true,def:'1',desc:'Maximum hop count for eBGP session'}]},
+        { cmd:'neighbor next-hop-self', syntax:'neighbor <ip> next-hop-self', devices:['l3','router'],
+          desc:'Set the local router as the next-hop for routes advertised to the neighbor. Used on iBGP route reflectors.',args:[]},
+        { cmd:'neighbor route-reflector-client', syntax:'neighbor <ip> route-reflector-client', devices:['l3','router'],
+          desc:'Designate a neighbor as a route reflector client. The local router becomes the Route Reflector.',args:[]},
+        { cmd:'bgp cluster-id', syntax:'bgp cluster-id <id>', devices:['l3','router'],
+          desc:'Set cluster ID when multiple route reflectors exist in the same cluster.',
+          args:[{name:'id',type:'ip or integer',range:'-',req:true,def:'(RID)',desc:'Cluster ID; use when multiple RRs in same cluster'}]},
+        { cmd:'bgp confederation identifier', syntax:'bgp confederation identifier <asn>', devices:['l3','router'],
+          desc:'Set the external (public) AS number for a confederation.',
+          args:[{name:'asn',type:'integer',range:'1–4294967295',req:true,def:'-',desc:'Public confederation AS number'}]},
+        { cmd:'bgp confederation peers', syntax:'bgp confederation peers <asn> [<asn> …]', devices:['l3','router'],
+          desc:'List the member ASNs that belong to the confederation.',
+          args:[{name:'asn',type:'integer',range:'-',req:true,def:'-',desc:'Member sub-AS numbers'}]},
+        { cmd:'network (BGP)', syntax:'network <network> mask <mask> [route-map <name>]', devices:['l3','router'],
+          desc:'Advertise a specific prefix into BGP. Prefix must exist in the routing table.',
+          args:[
+            {name:'network',type:'ip',range:'-',req:true,def:'-',desc:'Network to advertise'},
+            {name:'mask',type:'mask',range:'-',req:true,def:'-',desc:'Subnet mask'}]},
+        { cmd:'aggregate-address', syntax:'aggregate-address <network> <mask> [summary-only] [as-set]', devices:['l3','router'],
+          desc:'Create a BGP aggregate (summary) route.',
+          args:[
+            {name:'summary-only',type:'keyword',range:'-',req:false,def:'-',desc:'Suppress more-specific prefixes'},
+            {name:'as-set',type:'keyword',range:'-',req:false,def:'-',desc:'Include AS path of component routes in aggregate'}]},
+        { cmd:'neighbor route-map', syntax:'neighbor <ip> route-map <name> {in|out}', devices:['l3','router'],
+          desc:'Apply a route-map to filter or modify BGP updates.',
+          args:[{name:'direction',type:'keyword',range:'in|out',req:true,def:'-',desc:'Apply to inbound or outbound updates'}]},
+        { cmd:'neighbor prefix-list', syntax:'neighbor <ip> prefix-list <name> {in|out}', devices:['l3','router'],
+          desc:'Apply an IP prefix list to filter BGP prefixes.',args:[]},
+        { cmd:'neighbor weight', syntax:'neighbor <ip> weight <weight>', devices:['l3','router'],
+          desc:'Set BGP weight for routes from this neighbor. Local significance only; highest weight preferred.',
+          args:[{name:'weight',type:'integer',range:'0–65535',req:true,def:'0 (32768 for local)',desc:'Higher = preferred'}]},
+        { cmd:'neighbor local-as', syntax:'neighbor <ip> local-as <asn> [no-prepend [replace-as]]', devices:['l3','router'],
+          desc:'Present a different AS number to a specific eBGP neighbor. Used for AS migration.',args:[]},
+        { cmd:'neighbor password', syntax:'neighbor <ip> password <string>', devices:['l3','router'],
+          desc:'Enable MD5 TCP authentication for the BGP session.',
+          args:[{name:'string',type:'string',range:'-',req:true,def:'-',desc:'MD5 shared secret'}]},
+        { cmd:'neighbor send-community', syntax:'neighbor <ip> send-community [standard|extended|both]', devices:['l3','router'],
+          desc:'Enable community attribute sending to a neighbor.',args:[]},
+        { cmd:'neighbor default-originate', syntax:'neighbor <ip> default-originate [route-map <name>]', devices:['l3','router'],
+          desc:'Advertise a default route to the neighbor without requiring a local default route.',args:[]},
+        { cmd:'neighbor shutdown', syntax:'neighbor <ip> shutdown', devices:['l3','router'],
+          desc:'Administratively disable the BGP session without removing configuration.',args:[]},
+        { cmd:'ip bgp-community new-format', syntax:'ip bgp-community new-format', devices:['l3','router'],
+          desc:'Display communities in AA:NN format instead of a single integer.',args:[]},
+        { cmd:'set community', syntax:'set community <value> [additive]', devices:['l3','router'],
+          desc:'Set BGP community value in a route-map.',
+          args:[{name:'value',type:'community',range:'0–4294967295 or AA:NN',req:true,def:'-',desc:'Community value'}]},
+        { cmd:'set local-preference', syntax:'set local-preference <value>', devices:['l3','router'],
+          desc:'Set BGP local preference in a route-map. Higher = preferred; iBGP attribute.',
+          args:[{name:'value',type:'integer',range:'0–4294967295',req:true,def:'100',desc:'Local preference value'}]},
+        { cmd:'set as-path prepend', syntax:'set as-path prepend <asn> [<asn> …]', devices:['l3','router'],
+          desc:'Prepend AS numbers to the AS path to make the route less preferred by eBGP peers.',args:[]},
+        { cmd:'show bgp summary', syntax:'show bgp [ipv4|ipv6] unicast summary', devices:['l3','router'],
+          desc:'Display BGP neighbor status table: AS, MsgRcvd, Up/Down, state/prefixes.',args:[]},
+        { cmd:'show bgp neighbors', syntax:'show bgp neighbors [<ip>] [advertised-routes|received-routes|routes]', devices:['l3','router'],
+          desc:'Detailed BGP neighbor information including capabilities and policy.',args:[]},
+        { cmd:'show bgp', syntax:'show bgp [ipv4 unicast] <network> [<mask>]', devices:['l3','router'],
+          desc:'Show BGP path attributes, best-path selection, and community values for a prefix.',args:[]},
+      ]
+    },
+    {
+      id: 'rt-redist', title: '8. Route Redistribution',
+      commands: [
+        { cmd:'redistribute (into OSPF)', syntax:'redistribute {eigrp <asn>|bgp <asn>|rip|static|connected} subnets [metric <val>] [metric-type {1|2}] [tag <tag>] [route-map <name>]', devices:['l3','router'],
+          desc:'Import routes into OSPF. subnets keyword required to include classless prefixes.',
+          args:[
+            {name:'subnets',type:'keyword',range:'-',req:true,def:'-',desc:'Include subnet routes (not just classful)'},
+            {name:'metric-type',type:'integer',range:'1–2',req:false,def:'2',desc:'Type 1=cumulative, Type 2=external only'}]},
+        { cmd:'redistribute (into EIGRP)', syntax:'redistribute {ospf <pid>|bgp <asn>|rip|static|connected} metric <bw> <delay> <reliability> <load> <mtu>', devices:['l3','router'],
+          desc:'Import routes into EIGRP with mandatory seed metric.',
+          args:[
+            {name:'bw',type:'integer',range:'-',req:true,def:'-',desc:'Bandwidth in Kbps'},
+            {name:'delay',type:'integer',range:'-',req:true,def:'-',desc:'Delay in 10µs units'}]},
+        { cmd:'redistribute (into BGP)', syntax:'redistribute {ospf <pid>|eigrp <asn>|rip|static|connected} [route-map <name>]', devices:['l3','router'],
+          desc:'Import routes into BGP.',args:[]},
+        { cmd:'route-map', syntax:'route-map <name> {permit|deny} <sequence>', devices:['all'],
+          desc:'Create or enter a route-map entry. permit=matched routes processed; deny=dropped.',
+          args:[
+            {name:'name',type:'string',range:'-',req:true,def:'-',desc:'Route-map name'},
+            {name:'sequence',type:'integer',range:'1–65535',req:true,def:'10',desc:'Entry sequence; lower = evaluated first'}]},
+        { cmd:'match ip address', syntax:'match ip address {<acl-num>|<acl-name>|prefix-list <name>}', devices:['all'],
+          desc:'Match routes by IP address using an ACL or prefix list in a route-map.',args:[]},
+        { cmd:'match interface', syntax:'match interface <interface>', devices:['all'],
+          desc:'Match routes via a specific outbound interface.',args:[]},
+        { cmd:'match ip next-hop', syntax:'match ip next-hop {<acl>|prefix-list <name>}', devices:['all'],
+          desc:'Match routes by next-hop IP address.',args:[]},
+        { cmd:'match tag', syntax:'match tag <tag-value>', devices:['all'],
+          desc:'Match routes with a specific tag value.',
+          args:[{name:'tag-value',type:'integer',range:'0–4294967295',req:true,def:'-',desc:'Route tag to match'}]},
+        { cmd:'set metric', syntax:'set metric <value>', devices:['all'],
+          desc:'Set the metric for redistributed routes in a route-map.',
+          args:[{name:'value',type:'integer',range:'-',req:true,def:'-',desc:'Metric to assign'}]},
+        { cmd:'set metric-type', syntax:'set metric-type {type-1|type-2|internal|external}', devices:['all'],
+          desc:'Set OSPF external metric type in a route-map.',args:[]},
+        { cmd:'set tag', syntax:'set tag <tag-value>', devices:['all'],
+          desc:'Set a route tag for policy tracking.',
+          args:[{name:'tag-value',type:'integer',range:'0–4294967295',req:true,def:'-',desc:'Tag value to apply'}]},
+        { cmd:'ip prefix-list', syntax:'ip prefix-list <name> {permit|deny} <prefix>/<len> [ge <ge-val>] [le <le-val>]', devices:['all'],
+          desc:'Create a prefix list entry. ge/le extend the match to a range of prefix lengths.',
+          args:[
+            {name:'prefix/len',type:'ipv4/int',range:'-',req:true,def:'-',desc:'Exact prefix and length'},
+            {name:'ge',type:'integer',range:'0–32',req:false,def:'-',desc:'Match prefixes ≥ this length'},
+            {name:'le',type:'integer',range:'0–32',req:false,def:'-',desc:'Match prefixes ≤ this length'}]},
+        { cmd:'show route-map', syntax:'show route-map [<name>]', devices:['all'],
+          desc:'Display route-map entries and match/set counters.',args:[]},
+        { cmd:'show ip prefix-list', syntax:'show ip prefix-list [detail|summary] [<name>]', devices:['all'],
+          desc:'Show prefix list entries and hit counts.',args:[]},
+      ]
+    },
+    {
+      id: 'rt-vrf', title: '9. VRF (Virtual Routing and Forwarding)',
+      commands: [
+        { cmd:'ip vrf (legacy)', syntax:'ip vrf <name>', devices:['l3','router'],
+          desc:'Create a VRF (legacy syntax, IPv4 only).',
+          args:[{name:'name',type:'string',range:'1–32 chars',req:true,def:'-',desc:'VRF name'}]},
+        { cmd:'vrf definition (modern)', syntax:'vrf definition <name>', devices:['l3','router'],
+          desc:'Create a VRF using modern syntax supporting both IPv4 and IPv6.',
+          args:[{name:'name',type:'string',range:'1–32 chars',req:true,def:'-',desc:'VRF name'}]},
+        { cmd:'rd', syntax:'rd <route-distinguisher>', devices:['l3','router'],
+          desc:'Set the Route Distinguisher to make VPN routes unique across the MPLS backbone.',
+          args:[{name:'route-distinguisher',type:'string',range:'ASN:nn or IP:nn',req:true,def:'-',desc:'Format: 65000:1 or 10.0.0.1:1'}]},
+        { cmd:'route-target export', syntax:'route-target export <route-target>', devices:['l3','router'],
+          desc:'Attach a route-target community to routes exported from this VRF.',
+          args:[{name:'route-target',type:'string',range:'ASN:nn or IP:nn',req:true,def:'-',desc:'Export RT community value'}]},
+        { cmd:'route-target import', syntax:'route-target import <route-target>', devices:['l3','router'],
+          desc:'Import routes tagged with this route-target community into the VRF.',
+          args:[{name:'route-target',type:'string',range:'ASN:nn or IP:nn',req:true,def:'-',desc:'Import RT community value'}]},
+        { cmd:'address-family ipv4 (VRF)', syntax:'address-family ipv4', devices:['l3','router'],
+          desc:'Enter IPv4 address-family configuration under vrf definition.',args:[]},
+        { cmd:'ip vrf forwarding', syntax:'ip vrf forwarding <vrf-name>', devices:['l3','router'],
+          desc:'Associate an interface with a VRF. Removes existing IP address — must re-apply after.',
+          args:[{name:'vrf-name',type:'string',range:'-',req:true,def:'-',desc:'VRF name to bind interface to'}]},
+        { cmd:'vrf forwarding (modern)', syntax:'vrf forwarding <vrf-name>', devices:['l3','router'],
+          desc:'Bind interface to VRF using modern syntax.',
+          args:[{name:'vrf-name',type:'string',range:'-',req:true,def:'-',desc:'VRF name'}]},
+        { cmd:'ip route vrf', syntax:'ip route vrf <vrf-name> <network> <mask> <next-hop>', devices:['l3','router'],
+          desc:'Add a static route within a specific VRF.',
+          args:[{name:'vrf-name',type:'string',range:'-',req:true,def:'-',desc:'Target VRF'}]},
+        { cmd:'show ip vrf', syntax:'show ip vrf [<name>] [detail|interfaces|brief]', devices:['l3','router'],
+          desc:'Display VRFs and their associated interfaces.',args:[]},
+        { cmd:'show ip route vrf', syntax:'show ip route vrf <vrf-name>', devices:['l3','router'],
+          desc:'Show the routing table for a specific VRF.',
+          args:[{name:'vrf-name',type:'string',range:'-',req:true,def:'-',desc:'VRF to display routes for'}]},
+        { cmd:'ping vrf', syntax:'ping vrf <vrf-name> <destination>', devices:['l3','router'],
+          desc:'Send ICMP echo within a specific VRF.',args:[]},
+      ]
+    },
+    {
+      id: 'rt-pbr', title: '10. Policy-Based Routing (PBR)',
+      commands: [
+        { cmd:'ip policy route-map', syntax:'ip policy route-map <name>', devices:['l3','router'],
+          desc:'Apply a PBR policy on an interface for transit traffic (applied inbound).',
+          args:[{name:'name',type:'string',range:'-',req:true,def:'-',desc:'Route-map defining PBR policy'}]},
+        { cmd:'ip local policy', syntax:'ip local policy route-map <name>', devices:['l3','router'],
+          desc:'Apply PBR to locally-generated (router-originated) traffic.',
+          args:[{name:'name',type:'string',range:'-',req:true,def:'-',desc:'Route-map for local policy'}]},
+        { cmd:'set ip next-hop', syntax:'set ip next-hop <ip-address> [<ip-address2>]', devices:['l3','router'],
+          desc:'Set next-hop for matched PBR traffic. Uses routing table if next-hop is unreachable.',
+          args:[{name:'ip-address',type:'ip',range:'-',req:true,def:'-',desc:'Next-hop IP for PBR traffic'}]},
+        { cmd:'set ip default next-hop', syntax:'set ip default next-hop <ip-address>', devices:['l3','router'],
+          desc:'Use routing table first; fall back to this next-hop only if no matching route exists.',
+          args:[{name:'ip-address',type:'ip',range:'-',req:true,def:'-',desc:'Fallback next-hop IP'}]},
+        { cmd:'set interface', syntax:'set interface <interface>', devices:['l3','router'],
+          desc:'Forward matched PBR traffic out a specific interface.',
+          args:[{name:'interface',type:'string',range:'-',req:true,def:'-',desc:'Outbound interface for PBR traffic'}]},
+        { cmd:'set ip next-hop verify-availability', syntax:'set ip next-hop verify-availability <ip> <track-id> <ip2>', devices:['l3','router'],
+          desc:'Use next-hop only if the tracked object (IP SLA) is up. Provides PBR failover.',args:[]},
+        { cmd:'set ip tos', syntax:'set ip tos <tos-value>', devices:['l3','router'],
+          desc:'Set the IP ToS/DSCP byte in matched packets.',
+          args:[{name:'tos-value',type:'integer',range:'0–255',req:true,def:'-',desc:'ToS value to mark'}]},
+        { cmd:'show route-map (PBR)', syntax:'show route-map [<name>]', devices:['all'],
+          desc:'Show route-map configuration and match/set counters (shared with redistribution).',args:[]},
+        { cmd:'debug ip policy', syntax:'debug ip policy', devices:['l3','router'],
+          desc:'Show real-time PBR forwarding decisions.',args:[]},
+      ]
+    },
+    {
+      id: 'rt-ipv6', title: '11. IPv6',
+      commands: [
+        { cmd:'ipv6 unicast-routing', syntax:'ipv6 unicast-routing', devices:['l3','router'],
+          desc:'Enable IPv6 packet forwarding (routing) globally. Must be configured before any IPv6 routing protocol.',args:[]},
+        { cmd:'ipv6 address (interface)', syntax:'ipv6 address <prefix>/<length> [eui-64|link-local|anycast]', devices:['l3','router'],
+          desc:'Assign IPv6 address to interface. eui-64 derives last 64 bits from MAC address.',
+          args:[
+            {name:'prefix/length',type:'ipv6',range:'-',req:true,def:'-',desc:'IPv6 prefix and prefix length'},
+            {name:'eui-64',type:'keyword',range:'-',req:false,def:'-',desc:'Generate interface ID using EUI-64 from MAC'}]},
+        { cmd:'ipv6 address autoconfig', syntax:'ipv6 address autoconfig [default]', devices:['l3','router'],
+          desc:'Enable SLAAC (Stateless Address Autoconfiguration). default installs a default route from RA.',args:[]},
+        { cmd:'ipv6 enable', syntax:'ipv6 enable', devices:['l3','router'],
+          desc:'Enable IPv6 on the interface with a link-local address only (no global unicast).',args:[]},
+        { cmd:'ipv6 nd ra-interval', syntax:'ipv6 nd ra-interval <seconds>', devices:['l3','router'],
+          desc:'Set how frequently Router Advertisements are sent.',
+          args:[{name:'seconds',type:'integer',range:'4–1800',req:true,def:'200',desc:'RA interval in seconds'}]},
+        { cmd:'ipv6 nd suppress-ra', syntax:'ipv6 nd suppress-ra', devices:['l3','router'],
+          desc:'Suppress Router Advertisement messages on the interface (e.g. on WAN links).',args:[]},
+        { cmd:'ipv6 nd managed-config-flag', syntax:'ipv6 nd managed-config-flag', devices:['l3','router'],
+          desc:'Set the M flag in RAs to instruct hosts to use DHCPv6 for address assignment.',args:[]},
+        { cmd:'show ipv6 interface', syntax:'show ipv6 interface [brief] [<interface>]', devices:['l3','router'],
+          desc:'Display IPv6 address, status, ND timers, and multicast groups for interfaces.',args:[]},
+        { cmd:'show ipv6 neighbors', syntax:'show ipv6 neighbors [<interface>]', devices:['l3','router'],
+          desc:'Display the IPv6 Neighbor Discovery (ND) cache (equivalent of IPv4 ARP table).',args:[]},
+        { cmd:'show ipv6 route', syntax:'show ipv6 route [<prefix>/<len>] [static|ospf|eigrp|connected]', devices:['l3','router'],
+          desc:'Display the IPv6 routing table.',args:[]},
+        { cmd:'ipv6 router ospf (OSPFv3)', syntax:'ipv6 router ospf <process-id>', devices:['l3','router'],
+          desc:'Create an OSPFv3 process for IPv6.',
+          args:[{name:'process-id',type:'integer',range:'1–65535',req:true,def:'-',desc:'OSPFv3 process ID'}]},
+        { cmd:'ipv6 ospf area', syntax:'ipv6 ospf <process-id> area <area-id>', devices:['l3','router'],
+          desc:'Enable OSPFv3 on an interface.',args:[]},
+        { cmd:'ipv6 access-list', syntax:'ipv6 access-list <name>', devices:['all'],
+          desc:'Create an IPv6 named extended ACL.',
+          args:[{name:'name',type:'string',range:'-',req:true,def:'-',desc:'ACL name'}]},
+        { cmd:'ipv6 traffic-filter', syntax:'ipv6 traffic-filter <name> {in|out}', devices:['all'],
+          desc:'Apply an IPv6 ACL to an interface.',
+          args:[{name:'name',type:'string',range:'-',req:true,def:'-',desc:'IPv6 ACL name'},
+            {name:'direction',type:'keyword',range:'in|out',req:true,def:'-',desc:'Traffic direction to filter'}]},
+      ]
+    },
+    {
+      id: 'rt-acl', title: '12. Access Control Lists (ACL)',
+      commands: [
+        { cmd:'access-list (standard)', syntax:'access-list <1-99> {permit|deny} <source> [<wildcard>] [log]', devices:['all'],
+          desc:'Create a numbered standard IPv4 ACL (matches source IP only).',
+          args:[
+            {name:'1-99',type:'integer',range:'1–99 or 1300–1999',req:true,def:'-',desc:'Standard ACL number'},
+            {name:'source',type:'ip',range:'-',req:true,def:'-',desc:'Source IP or "any" or "host x.x.x.x"'},
+            {name:'wildcard',type:'mask',range:'-',req:false,def:'0.0.0.0',desc:'Wildcard mask (0=match, 1=ignore)'}]},
+        { cmd:'access-list (extended)', syntax:'access-list <100-199> {permit|deny} <protocol> <src> <src-wc> <dst> <dst-wc> [eq <port>] [log]', devices:['all'],
+          desc:'Create a numbered extended IPv4 ACL (matches protocol, src/dst IP, ports).',
+          args:[
+            {name:'100-199',type:'integer',range:'100–199 or 2000–2699',req:true,def:'-',desc:'Extended ACL number'},
+            {name:'protocol',type:'keyword',range:'ip|tcp|udp|icmp|ospf|eigrp|…',req:true,def:'-',desc:'IP protocol'},
+            {name:'eq port',type:'integer',range:'0–65535',req:false,def:'-',desc:'Match specific destination port (tcp/udp)'}]},
+        { cmd:'ip access-list standard', syntax:'ip access-list standard <name>', devices:['all'],
+          desc:'Create or enter a named standard ACL.',
+          args:[{name:'name',type:'string',range:'-',req:true,def:'-',desc:'ACL name'}]},
+        { cmd:'ip access-list extended', syntax:'ip access-list extended <name>', devices:['all'],
+          desc:'Create or enter a named extended ACL.',
+          args:[{name:'name',type:'string',range:'-',req:true,def:'-',desc:'ACL name'}]},
+        { cmd:'permit/deny (ACL entry)', syntax:'{permit|deny} {<protocol>|ip} <src> <src-wc> <dst> <dst-wc> [{eq|gt|lt|neq|range} <port>] [established] [log]', devices:['all'],
+          desc:'ACL entry under named extended ACL.',
+          args:[
+            {name:'established',type:'keyword',range:'-',req:false,def:'-',desc:'Match TCP sessions with ACK or RST set (return traffic)'},
+            {name:'log',type:'keyword',range:'-',req:false,def:'-',desc:'Log matched packets to syslog'}]},
+        { cmd:'ip access-group', syntax:'ip access-group {<number>|<name>} {in|out}', devices:['all'],
+          desc:'Apply an ACL to an interface.',
+          args:[
+            {name:'number/name',type:'string',range:'-',req:true,def:'-',desc:'ACL to apply'},
+            {name:'direction',type:'keyword',range:'in|out',req:true,def:'-',desc:'in=filter inbound, out=filter outbound'}]},
+        { cmd:'ip access-class', syntax:'ip access-class {<number>|<name>} {in|out}', devices:['all'],
+          desc:'Apply an ACL to a VTY line to restrict Telnet/SSH access.',args:[]},
+        { cmd:'ip access-list resequence', syntax:'ip access-list resequence <name> <start> <increment>', devices:['all'],
+          desc:'Renumber ACL sequence numbers.',
+          args:[
+            {name:'start',type:'integer',range:'1–2147483647',req:true,def:'10',desc:'Starting sequence number'},
+            {name:'increment',type:'integer',range:'1–2147483647',req:true,def:'10',desc:'Increment between entries'}]},
+        { cmd:'show ip access-lists', syntax:'show ip access-lists [<name>|<number>]', devices:['all'],
+          desc:'Display IPv4 ACL rules and match counters.',args:[]},
+        { cmd:'show ipv6 access-list', syntax:'show ipv6 access-list [<name>]', devices:['all'],
+          desc:'Display IPv6 ACL rules and match counters.',args:[]},
+        { cmd:'clear ip access-list counters', syntax:'clear ip access-list counters [<name>]', devices:['all'],
+          desc:'Reset ACL hit counters to zero.',args:[]},
+        { cmd:'ip access-list (remark)', syntax:'remark <text>', devices:['all'],
+          desc:'Add a descriptive comment line inside a named ACL.',
+          args:[{name:'text',type:'string',range:'-',req:true,def:'-',desc:'Comment up to 100 characters'}]},
+      ]
+    }
+  );
+})();
+</script>
+
+<script>
+/* ============================================================
+   RENDERING ENGINE
+   ============================================================ */
+
+/* ----- Syntax tokenizer ----- */
+function tokenizeSyntax(raw) {
+  // Process token by token using regex
+  const out = [];
+  let i = 0;
+  while (i < raw.length) {
+    if (raw[i] === '<') {
+      const end = raw.indexOf('>', i);
+      if (end !== -1) {
+        out.push('<span class="syn-required">' + esc(raw.slice(i, end+1)) + '</span>');
+        i = end + 1; continue;
+      }
+    }
+    if (raw[i] === '[') {
+      const end = raw.indexOf(']', i);
+      if (end !== -1) {
+        out.push('<span class="syn-optional">' + esc(raw.slice(i, end+1)) + '</span>');
+        i = end + 1; continue;
+      }
+    }
+    if (raw[i] === '{') {
+      const end = raw.indexOf('}', i);
+      if (end !== -1) {
+        const inner = raw.slice(i+1, end);
+        const formatted = inner.split('|').map((p,idx,arr) =>
+          '<span class="syn-choice">' + esc(p) + '</span>' + (idx<arr.length-1?'<span class="syn-pipe">|</span>':'')
+        ).join('');
+        out.push('{' + formatted + '}');
+        i = end + 1; continue;
+      }
+    }
+    // Accumulate keyword chars
+    let j = i;
+    while (j < raw.length && raw[j] !== '<' && raw[j] !== '[' && raw[j] !== '{') j++;
+    if (j > i) {
+      out.push('<span class="syn-keyword">' + esc(raw.slice(i, j)) + '</span>');
+      i = j;
+    } else {
+      out.push(esc(raw[i]));
+      i++;
+    }
+  }
+  return out.join('');
+}
+
+function esc(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+/* ----- Badge builder ----- */
+function buildBadges(devices) {
+  return devices.map(d => {
+    if (d==='l2') return '<span class="badge badge-l2">L2 Switch</span>';
+    if (d==='l3') return '<span class="badge badge-l3">L3 Switch</span>';
+    if (d==='router') return '<span class="badge badge-router">Router</span>';
+    if (d==='all') return '<span class="badge badge-all">All</span>';
+    return '';
+  }).join('');
+}
+
+/* ----- Args table builder ----- */
+function buildArgs(args) {
+  if (!args || args.length === 0) return '<span style="color:var(--muted);font-size:11px;">—</span>';
+  const rows = args.map(a => `
+    <tr>
+      <td class="arg-name">${esc(a.name)}</td>
+      <td>${esc(a.type||'')}</td>
+      <td>${esc(a.range||'')}</td>
+      <td>${a.req ? '<span class="arg-req">REQ</span>' : '<span class="arg-opt">opt</span>'}</td>
+      <td>${esc(a.def||'')}</td>
+      <td>${esc(a.desc||'')}</td>
+    </tr>`).join('');
+  return `<details class="args-details">
+    <summary>${args.length} argument${args.length>1?'s':''}</summary>
+    <table class="args-table">
+      <thead><tr><th>Name</th><th>Type</th><th>Range</th><th>Req?</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+  </details>`;
+}
+
+/* ----- Command row builder ----- */
+let rowIndex = 0;
+function buildRow(cmd, sectionType) {
+  rowIndex++;
+  const id = 'row-' + rowIndex;
+  const deviceClasses = cmd.devices.join(' ');
+  const rawSyntax = cmd.syntax || cmd.cmd;
+  return `<tr class="cmd-row ${deviceClasses}" data-devices="${cmd.devices.join(',')}" data-id="${id}"
+            data-cmd="${esc(cmd.cmd)}" data-desc="${esc(cmd.desc||'')}" data-syntax="${esc(rawSyntax)}">
+    <td class="td-cmd">
+      <span class="cmd-name ${sectionType}">${esc(cmd.cmd)}</span>
+    </td>
+    <td class="td-syntax">
+      <div class="syntax-cell">
+        <code class="syntax">${tokenizeSyntax(rawSyntax)}</code>
+        <button class="copy-btn" title="Copy syntax" onclick="copySyntax(this,'${esc(rawSyntax).replace(/'/g,"\\'")}')">⎘</button>
+      </div>
+    </td>
+    <td class="td-args">${buildArgs(cmd.args)}</td>
+    <td class="td-desc">${esc(cmd.desc||'')}</td>
+    <td class="td-devices">${buildBadges(cmd.devices)}</td>
+  </tr>`;
+}
+
+/* ----- Section builder ----- */
+function buildSubsection(sub, sectionType) {
+  const rows = sub.commands.map(c => buildRow(c, sectionType)).join('');
+  return `<div class="subsection" id="${sub.id}">
+    <div class="subsection-header" onclick="toggleSub(this)">
+      <h3>${esc(sub.title)}</h3>
+      <span class="cmd-count">${sub.commands.length} commands</span>
+      <span class="sub-chevron">▼</span>
+    </div>
+    <div class="sub-body">
+      <div class="cmd-table-wrap">
+        <table class="cmd-table">
+          <thead><tr>
+            <th style="width:160px">Command</th>
+            <th>Syntax</th>
+            <th style="width:160px">Arguments</th>
+            <th>Description</th>
+            <th style="width:140px">Device</th>
+          </tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    </div>
+  </div>`;
+}
+
+function buildSection(sec) {
+  const subs = sec.subsections.map(s => buildSubsection(s, sec.type)).join('');
+  return `<section class="cat-section" id="${sec.id}">
+    <div class="cat-header ${sec.type}" onclick="toggleCat(this)">
+      <h2>${esc(sec.title)}</h2>
+      <span class="cat-chevron">▼</span>
+    </div>
+    <div class="cat-body">${subs}</div>
+  </section>`;
+}
+
+/* ----- Render everything ----- */
+(function render() {
+  const root = document.getElementById('sections-root');
+  root.innerHTML = SECTIONS.map(buildSection).join('');
+  buildTOC();
+  restoreCollapseState();
+})();
+
+/* ----- TOC builder ----- */
+function buildTOC() {
+  const toc = document.getElementById('toc');
+  let html = '';
+  SECTIONS.forEach(sec => {
+    html += `<div class="toc-group">
+      <span class="toc-group-title ${sec.type}">${sec.title}</span>`;
+    sec.subsections.forEach(sub => {
+      html += `<a class="toc-link" data-target="${sub.id}" onclick="scrollToSection('${sub.id}')">${esc(sub.title)}</a>`;
+    });
+    html += '</div>';
+  });
+  toc.innerHTML = html;
+}
+
+function scrollToSection(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const top = el.getBoundingClientRect().top + window.scrollY - 70;
+  window.scrollTo({ top, behavior: 'smooth' });
+}
+
+/* ============================================================
+   INTERACTIVITY
+   ============================================================ */
+
+/* ----- Collapse / expand ----- */
+function toggleCat(header) {
+  const sec = header.closest('.cat-section');
+  sec.classList.toggle('collapsed');
+  saveSectionState();
+}
+function toggleSub(header) {
+  const sub = header.closest('.subsection');
+  sub.classList.toggle('collapsed');
+  saveSectionState();
+}
+function expandAll() {
+  document.querySelectorAll('.cat-section,.subsection').forEach(el => el.classList.remove('collapsed'));
+  saveSectionState();
+}
+function collapseAll() {
+  document.querySelectorAll('.cat-section,.subsection').forEach(el => el.classList.add('collapsed'));
+  saveSectionState();
+}
+function saveSectionState() {
+  const state = {};
+  document.querySelectorAll('.cat-section[id],.subsection[id]').forEach(el => {
+    state[el.id] = el.classList.contains('collapsed');
+  });
+  try { localStorage.setItem('cisco-ref-collapse', JSON.stringify(state)); } catch(e){}
+}
+function restoreCollapseState() {
+  try {
+    const state = JSON.parse(localStorage.getItem('cisco-ref-collapse') || '{}');
+    Object.entries(state).forEach(([id, collapsed]) => {
+      const el = document.getElementById(id);
+      if (el) el.classList.toggle('collapsed', collapsed);
+    });
+  } catch(e) {}
+}
+
+/* ----- Device filter ----- */
+let activeFilter = 'all';
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    activeFilter = btn.dataset.filter;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    applyFilter();
+  });
+});
+function applyFilter() {
+  document.querySelectorAll('.cmd-row').forEach(row => {
+    if (activeFilter === 'all') {
+      row.classList.remove('hidden');
+    } else {
+      const devices = (row.dataset.devices||'').split(',');
+      const visible = devices.includes(activeFilter) || devices.includes('all');
+      row.classList.toggle('hidden', !visible);
+    }
+  });
+  // Hide empty subsections
+  document.querySelectorAll('.subsection').forEach(sub => {
+    const visible = sub.querySelectorAll('.cmd-row:not(.hidden)').length > 0;
+    sub.style.display = visible ? '' : 'none';
+  });
+  document.querySelectorAll('.cat-section').forEach(sec => {
+    const visible = sec.querySelectorAll('.subsection:not([style*="none"])').length > 0;
+    sec.style.display = visible ? '' : 'none';
+  });
+}
+
+/* ----- Theme toggle ----- */
+const themeBtn = document.getElementById('theme-btn');
+function applyTheme(theme) {
+  document.body.dataset.theme = theme;
+  themeBtn.textContent = theme === 'dark' ? '☀' : '☾';
+  try { localStorage.setItem('cisco-ref-theme', theme); } catch(e){}
+}
+(function initTheme() {
+  const saved = localStorage.getItem('cisco-ref-theme') || 'dark';
+  applyTheme(saved);
+})();
+themeBtn.addEventListener('click', () => {
+  applyTheme(document.body.dataset.theme === 'dark' ? 'light' : 'dark');
+});
+
+/* ----- Copy to clipboard ----- */
+function copySyntax(btn, syntax) {
+  const plain = syntax.replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&');
+  navigator.clipboard.writeText(plain).then(() => showToast('Copied!')).catch(() => {
+    // fallback
+    const ta = document.createElement('textarea');
+    ta.value = plain; ta.style.position='fixed'; ta.style.opacity='0';
+    document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta);
+    showToast('Copied!');
+  });
+}
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+/* ----- Search ----- */
+const searchInput = document.getElementById('search-input');
+const searchResults = document.getElementById('search-results');
+const srList = document.getElementById('sr-list');
+const srHeader = document.getElementById('sr-header');
+let focusedIdx = -1;
+
+// Build flat search index from SECTIONS
+const searchIndex = [];
+SECTIONS.forEach(sec => {
+  sec.subsections.forEach(sub => {
+    sub.commands.forEach(cmd => {
+      searchIndex.push({
+        cmd: cmd.cmd,
+        syntax: cmd.syntax || cmd.cmd,
+        desc: cmd.desc || '',
+        section: sub.title,
+        sectionId: sub.id,
+        sectionType: sec.type
+      });
+    });
+  });
+});
+
+function highlight(text, query) {
+  if (!query) return esc(text);
+  const re = new RegExp('(' + query.replace(/[.*+?^${}()|[\]\\]/g,'\\$&') + ')', 'gi');
+  return esc(text).replace(re, '<mark>$1</mark>');
+}
+
+searchInput.addEventListener('input', () => {
+  const q = searchInput.value.trim().toLowerCase();
+  if (!q) { closeSearch(); return; }
+  const results = searchIndex.filter(item =>
+    item.cmd.toLowerCase().includes(q) ||
+    item.syntax.toLowerCase().includes(q) ||
+    item.desc.toLowerCase().includes(q)
+  ).slice(0, 30);
+
+  focusedIdx = -1;
+  if (results.length === 0) {
+    srHeader.textContent = 'No results for "' + searchInput.value + '"';
+    srList.innerHTML = '';
+  } else {
+    srHeader.textContent = results.length + ' result' + (results.length !== 1 ? 's' : '');
+    srList.innerHTML = results.map((r, i) => `
+      <div class="sr-item" data-idx="${i}" data-section-id="${r.sectionId}" onclick="goToResult('${r.sectionId}')">
+        <div class="sr-top">
+          <span class="sr-cmd">${highlight(r.cmd, searchInput.value.trim())}</span>
+          <span class="sr-section">${esc(r.section)}</span>
+        </div>
+        <div class="sr-desc">${highlight(r.desc.slice(0,100), searchInput.value.trim())}</div>
+      </div>`).join('');
+  }
+  searchResults.classList.add('visible');
+});
+
+function goToResult(sectionId) {
+  closeSearch();
+  // Expand section if collapsed
+  const sub = document.getElementById(sectionId);
+  if (sub) {
+    sub.classList.remove('collapsed');
+    const cat = sub.closest('.cat-section');
+    if (cat) cat.classList.remove('collapsed');
+    saveSectionState();
+    setTimeout(() => scrollToSection(sectionId), 50);
+  }
+}
+
+function closeSearch() {
+  searchResults.classList.remove('visible');
+  focusedIdx = -1;
+}
+
+searchInput.addEventListener('keydown', e => {
+  const items = srList.querySelectorAll('.sr-item');
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    focusedIdx = Math.min(focusedIdx + 1, items.length - 1);
+    updateFocus(items);
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    focusedIdx = Math.max(focusedIdx - 1, 0);
+    updateFocus(items);
+  } else if (e.key === 'Enter' && focusedIdx >= 0) {
+    const focused = items[focusedIdx];
+    if (focused) { focused.click(); }
+  } else if (e.key === 'Escape') {
+    closeSearch();
+    searchInput.blur();
+  }
+});
+
+function updateFocus(items) {
+  items.forEach((item, i) => item.classList.toggle('focused', i === focusedIdx));
+  if (items[focusedIdx]) items[focusedIdx].scrollIntoView({ block: 'nearest' });
+}
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('#search-wrap') && !e.target.closest('#search-results')) closeSearch();
+});
+
+/* ----- TOC IntersectionObserver ----- */
+(function initTOCObserver() {
+  const tocLinks = document.querySelectorAll('.toc-link');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.id;
+        tocLinks.forEach(l => l.classList.toggle('active', l.dataset.target === id));
+      }
+    });
+  }, { rootMargin: '-60px 0px -70% 0px', threshold: 0 });
+  document.querySelectorAll('.subsection[id]').forEach(el => observer.observe(el));
+})();
+
+/* ----- Keyboard shortcuts ----- */
+document.addEventListener('keydown', e => {
+  const tag = document.activeElement.tagName;
+  const inInput = tag === 'INPUT' || tag === 'TEXTAREA';
+  if (e.key === '/' && !inInput) {
+    e.preventDefault();
+    searchInput.focus(); searchInput.select();
+  }
+  if (e.key === 'Escape') {
+    closeSearch();
+    document.getElementById('shortcuts-modal').classList.remove('visible');
+  }
+  if (!inInput) {
+    if (e.key === 't' || e.key === 'T') {
+      applyTheme(document.body.dataset.theme === 'dark' ? 'light' : 'dark');
+    }
+    if (e.key === 'e' || e.key === 'E') expandAll();
+    if (e.key === 'c' || e.key === 'C') collapseAll();
+    if (e.key === '?') {
+      document.getElementById('shortcuts-modal').classList.toggle('visible');
+    }
+  }
+});
+
+document.getElementById('help-btn').addEventListener('click', () => {
+  document.getElementById('shortcuts-modal').classList.toggle('visible');
+});
+document.getElementById('shortcuts-close').addEventListener('click', () => {
+  document.getElementById('shortcuts-modal').classList.remove('visible');
+});
+document.getElementById('shortcuts-modal').addEventListener('click', e => {
+  if (e.target === document.getElementById('shortcuts-modal'))
+    document.getElementById('shortcuts-modal').classList.remove('visible');
+});
+</script>
+
+<script>
+/* ============================================================
+   ADDITIONS: extend existing subsections + new Services section
+   ============================================================ */
+(function(){
+
+  function findSub(id) {
+    for (const sec of SECTIONS) {
+      for (const sub of sec.subsections) {
+        if (sub.id === id) return sub;
+      }
+    }
+    return null;
+  }
+
+  /* ---- 1. MSTP → sw-stp ---- */
+  const stp = findSub('sw-stp');
+  stp.commands.push(
+    { cmd:'spanning-tree mst configuration', syntax:'spanning-tree mst configuration', devices:['l2','l3'],
+      desc:'Enter MST region configuration mode.',args:[]},
+    { cmd:'instance (MST)', syntax:'instance <instance-id> vlan <vlan-list>', devices:['l2','l3'],
+      desc:'Map VLANs to an MST instance. VLANs unmapped belong to CIST (instance 0).',
+      args:[
+        {name:'instance-id',type:'integer',range:'0–64',req:true,def:'-',desc:'MST instance number'},
+        {name:'vlan-list',type:'range',range:'1–4094',req:true,def:'-',desc:'VLANs to assign to this instance'}]},
+    { cmd:'name (MST region)', syntax:'name <region-name>', devices:['l2','l3'],
+      desc:'Set MST region name. Must be identical on all region members.',
+      args:[{name:'region-name',type:'string',range:'1–32 chars',req:true,def:'-',desc:'Case-sensitive region name'}]},
+    { cmd:'revision (MST)', syntax:'revision <number>', devices:['l2','l3'],
+      desc:'Set MST region revision number. Must match on all region members.',
+      args:[{name:'number',type:'integer',range:'0–65535',req:true,def:'0',desc:'Revision number'}]},
+    { cmd:'spanning-tree mst priority', syntax:'spanning-tree mst <instance-id> priority <priority>', devices:['l2','l3'],
+      desc:'Set bridge priority for a specific MST instance.',
+      args:[
+        {name:'instance-id',type:'integer',range:'0–64',req:true,def:'-',desc:'MST instance number'},
+        {name:'priority',type:'integer',range:'0–61440 (multiples of 4096)',req:true,def:'32768',desc:'Bridge priority'}]},
+    { cmd:'spanning-tree mst root', syntax:'spanning-tree mst <instance-id> root {primary|secondary}', devices:['l2','l3'],
+      desc:'Macro to configure root bridge for an MST instance.',args:[]},
+    { cmd:'spanning-tree mst cost', syntax:'spanning-tree mst <instance-id> cost <cost>', devices:['l2','l3'],
+      desc:'Set port path cost for a specific MST instance.',
+      args:[{name:'cost',type:'integer',range:'1–200000000',req:true,def:'(auto)',desc:'Port cost'}]},
+    { cmd:'show spanning-tree mst', syntax:'show spanning-tree mst [<instance-id>] [detail|configuration]', devices:['l2','l3'],
+      desc:'Display MST topology, region configuration, and per-instance port roles.',args:[]}
+  );
+
+  /* ---- 2. BGP IPv6 AF → rt-bgp ---- */
+  const bgp = findSub('rt-bgp');
+  bgp.commands.push(
+    { cmd:'address-family ipv4 unicast (BGP)', syntax:'address-family ipv4 [unicast]', devices:['l3','router'],
+      desc:'Enter BGP IPv4 unicast address-family. Enables per-AF neighbor activation model.',args:[]},
+    { cmd:'address-family ipv6 unicast (BGP)', syntax:'address-family ipv6 unicast', devices:['l3','router'],
+      desc:'Enter BGP IPv6 unicast address-family configuration.',args:[]},
+    { cmd:'neighbor activate', syntax:'neighbor <ip> activate', devices:['l3','router'],
+      desc:'Activate the neighbor in the current address-family. Required in AF model.',
+      args:[{name:'ip',type:'ip/ipv6',range:'-',req:true,def:'-',desc:'Neighbor IP address'}]},
+    { cmd:'network (BGP IPv6)', syntax:'network <prefix>/<length>', devices:['l3','router'],
+      desc:'Advertise an IPv6 prefix into BGP IPv6 address-family.',
+      args:[{name:'prefix/length',type:'ipv6',range:'-',req:true,def:'-',desc:'IPv6 prefix to advertise'}]},
+    { cmd:'exit-address-family', syntax:'exit-address-family', devices:['l3','router'],
+      desc:'Exit address-family configuration and return to BGP router config mode.',args:[]},
+    { cmd:'no bgp default ipv4-unicast', syntax:'no bgp default ipv4-unicast', devices:['l3','router'],
+      desc:'Disable automatic IPv4 unicast AF activation for new neighbors. Best practice when running multiple AFs.',args:[]},
+    { cmd:'show bgp ipv6 unicast summary', syntax:'show bgp ipv6 unicast summary', devices:['l3','router'],
+      desc:'Display BGP IPv6 neighbor status and prefix counts.',args:[]},
+    { cmd:'show bgp ipv6 unicast', syntax:'show bgp ipv6 unicast [<prefix>/<len>]', devices:['l3','router'],
+      desc:'Display BGP IPv6 table or details for a specific prefix.',args:[]}
+  );
+
+  /* ---- 3. EIGRP IPv6 / Named AF → rt-eigrp ---- */
+  const eigrp = findSub('rt-eigrp');
+  eigrp.commands.push(
+    { cmd:'address-family ipv6 unicast (EIGRP)', syntax:'address-family ipv6 unicast autonomous-system <asn>', devices:['l3','router'],
+      desc:'Enter IPv6 AF under EIGRP named mode. Enables EIGRP for IPv6 in a single named process.',
+      args:[{name:'asn',type:'integer',range:'1–65535',req:true,def:'-',desc:'AS number for IPv6 AF'}]},
+    { cmd:'eigrp router-id (IPv6 AF)', syntax:'eigrp router-id <ip>', devices:['l3','router'],
+      desc:'Set EIGRP router ID inside IPv6 AF. Must be a 32-bit dotted-decimal value.',
+      args:[{name:'ip',type:'ip',range:'-',req:true,def:'-',desc:'Router ID'}]},
+    { cmd:'af-interface (EIGRP)', syntax:'af-interface {default|<interface>}', devices:['l3','router'],
+      desc:'Enter per-interface EIGRP settings inside named-mode AF (hello timers, auth, split-horizon).',
+      args:[{name:'interface',type:'string',range:'-',req:false,def:'default',desc:'Specific interface or "default"'}]},
+    { cmd:'hello-interval (EIGRP AF)', syntax:'hello-interval <seconds>', devices:['l3','router'],
+      desc:'Set EIGRP hello interval under af-interface.',
+      args:[{name:'seconds',type:'integer',range:'1–65535',req:true,def:'5',desc:'Hello interval'}]},
+    { cmd:'hold-time (EIGRP AF)', syntax:'hold-time <seconds>', devices:['l3','router'],
+      desc:'Set EIGRP hold time under af-interface.',
+      args:[{name:'seconds',type:'integer',range:'1–65535',req:true,def:'15',desc:'Hold time'}]},
+    { cmd:'authentication mode hmac-sha-256', syntax:'authentication mode hmac-sha-256 <password>', devices:['l3','router'],
+      desc:'Enable HMAC-SHA-256 authentication under EIGRP named mode af-interface. Stronger than MD5.',
+      args:[{name:'password',type:'string',range:'1–32 chars',req:true,def:'-',desc:'Pre-shared key'}]},
+    { cmd:'show eigrp address-family ipv6', syntax:'show eigrp address-family ipv6 [neighbors|topology|interfaces]', devices:['l3','router'],
+      desc:'Display EIGRP named-mode IPv6 AF neighbors, topology table, or interface info.',args:[]}
+  );
+
+  /* ---- 4. Key Chains → new subsection in routing ---- */
+  const rt = SECTIONS.find(s=>s.id==='routing');
+  rt.subsections.push({
+    id: 'rt-keychain', title: '13. Authentication Key Chains',
+    commands: [
+      { cmd:'key chain', syntax:'key chain <name>', devices:['all'],
+        desc:'Create a named key chain for routing protocol authentication (RIPv2, EIGRP, OSPF).',
+        args:[{name:'name',type:'string',range:'1–63 chars',req:true,def:'-',desc:'Key chain name (locally significant)'}]},
+      { cmd:'key', syntax:'key <key-id>', devices:['all'],
+        desc:'Create a key entry within a key chain. Lower key-id is tried first for outbound.',
+        args:[{name:'key-id',type:'integer',range:'0–2147483647',req:true,def:'-',desc:'Key number'}]},
+      { cmd:'key-string', syntax:'key-string [0|7] <text>', devices:['all'],
+        desc:'Set the authentication password for a key entry.',
+        args:[
+          {name:'0|7',type:'keyword',range:'0|7',req:false,def:'0',desc:'0=plaintext input, 7=type-7 obfuscated'},
+          {name:'text',type:'string',range:'1–80 chars',req:true,def:'-',desc:'Authentication password'}]},
+      { cmd:'accept-lifetime', syntax:'accept-lifetime <start-time> {infinite|<end-time>|duration <seconds>}', devices:['all'],
+        desc:'Set window during which this key is valid for receiving authenticated packets.',
+        args:[
+          {name:'start-time',type:'datetime',range:'-',req:true,def:'-',desc:'Format: hh:mm:ss Month DD YYYY'},
+          {name:'infinite',type:'keyword',range:'-',req:false,def:'-',desc:'Key is always valid for receive'}]},
+      { cmd:'send-lifetime', syntax:'send-lifetime <start-time> {infinite|<end-time>|duration <seconds>}', devices:['all'],
+        desc:'Set window during which this key is used for sending authenticated packets.',
+        args:[
+          {name:'start-time',type:'datetime',range:'-',req:true,def:'-',desc:'Format: hh:mm:ss Month DD YYYY'},
+          {name:'infinite',type:'keyword',range:'-',req:false,def:'-',desc:'Key always used for send'}]},
+      { cmd:'show key chain', syntax:'show key chain [<name>]', devices:['all'],
+        desc:'Display key chain configuration with all keys and lifetime windows.',args:[]},
+    ]
+  });
+
+  /* ---- 5. New SERVICES section ---- */
+  SECTIONS.push({
+    id: 'services', title: 'SERVICES', type: 'routing',
+    subsections: [
+      {
+        id: 'svc-dhcp', title: '1. DHCP Server & Relay',
+        commands: [
+          { cmd:'ip dhcp excluded-address', syntax:'ip dhcp excluded-address <low-ip> [<high-ip>]', devices:['l3','router'],
+            desc:'Reserve IP address(es) the DHCP server will NOT assign. Configure before defining pools.',
+            args:[
+              {name:'low-ip',type:'ip',range:'-',req:true,def:'-',desc:'Start of excluded range (or single address)'},
+              {name:'high-ip',type:'ip',range:'-',req:false,def:'-',desc:'End of excluded range'}]},
+          { cmd:'ip dhcp pool', syntax:'ip dhcp pool <name>', devices:['l3','router'],
+            desc:'Create a DHCP pool and enter pool configuration mode.',
+            args:[{name:'name',type:'string',range:'1–64 chars',req:true,def:'-',desc:'Pool name'}]},
+          { cmd:'network (DHCP)', syntax:'network <network-ip> {<mask>|/<prefix-length>}', devices:['l3','router'],
+            desc:'Define the subnet the pool serves.',
+            args:[
+              {name:'network-ip',type:'ip',range:'-',req:true,def:'-',desc:'Subnet address'},
+              {name:'mask',type:'mask',range:'-',req:true,def:'-',desc:'Dotted-decimal mask or /prefix-length'}]},
+          { cmd:'default-router (DHCP)', syntax:'default-router <ip> [<ip2> …]', devices:['l3','router'],
+            desc:'Send default gateway to clients (up to 8 addresses).',
+            args:[{name:'ip',type:'ip',range:'-',req:true,def:'-',desc:'Gateway IP for DHCP clients'}]},
+          { cmd:'dns-server (DHCP)', syntax:'dns-server <ip> [<ip2> …]', devices:['l3','router'],
+            desc:'Send DNS server address(es) to clients.',
+            args:[{name:'ip',type:'ip',range:'-',req:true,def:'-',desc:'DNS server IP'}]},
+          { cmd:'domain-name (DHCP)', syntax:'domain-name <domain>', devices:['l3','router'],
+            desc:'Send the DNS domain name to clients.',
+            args:[{name:'domain',type:'string',range:'-',req:true,def:'-',desc:'DNS domain name'}]},
+          { cmd:'lease', syntax:'lease {<days> [<hours> [<minutes>]] | infinite}', devices:['l3','router'],
+            desc:'Set the DHCP lease duration.',
+            args:[
+              {name:'days',type:'integer',range:'0–365',req:true,def:'1',desc:'Lease days'},
+              {name:'hours',type:'integer',range:'0–23',req:false,def:'0',desc:'Additional hours'},
+              {name:'minutes',type:'integer',range:'0–59',req:false,def:'0',desc:'Additional minutes'}]},
+          { cmd:'ip dhcp ping packets', syntax:'ip dhcp ping packets <count>', devices:['l3','router'],
+            desc:'Ping count to verify address availability before assigning. 0 disables.',
+            args:[{name:'count',type:'integer',range:'0–10',req:true,def:'2',desc:'Ping attempts'}]},
+          { cmd:'service dhcp', syntax:'[no] service dhcp', devices:['l3','router'],
+            desc:'Enable or disable the DHCP server and relay agent globally.',args:[]},
+          { cmd:'ip helper-address (DHCP)', syntax:'ip helper-address <server-ip>', devices:['l3','router'],
+            desc:'Relay DHCP broadcasts to a unicast server. Apply on client-facing interface.',
+            args:[{name:'server-ip',type:'ip',range:'-',req:true,def:'-',desc:'DHCP server IP'}]},
+          { cmd:'show ip dhcp pool', syntax:'show ip dhcp pool [<name>]', devices:['l3','router'],
+            desc:'Display pool config, utilization, and available address count.',args:[]},
+          { cmd:'show ip dhcp binding', syntax:'show ip dhcp binding [<ip>]', devices:['l3','router'],
+            desc:'Show active leases: client IP, MAC, expiry, and type.',args:[]},
+          { cmd:'show ip dhcp conflict', syntax:'show ip dhcp conflict', devices:['l3','router'],
+            desc:'List addresses that failed ping probe (potential conflicts).',args:[]},
+          { cmd:'clear ip dhcp binding', syntax:'clear ip dhcp binding {<ip>|*}', devices:['l3','router'],
+            desc:'Remove one or all dynamic DHCP lease bindings.',
+            args:[{name:'ip or *',type:'ip/wildcard',range:'-',req:true,def:'-',desc:'Specific IP or * for all'}]},
+          { cmd:'show ip dhcp server statistics', syntax:'show ip dhcp server statistics', devices:['l3','router'],
+            desc:'Display DHCP message counters: Discovers, Offers, Requests, ACKs, NAKs.',args:[]},
+        ]
+      },
+      {
+        id: 'svc-ntp', title: '2. NTP (Network Time Protocol)',
+        commands: [
+          { cmd:'ntp server', syntax:'ntp server <ip> [version <n>] [key <key-id>] [prefer] [source <intf>]', devices:['all'],
+            desc:'Configure NTP server for synchronization.',
+            args:[
+              {name:'ip',type:'ip',range:'-',req:true,def:'-',desc:'NTP server IP address'},
+              {name:'version',type:'integer',range:'1–4',req:false,def:'3',desc:'NTP version'},
+              {name:'prefer',type:'keyword',range:'-',req:false,def:'-',desc:'Mark as preferred source'},
+              {name:'source',type:'string',range:'-',req:false,def:'-',desc:'Source interface for NTP packets'}]},
+          { cmd:'ntp master', syntax:'ntp master [<stratum>]', devices:['all'],
+            desc:'Make this device an authoritative NTP master. Use when no upstream NTP source is available.',
+            args:[{name:'stratum',type:'integer',range:'1–15',req:false,def:'8',desc:'Stratum level (lower = more authoritative)'}]},
+          { cmd:'ntp peer', syntax:'ntp peer <ip> [version <n>] [key <key-id>] [prefer]', devices:['all'],
+            desc:'Configure symmetric active NTP peering.',
+            args:[{name:'ip',type:'ip',range:'-',req:true,def:'-',desc:'NTP peer IP'}]},
+          { cmd:'ntp authenticate', syntax:'ntp authenticate', devices:['all'],
+            desc:'Enable NTP authentication globally. Must also configure keys and trusted-key.',args:[]},
+          { cmd:'ntp authentication-key', syntax:'ntp authentication-key <key-id> md5 <key-string>', devices:['all'],
+            desc:'Define an NTP MD5 authentication key.',
+            args:[
+              {name:'key-id',type:'integer',range:'1–65535',req:true,def:'-',desc:'Key identifier'},
+              {name:'key-string',type:'string',range:'1–32 chars',req:true,def:'-',desc:'MD5 password'}]},
+          { cmd:'ntp trusted-key', syntax:'ntp trusted-key <key-id>', devices:['all'],
+            desc:'Mark a key as trusted for accepting NTP updates.',
+            args:[{name:'key-id',type:'integer',range:'1–65535',req:true,def:'-',desc:'Key ID to trust'}]},
+          { cmd:'ntp source', syntax:'ntp source <interface>', devices:['all'],
+            desc:'Use a specific interface as source for all outgoing NTP packets.',
+            args:[{name:'interface',type:'string',range:'-',req:true,def:'-',desc:'Source interface (loopback recommended)'}]},
+          { cmd:'ntp access-group', syntax:'ntp access-group {peer|serve|serve-only|query-only} <acl>', devices:['all'],
+            desc:'Restrict NTP access using an ACL.',
+            args:[
+              {name:'type',type:'keyword',range:'peer|serve|serve-only|query-only',req:true,def:'-',desc:'Access type'},
+              {name:'acl',type:'string',range:'-',req:true,def:'-',desc:'ACL number or name'}]},
+          { cmd:'clock timezone', syntax:'clock timezone <zone-name> <offset-hours> [<offset-minutes>]', devices:['all'],
+            desc:'Set device clock timezone.',
+            args:[
+              {name:'zone-name',type:'string',range:'-',req:true,def:'-',desc:'Timezone label (e.g. UTC, CET)'},
+              {name:'offset-hours',type:'integer',range:'-23–23',req:true,def:'-',desc:'Hours offset from UTC'}]},
+          { cmd:'clock summer-time', syntax:'clock summer-time <zone> recurring [<week> <day> <month> <time> <week> <day> <month> <time> [<offset>]]', devices:['all'],
+            desc:'Configure automatic DST adjustment.',
+            args:[{name:'zone',type:'string',range:'-',req:true,def:'-',desc:'DST timezone label (e.g. EDT, CEST)'}]},
+          { cmd:'show ntp status', syntax:'show ntp status', devices:['all'],
+            desc:'Show NTP sync state, stratum, reference clock, and frequency drift.',args:[]},
+          { cmd:'show ntp associations', syntax:'show ntp associations [detail]', devices:['all'],
+            desc:'Display all NTP associations with status, offset, and jitter.',args:[]},
+          { cmd:'show clock', syntax:'show clock [detail]', devices:['all'],
+            desc:'Display current date/time. detail shows source authority.',args:[]},
+        ]
+      },
+      {
+        id: 'svc-nat', title: '3. NAT / PAT',
+        commands: [
+          { cmd:'ip nat inside', syntax:'ip nat inside', devices:['l3','router'],
+            desc:'Mark interface as inside NAT interface (private / LAN side).',args:[]},
+          { cmd:'ip nat outside', syntax:'ip nat outside', devices:['l3','router'],
+            desc:'Mark interface as outside NAT interface (public / WAN side).',args:[]},
+          { cmd:'ip nat inside source static', syntax:'ip nat inside source static <local-ip> <global-ip>', devices:['l3','router'],
+            desc:'One-to-one static NAT mapping.',
+            args:[
+              {name:'local-ip',type:'ip',range:'-',req:true,def:'-',desc:'Inside local (private) IP'},
+              {name:'global-ip',type:'ip',range:'-',req:true,def:'-',desc:'Inside global (public) IP'}]},
+          { cmd:'ip nat inside source static (port forward)', syntax:'ip nat inside source static {tcp|udp} <local-ip> <local-port> <global-ip> <global-port>', devices:['l3','router'],
+            desc:'Static PAT — port forwarding for a specific TCP/UDP port.',
+            args:[
+              {name:'local-ip',type:'ip',range:'-',req:true,def:'-',desc:'Inside private IP'},
+              {name:'local-port',type:'integer',range:'1–65535',req:true,def:'-',desc:'Inside port number'},
+              {name:'global-ip',type:'ip',range:'-',req:true,def:'-',desc:'Public IP'},
+              {name:'global-port',type:'integer',range:'1–65535',req:true,def:'-',desc:'Public port number'}]},
+          { cmd:'ip nat pool', syntax:'ip nat pool <name> <start-ip> <end-ip> netmask <mask>', devices:['l3','router'],
+            desc:'Define a pool of public IP addresses for dynamic NAT.',
+            args:[
+              {name:'name',type:'string',range:'-',req:true,def:'-',desc:'Pool name'},
+              {name:'start-ip',type:'ip',range:'-',req:true,def:'-',desc:'First IP in pool'},
+              {name:'end-ip',type:'ip',range:'-',req:true,def:'-',desc:'Last IP in pool'},
+              {name:'mask',type:'mask',range:'-',req:true,def:'-',desc:'Subnet mask'}]},
+          { cmd:'ip nat inside source list (pool)', syntax:'ip nat inside source list <acl> pool <pool-name>', devices:['l3','router'],
+            desc:'Dynamic NAT: translate IPs matching the ACL using pool addresses.',
+            args:[
+              {name:'acl',type:'string',range:'-',req:true,def:'-',desc:'ACL identifying private addresses'},
+              {name:'pool-name',type:'string',range:'-',req:true,def:'-',desc:'NAT pool name'}]},
+          { cmd:'ip nat inside source list (PAT/overload)', syntax:'ip nat inside source list <acl> interface <intf> overload', devices:['l3','router'],
+            desc:'PAT (NAT overload): many-to-one using the outside interface IP. Most common NAT config.',
+            args:[
+              {name:'acl',type:'string',range:'-',req:true,def:'-',desc:'ACL identifying private addresses to translate'},
+              {name:'intf',type:'string',range:'-',req:true,def:'-',desc:'Outside interface whose IP is the global address'},
+              {name:'overload',type:'keyword',range:'-',req:true,def:'-',desc:'Enable port-level multiplexing (PAT)'}]},
+          { cmd:'ip nat inside source list (pool overload)', syntax:'ip nat inside source list <acl> pool <pool-name> overload', devices:['l3','router'],
+            desc:'PAT using a pool of public IPs with port overloading.',args:[]},
+          { cmd:'ip nat translation timeout', syntax:'ip nat translation {timeout|tcp-timeout|udp-timeout|icmp-timeout|dns-timeout} <seconds>', devices:['l3','router'],
+            desc:'Adjust NAT translation entry idle timeouts per protocol.',
+            args:[
+              {name:'type',type:'keyword',range:'timeout|tcp-timeout|udp-timeout|icmp-timeout|dns-timeout',req:true,def:'-',desc:'Timeout type'},
+              {name:'seconds',type:'integer',range:'0–2147483',req:true,def:'86400 (TCP) / 300 (UDP)',desc:'Idle timeout'}]},
+          { cmd:'ip nat translation max-entries', syntax:'ip nat translation max-entries <number>', devices:['l3','router'],
+            desc:'Limit total NAT translation table entries.',
+            args:[{name:'number',type:'integer',range:'1–2147483647',req:true,def:'0 (unlimited)',desc:'Max translations'}]},
+          { cmd:'show ip nat translations', syntax:'show ip nat translations [verbose]', devices:['l3','router'],
+            desc:'Display active NAT entries: inside local/global and outside local/global.',args:[]},
+          { cmd:'show ip nat statistics', syntax:'show ip nat statistics', devices:['l3','router'],
+            desc:'Show NAT counters: hits, misses, expired entries, and pool utilization.',args:[]},
+          { cmd:'clear ip nat translation', syntax:'clear ip nat translation {* | inside <local> <global>}', devices:['l3','router'],
+            desc:'Remove NAT entries. * removes all dynamic translations.',
+            args:[{name:'*',type:'wildcard',range:'-',req:false,def:'-',desc:'Clear all dynamic entries'}]},
+          { cmd:'debug ip nat', syntax:'debug ip nat [detailed]', devices:['l3','router'],
+            desc:'Real-time NAT debugging. detailed shows packet-level info.',args:[]},
+        ]
+      }
+    ]
+  });
+
+})();
+</script>
+</body>
+</html>
