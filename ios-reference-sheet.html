@@ -1706,13 +1706,13 @@ function buildSection(sec) {
   </section>`;
 }
 
-/* ----- Render everything ----- */
-(function render() {
+/* ----- Render everything (called after all SECTIONS.push() in second script) ----- */
+function render() {
   const root = document.getElementById('sections-root');
   root.innerHTML = SECTIONS.map(buildSection).join('');
   buildTOC();
   restoreCollapseState();
-})();
+}
 
 /* ----- TOC builder ----- */
 function buildTOC() {
@@ -2440,6 +2440,9 @@ document.getElementById('shortcuts-modal').addEventListener('click', e => {
       }
     ]
   });
+
+  /* render after all sections are pushed */
+  render();
 
 })();
 </script>
