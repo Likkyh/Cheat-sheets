@@ -420,12 +420,67 @@ mark { background: #e3b34133; color: var(--param-color); border-radius: 2px; pad
 .section-note {
   font-size: 12px; color: var(--muted); margin-bottom: 10px; font-style: italic;
 }
+
+/* ===== HOME LINK ===== */
+#home-link {
+  display: flex; align-items: center; gap: 5px;
+  color: var(--muted); font-size: 12px; font-weight: 500;
+  padding: 4px 10px; border-radius: var(--radius); border: 1px solid var(--border);
+  transition: color .15s, background .15s; flex-shrink: 0; text-decoration: none;
+}
+#home-link:hover { color: var(--text); background: var(--card-bg); text-decoration: none; }
+
+/* ===== PROCEDURES ===== */
+.cat-header.procedure h2 { color: #58a6ff; }
+.proc-card {
+  background: var(--card-bg); border: 1px solid var(--border);
+  border-radius: var(--radius); margin-bottom: 20px; overflow: hidden;
+}
+.proc-card .proc-card-header {
+  background: var(--table-head); padding: 10px 16px;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer; user-select: none;
+  display: flex; align-items: center; gap: 8px;
+}
+.proc-card .proc-card-header h3 { font-size: 14px; font-weight: 600; color: var(--text); }
+.proc-desc { padding: 10px 16px 0; font-size: 12px; color: var(--muted); font-style: italic; }
+.proc-steps { padding: 8px 16px 16px; }
+.proc-step { display: flex; gap: 14px; margin-top: 16px; }
+.proc-step-num {
+  flex-shrink: 0; width: 22px; height: 22px; border-radius: 50%;
+  background: var(--focus-ring); color: #fff;
+  font-size: 11px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center; margin-top: 1px;
+}
+.proc-step-body { flex: 1; min-width: 0; }
+.proc-step-title { font-size: 13px; font-weight: 600; margin-bottom: 4px; color: var(--text); }
+.proc-step-desc { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+.proc-code-wrap { position: relative; }
+.proc-code {
+  background: #010409; border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 10px 14px;
+  font-size: 12px; font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  overflow-x: auto; white-space: pre; line-height: 1.7; color: var(--text); margin: 0;
+}
+.proc-code .pc { color: var(--cmd-color); }
+.proc-code .cc { color: var(--muted); font-style: italic; }
+.proc-copy-btn {
+  position: absolute; top: 5px; right: 5px;
+  background: var(--card-bg); border: 1px solid var(--border);
+  border-radius: 4px; padding: 2px 7px;
+  font-size: 10px; cursor: pointer; color: var(--muted);
+  transition: background .15s, color .15s; opacity: 0;
+}
+.proc-code-wrap:hover .proc-copy-btn { opacity: 1; }
+.proc-copy-btn:hover { background: var(--search-bg); color: var(--text); }
+.toc-group-title.procedure { color: #58a6ff; }
 </style>
 </head>
 <body>
 
 <!-- TOP BAR -->
 <div id="topbar">
+  <a href="index.html" id="home-link" title="Back to home">⌂ Home</a>
   <div class="brand">Cisco IOS <span>Reference</span></div>
   <div id="search-wrap">
     <span class="search-icon">⌕</span>
@@ -1582,7 +1637,65 @@ function buildSubsection(sub, sectionType) {
   </div>`;
 }
 
+/* ----- Procedure renderer ----- */
+function fmtProcCode(code) {
+  return code.split('\n').map(line => {
+    const t = line.trimStart();
+    if (t.startsWith('!')) return '<span class="cc">' + esc(line) + '</span>';
+    return '<span class="pc">' + esc(line) + '</span>';
+  }).join('\n');
+}
+let procCopyIdx = 0;
+function buildProcStep(step, idx) {
+  const cid = 'pc-' + (++procCopyIdx);
+  const code = step.code ? `<div class="proc-code-wrap">
+    <pre class="proc-code" id="${cid}">${fmtProcCode(step.code)}</pre>
+    <button class="proc-copy-btn" onclick="copyProc('${cid}')">⎘ Copy</button>
+  </div>` : '';
+  return `<div class="proc-step">
+    <div class="proc-step-num">${idx+1}</div>
+    <div class="proc-step-body">
+      <div class="proc-step-title">${esc(step.title)}</div>
+      ${step.desc ? `<div class="proc-step-desc">${esc(step.desc)}</div>` : ''}
+      ${code}
+    </div>
+  </div>`;
+}
+function buildProcCard(sub) {
+  const steps = sub.steps.map((s,i) => buildProcStep(s,i)).join('');
+  return `<div class="proc-card subsection" id="${sub.id}">
+    <div class="proc-card-header subsection-header" onclick="toggleSub(this)">
+      <h3>${esc(sub.title)}</h3>
+      <span class="sub-chevron">▼</span>
+    </div>
+    ${sub.desc ? `<div class="proc-desc">${esc(sub.desc)}</div>` : ''}
+    <div class="sub-body proc-steps">${steps}</div>
+  </div>`;
+}
+function copyProc(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const text = el.textContent;
+  navigator.clipboard.writeText(text).then(() => showToast('Copied!')).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = text; ta.style.position='fixed'; ta.style.opacity='0';
+    document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta);
+    showToast('Copied!');
+  });
+}
+
 function buildSection(sec) {
+  if (sec.type === 'procedure') {
+    const cards = sec.subsections.map(s => buildProcCard(s)).join('');
+    return `<section class="cat-section" id="${sec.id}">
+      <div class="cat-header procedure" onclick="toggleCat(this)">
+        <h2>${esc(sec.title)}</h2>
+        <span class="cat-chevron">▼</span>
+      </div>
+      <div class="cat-body">${cards}</div>
+    </section>`;
+  }
   const subs = sec.subsections.map(s => buildSubsection(s, sec.type)).join('');
   return `<section class="cat-section" id="${sec.id}">
     <div class="cat-header ${sec.type}" onclick="toggleCat(this)">
@@ -1615,6 +1728,8 @@ function buildTOC() {
   });
   toc.innerHTML = html;
 }
+
+/* ----- Search index: skip procedure sections ----- */
 
 function scrollToSection(id) {
   const el = document.getElementById(id);
@@ -1736,9 +1851,10 @@ const srList = document.getElementById('sr-list');
 const srHeader = document.getElementById('sr-header');
 let focusedIdx = -1;
 
-// Build flat search index from SECTIONS
+// Build flat search index from SECTIONS (skip procedure sections)
 const searchIndex = [];
 SECTIONS.forEach(sec => {
+  if (sec.type === 'procedure') return;
   sec.subsections.forEach(sub => {
     sub.commands.forEach(cmd => {
       searchIndex.push({
@@ -2168,6 +2284,158 @@ document.getElementById('shortcuts-modal').addEventListener('click', e => {
             args:[{name:'*',type:'wildcard',range:'-',req:false,def:'-',desc:'Clear all dynamic entries'}]},
           { cmd:'debug ip nat', syntax:'debug ip nat [detailed]', devices:['l3','router'],
             desc:'Real-time NAT debugging. detailed shows packet-level info.',args:[]},
+        ]
+      }
+    ]
+  });
+
+  /* ---- PROCEDURES section ---- */
+  SECTIONS.push({
+    id: 'procedures', title: 'PROCEDURES', type: 'procedure',
+    subsections: [
+      { id:'proc-switch-init', title:'1. Initial Switch Setup',
+        desc:'Complete initial configuration for a new Cisco switch: hostname, credentials, console, and save.',
+        steps:[
+          { title:'Enter privileged mode and global config', code:'enable\nconfigure terminal' },
+          { title:'Set hostname and DNS domain', desc:'Domain name is required later for SSH RSA key generation.', code:'hostname SW1\nip domain-name corp.local' },
+          { title:'Set encrypted enable secret and encrypt all passwords', code:'enable secret Str0ngEnable!\nservice password-encryption' },
+          { title:'Configure console line', code:'line console 0\n password C0ns0leP@ss\n login\n exec-timeout 5 0\n logging synchronous\nexit' },
+          { title:'Set management IP on VLAN 1', code:'interface vlan 1\n ip address 192.168.1.10 255.255.255.0\n no shutdown\nexit\nip default-gateway 192.168.1.1' },
+          { title:'Disable unused interfaces', desc:'Shut down all ports not in use to prevent unauthorized access.', code:'interface range GigabitEthernet0/3 - 24\n shutdown\n description UNUSED\nexit' },
+          { title:'Set banner and save configuration', code:'banner motd # AUTHORIZED ACCESS ONLY. All activity is monitored. #\nend\nwrite memory' }
+        ]
+      },
+      { id:'proc-vlan', title:'2. VLAN Configuration',
+        desc:'Create VLANs, assign names, and attach access ports to the correct VLANs.',
+        steps:[
+          { title:'Create VLANs in the VLAN database', code:'configure terminal\nvlan 10\n name SALES\nvlan 20\n name IT\nvlan 30\n name SERVERS\nvlan 99\n name NATIVE\nexit' },
+          { title:'Assign access ports to VLANs with PortFast + BPDU Guard', desc:'Apply PortFast only on ports connected to end devices, not to other switches.', code:'interface GigabitEthernet0/1\n description PC-SALES\n switchport mode access\n switchport access vlan 10\n spanning-tree portfast\n spanning-tree bpduguard enable\nexit\n\ninterface GigabitEthernet0/2\n description PC-IT\n switchport mode access\n switchport access vlan 20\n spanning-tree portfast\n spanning-tree bpduguard enable\nexit' },
+          { title:'Verify VLAN assignment', code:'show vlan brief\nshow interfaces GigabitEthernet0/1 switchport' }
+        ]
+      },
+      { id:'proc-trunk', title:'3. Trunk Link Setup (802.1Q)',
+        desc:'Configure an 802.1Q trunk between switches or to a router, hardening against VLAN hopping.',
+        steps:[
+          { title:'Configure trunk port to upstream switch or router', code:'interface GigabitEthernet0/24\n description UPLINK-TO-CORE\n switchport trunk encapsulation dot1q\n switchport mode trunk\n switchport trunk native vlan 99\n switchport trunk allowed vlan 10,20,30,99\n switchport nonegotiate\n no shutdown\nexit' },
+          { title:'Verify trunk negotiation and allowed VLANs', code:'show interfaces GigabitEthernet0/24 trunk\nshow interfaces trunk' },
+          { title:'Confirm native VLAN matches on both ends', desc:'Mismatched native VLANs cause CDP warnings and a VLAN hopping risk.', code:'show cdp neighbors detail | include Native\nshow spanning-tree vlan 99 | include Root' }
+        ]
+      },
+      { id:'proc-roas', title:'4. Inter-VLAN Routing — Router-on-a-Stick',
+        desc:'Configure a router to route between VLANs using sub-interfaces on a single trunk link.',
+        steps:[
+          { title:'Enable the physical interface (no IP on parent)', code:'interface GigabitEthernet0/0\n description TRUNK-TO-SW1\n no shutdown\nexit' },
+          { title:'Create sub-interfaces — one per VLAN', desc:'encapsulation dot1Q tags traffic per VLAN. The native VLAN sub-interface omits tagging.', code:'interface GigabitEthernet0/0.10\n encapsulation dot1Q 10\n ip address 192.168.10.1 255.255.255.0\nexit\n\ninterface GigabitEthernet0/0.20\n encapsulation dot1Q 20\n ip address 192.168.20.1 255.255.255.0\nexit\n\ninterface GigabitEthernet0/0.99\n encapsulation dot1Q 99 native\nexit' },
+          { title:'Verify routing between VLANs', code:'show ip interface brief\nshow ip route connected\nping 192.168.20.1 source 192.168.10.1' }
+        ]
+      },
+      { id:'proc-svi', title:'5. Inter-VLAN Routing — L3 Switch (SVI)',
+        desc:'Use a Layer 3 switch with SVIs for high-performance inter-VLAN routing without an external router.',
+        steps:[
+          { title:'Enable IP routing on the L3 switch', code:'configure terminal\nip routing' },
+          { title:'Create Switched Virtual Interfaces (SVIs) for each VLAN', code:'interface Vlan10\n description SALES-GATEWAY\n ip address 192.168.10.1 255.255.255.0\n no shutdown\nexit\n\ninterface Vlan20\n description IT-GATEWAY\n ip address 192.168.20.1 255.255.255.0\n no shutdown\nexit' },
+          { title:'Create routed uplink to WAN router', code:'interface GigabitEthernet0/24\n description UPLINK-TO-ROUTER\n no switchport\n ip address 10.0.0.2 255.255.255.252\n no shutdown\nexit' },
+          { title:'Add default route toward upstream router', code:'ip route 0.0.0.0 0.0.0.0 10.0.0.1' },
+          { title:'Verify routing table and SVI status', code:'show ip route\nshow interface vlan 10\nshow interface vlan 20' }
+        ]
+      },
+      { id:'proc-etherchannel', title:'6. EtherChannel (LACP)',
+        desc:'Bundle multiple physical links into a logical port-channel for redundancy and increased bandwidth.',
+        steps:[
+          { title:'Configure physical member interfaces (run on BOTH switches)', desc:'Use mode active on one side. The other can be active or passive.', code:'configure terminal\ninterface range GigabitEthernet0/1 - 2\n description ETHERCHANNEL-TO-SW2\n channel-group 1 mode active\n no shutdown\nexit' },
+          { title:'Apply trunk settings on the port-channel interface', code:'interface port-channel 1\n description LACP-BUNDLE-TO-SW2\n switchport trunk encapsulation dot1q\n switchport mode trunk\n switchport trunk native vlan 99\n switchport trunk allowed vlan 10,20,30,99\nexit' },
+          { title:'Verify bundle formation', code:'show etherchannel summary\nshow interfaces port-channel 1\nshow lacp neighbor' }
+        ]
+      },
+      { id:'proc-stp-harden', title:'7. STP Hardening',
+        desc:'Harden Spanning Tree Protocol to prevent topology hijacking and bridging loops.',
+        steps:[
+          { title:'Set Rapid PVST+ and assign root bridge priority', code:'configure terminal\nspanning-tree mode rapid-pvst\n\n! Core/Distribution — become root\nspanning-tree vlan 10,20,30,99 root primary' },
+          { title:'Enable PortFast + BPDU Guard globally', code:'spanning-tree portfast default\nspanning-tree bpduguard default' },
+          { title:'Enable Loop Guard globally', code:'spanning-tree loopguard default' },
+          { title:'Apply Root Guard on downlink ports', code:'interface range GigabitEthernet0/1 - 20\n spanning-tree guard root\nexit' },
+          { title:'Verify STP topology', code:'show spanning-tree summary\nshow spanning-tree vlan 10 detail\nshow spanning-tree inconsistentports' }
+        ]
+      },
+      { id:'proc-ssh', title:'8. SSH Secure Remote Management',
+        desc:'Replace Telnet with SSH v2 and restrict VTY access to an authorized management subnet.',
+        steps:[
+          { title:'Ensure hostname and domain are set (required for RSA)', code:'hostname SW1\nip domain-name corp.local' },
+          { title:'Create local admin account with privilege 15', code:'username admin privilege 15 secret Str0ng@dm!n!' },
+          { title:'Generate 2048-bit RSA key pair', code:'crypto key generate rsa modulus 2048' },
+          { title:'Enable SSH version 2 with security timers', code:'ip ssh version 2\nip ssh time-out 60\nip ssh authentication-retries 3' },
+          { title:'Configure VTY lines — SSH only with local auth', code:'line vty 0 15\n transport input ssh\n login local\n exec-timeout 10 0\n logging synchronous\nexit' },
+          { title:'Restrict VTY access to management subnet', code:'ip access-list standard MGMT-ALLOW\n permit 10.10.10.0 0.0.0.255\n deny any log\nexit\n\nline vty 0 15\n access-class MGMT-ALLOW in\nexit' },
+          { title:'Disable HTTP and verify SSH', code:'no ip http server\nno ip http secure-server\nshow ip ssh\nshow ssh' }
+        ]
+      },
+      { id:'proc-hardening', title:'9. Device Hardening',
+        desc:'Disable unnecessary services, enable login protection, harden SNMP, and configure NTP auth.',
+        steps:[
+          { title:'Disable unnecessary services', code:'no service finger\nno service tcp-small-servers\nno service udp-small-servers\nno ip bootp server\nno ip source-route\nno ip proxy-arp\nno cdp run' },
+          { title:'Enable brute-force login protection', code:'login block-for 60 attempts 3 within 30\nlogin on-failure log\nlogin on-success log\nlogin delay 2' },
+          { title:'Set legal warning banner', code:'banner motd #\nWARNING: Unauthorized access is prohibited.\nAll activity is monitored and recorded.\n#' },
+          { title:'Harden SNMP — remove defaults, use SNMPv3', code:'no snmp-server community public\nno snmp-server community private\nsnmp-server group NET-ADMINS v3 priv\nsnmp-server user netadmin NET-ADMINS v3 auth sha Auth@Pass priv aes 128 Priv@Pass' },
+          { title:'Enable NTP authentication', code:'ntp authenticate\nntp authentication-key 1 md5 NtpK3y!\nntp trusted-key 1\nntp server 10.0.0.1 key 1\nclock timezone UTC 0' },
+          { title:'Enable AAA with local fallback', code:'aaa new-model\naaa authentication login default local\naaa authorization exec default local if-authenticated\naaa accounting exec default start-stop local' },
+          { title:'Save and verify', code:'end\nwrite memory\nshow running-config | section aaa\nshow running-config | section line' }
+        ]
+      },
+      { id:'proc-ospf', title:'10. OSPF Single Area Setup',
+        desc:'Deploy OSPF in backbone Area 0 with MD5 authentication and passive interface best practices.',
+        steps:[
+          { title:'Enable OSPF with explicit router-id', code:'configure terminal\nrouter ospf 1\n router-id 1.1.1.1' },
+          { title:'Advertise networks (wildcard = inverse of subnet mask)', code:' network 192.168.10.0 0.0.0.255 area 0\n network 192.168.20.0 0.0.0.255 area 0\n network 10.0.0.0 0.0.0.3 area 0' },
+          { title:'Set reference bandwidth and passive interfaces', desc:'10000 Mbps = 10 Gbps reference. Adjust to your fastest link.', code:' auto-cost reference-bandwidth 10000\n passive-interface default\n no passive-interface GigabitEthernet0/0\n no passive-interface GigabitEthernet0/1\nexit' },
+          { title:'Enable MD5 authentication on inter-router links', code:'interface GigabitEthernet0/0\n ip ospf authentication message-digest\n ip ospf message-digest-key 1 md5 OSPF@uth!\nexit' },
+          { title:'Advertise a default route (edge router only)', code:'router ospf 1\n default-information originate\nexit' },
+          { title:'Verify neighbors, database, and routes', code:'show ip ospf neighbor\nshow ip ospf database\nshow ip route ospf\nshow ip ospf interface brief' }
+        ]
+      },
+      { id:'proc-eigrp', title:'11. EIGRP Named Mode Setup',
+        desc:'Configure EIGRP using the modern named-mode process with MD5 authentication.',
+        steps:[
+          { title:'Create EIGRP named process and enter IPv4 address family', code:'configure terminal\nrouter eigrp CORP\n address-family ipv4 unicast autonomous-system 100' },
+          { title:'Set router-id and advertise networks', code:'  eigrp router-id 1.1.1.1\n  network 192.168.10.0 0.0.0.255\n  network 192.168.20.0 0.0.0.255\n  network 10.0.0.0 0.0.0.3' },
+          { title:'Set all interfaces passive, allow routing interfaces', code:'  af-interface default\n   passive-interface\n  exit-af-interface\n  af-interface GigabitEthernet0/0\n   no passive-interface\n  exit-af-interface' },
+          { title:'Enable MD5 authentication with key chain', code:'  af-interface GigabitEthernet0/0\n   authentication mode md5\n   authentication key-chain EIGRP-KEYS\n  exit-af-interface\n exit-address-family\nexit\n\nkey chain EIGRP-KEYS\n key 1\n  key-string EIGRP@uth!\n  accept-lifetime 00:00:00 Jan 1 2024 infinite\n  send-lifetime 00:00:00 Jan 1 2024 infinite\nexit' },
+          { title:'Verify neighbors and routing table', code:'show eigrp address-family ipv4 neighbors\nshow ip route eigrp\nshow eigrp address-family ipv4 topology' }
+        ]
+      },
+      { id:'proc-nat', title:'12. NAT / PAT Setup',
+        desc:'Configure PAT (NAT overload) for internet access and optional static NAT for servers.',
+        steps:[
+          { title:'Mark inside (LAN) and outside (WAN) interfaces', code:'configure terminal\ninterface GigabitEthernet0/0\n description LAN\n ip nat inside\nexit\n\ninterface GigabitEthernet0/1\n description WAN\n ip nat outside\nexit' },
+          { title:'Create ACL identifying private subnets to translate', code:'ip access-list standard NAT-INSIDE\n permit 192.168.10.0 0.0.0.255\n permit 192.168.20.0 0.0.0.255\nexit' },
+          { title:'Configure PAT overload using WAN interface IP', code:'ip nat inside source list NAT-INSIDE interface GigabitEthernet0/1 overload' },
+          { title:'Optional: static NAT and port forwarding', code:'! One-to-one static NAT\nip nat inside source static 192.168.10.100 203.0.113.50\n\n! Port forwarding (HTTP)\nip nat inside source static tcp 192.168.10.100 80 203.0.113.50 80' },
+          { title:'Verify translations', code:'show ip nat translations\nshow ip nat statistics' }
+        ]
+      },
+      { id:'proc-acl', title:'13. ACL Implementation',
+        desc:'Build and apply named extended ACLs. Extended ACLs near source; standard ACLs near destination.',
+        steps:[
+          { title:'Create named extended ACL (permit web/DNS, deny rest)', desc:'Named ACLs support sequence numbers for easy insertion and deletion.', code:'ip access-list extended INTERNET-OUT\n 10 permit tcp 192.168.10.0 0.0.0.255 any eq 80\n 20 permit tcp 192.168.10.0 0.0.0.255 any eq 443\n 30 permit udp 192.168.10.0 0.0.0.255 any eq 53\n 40 permit tcp 192.168.10.0 0.0.0.255 any eq 22\n 50 deny ip any any log\nexit' },
+          { title:'Apply ACL to interface (outbound on WAN)', code:'interface GigabitEthernet0/1\n ip access-group INTERNET-OUT out\nexit' },
+          { title:'Restrict VTY (SSH) access with a standard ACL', code:'ip access-list standard MGMT-ONLY\n permit 10.10.10.0 0.0.0.255\n deny any log\nexit\n\nline vty 0 15\n access-class MGMT-ONLY in\nexit' },
+          { title:'Verify ACL hit counts and placement', code:'show access-lists\nshow ip access-lists INTERNET-OUT\nshow ip interface GigabitEthernet0/1 | include access list' }
+        ]
+      },
+      { id:'proc-dhcp', title:'14. DHCP Server & Relay',
+        desc:'Configure a Cisco router or L3 switch as DHCP server and set up relay for remote VLANs.',
+        steps:[
+          { title:'Exclude static addresses (gateways, servers, printers)', code:'configure terminal\nip dhcp excluded-address 192.168.10.1 192.168.10.20\nip dhcp excluded-address 192.168.20.1 192.168.20.20' },
+          { title:'Create DHCP pools for each subnet', code:'ip dhcp pool VLAN10-POOL\n network 192.168.10.0 255.255.255.0\n default-router 192.168.10.1\n dns-server 8.8.8.8 8.8.4.4\n domain-name corp.local\n lease 1 0 0\nexit\n\nip dhcp pool VLAN20-POOL\n network 192.168.20.0 255.255.255.0\n default-router 192.168.20.1\n dns-server 8.8.8.8\n lease 0 12 0\nexit' },
+          { title:'Configure relay agent (ip helper-address) on remote SVIs', desc:'Forwards DHCP broadcasts as unicast to the DHCP server.', code:'interface Vlan10\n ip helper-address 10.0.0.100\nexit\n\ninterface Vlan20\n ip helper-address 10.0.0.100\nexit' },
+          { title:'Verify DHCP leases and conflicts', code:'show ip dhcp pool\nshow ip dhcp binding\nshow ip dhcp statistics\nshow ip dhcp conflict' }
+        ]
+      },
+      { id:'proc-port-sec', title:'15. Port Security',
+        desc:'Limit MAC addresses per port and detect unauthorized devices with sticky MAC learning.',
+        steps:[
+          { title:'Enable port security with sticky MAC learning', desc:'Write memory after learning to persist sticky MACs across reboots.', code:'interface GigabitEthernet0/1\n switchport mode access\n switchport access vlan 10\n switchport port-security\n switchport port-security maximum 2\n switchport port-security mac-address sticky\n switchport port-security violation restrict\nexit' },
+          { title:'Configure auto-recovery from err-disable', desc:'Default violation mode is shutdown. Recovery timer auto-restores the port.', code:'errdisable recovery cause psecure-violation\nerrdisable recovery interval 300' },
+          { title:'Verify port security status and learned MACs', code:'show port-security\nshow port-security interface GigabitEthernet0/1\nshow port-security address' }
         ]
       }
     ]

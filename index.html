@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NetOps Cheat Sheets</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ===== VARIABLES ===== */
+:root {
+  --bg: #0d1117;
+  --surface: #161b22;
+  --border: #30363d;
+  --text: #e6edf3;
+  --muted: #8b949e;
+  --topbar-bg: #010409;
+  --topbar-h: 56px;
+  --blue: #79c0ff;
+  --green: #3fb950;
+  --orange: #f78166;
+  --purple: #d2a8ff;
+  --focus: #1f6feb;
+  --card-bg: #161b22;
+  --card-hover: #1c2128;
+  --shadow: 0 1px 3px rgba(0,0,0,.5);
+  --radius: 8px;
+  --radius-lg: 12px;
+}
+[data-theme="light"] {
+  --bg: #ffffff;
+  --surface: #f6f8fa;
+  --border: #d0d7de;
+  --text: #1f2328;
+  --muted: #57606a;
+  --topbar-bg: #24292f;
+  --card-bg: #f6f8fa;
+  --card-hover: #eaeef2;
+  --shadow: 0 1px 3px rgba(0,0,0,.12);
+}
+
+/* ===== RESET ===== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  font-size: 14px; line-height: 1.6;
+  background: var(--bg); color: var(--text);
+  transition: background .2s, color .2s;
+  min-height: 100vh;
+}
+a { text-decoration: none; color: inherit; }
+
+/* ===== TOPBAR ===== */
+#topbar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  height: var(--topbar-h); background: var(--topbar-bg);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 16px; padding: 0 24px;
+}
+.brand { font-size: 16px; font-weight: 700; color: var(--text); letter-spacing: -.01em; }
+.brand span { color: var(--blue); }
+.topbar-spacer { flex: 1; }
+.topbar-actions { display: flex; align-items: center; gap: 8px; }
+.icon-btn {
+  display: flex; align-items: center; justify-content: center;
+  width: 34px; height: 34px; border-radius: var(--radius);
+  border: 1px solid var(--border); background: transparent;
+  color: var(--muted); cursor: pointer; font-size: 16px;
+  transition: background .15s, color .15s;
+}
+.icon-btn:hover { background: var(--card-bg); color: var(--text); }
+.gh-link {
+  display: flex; align-items: center; gap: 6px;
+  padding: 5px 12px; border-radius: var(--radius);
+  border: 1px solid var(--border); background: transparent;
+  color: var(--muted); font-size: 12px; font-weight: 500;
+  transition: background .15s, color .15s;
+}
+.gh-link:hover { background: var(--card-bg); color: var(--text); }
+.gh-link svg { width: 16px; height: 16px; fill: currentColor; flex-shrink: 0; }
+
+/* ===== HERO ===== */
+#hero {
+  margin-top: var(--topbar-h);
+  padding: 72px 24px 56px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.hero-glow {
+  position: absolute; top: -60px; left: 50%; transform: translateX(-50%);
+  width: 600px; height: 300px;
+  background: radial-gradient(ellipse at center, rgba(31,111,235,.15) 0%, transparent 70%);
+  pointer-events: none;
+}
+#hero h1 {
+  font-size: clamp(28px, 5vw, 48px); font-weight: 800;
+  letter-spacing: -.03em; line-height: 1.15;
+  background: linear-gradient(135deg, var(--text) 0%, var(--blue) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text; margin-bottom: 16px;
+}
+#hero p {
+  font-size: clamp(14px, 2vw, 17px); color: var(--muted);
+  max-width: 520px; margin: 0 auto 32px;
+}
+.hero-badges { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+.hero-badge {
+  padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600;
+  border: 1px solid; letter-spacing: .04em; text-transform: uppercase;
+}
+.hb-cisco { border-color: var(--green); color: var(--green); background: rgba(63,185,80,.08); }
+.hb-linux { border-color: var(--orange); color: var(--orange); background: rgba(247,129,102,.08); }
+.hb-network { border-color: var(--blue); color: var(--blue); background: rgba(121,192,255,.08); }
+.hb-security { border-color: var(--purple); color: var(--purple); background: rgba(210,168,255,.08); }
+
+/* ===== SEARCH ===== */
+.search-wrap {
+  max-width: 480px; margin: 0 auto 16px; position: relative;
+}
+.search-wrap input {
+  width: 100%; padding: 10px 16px 10px 42px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 24px; color: var(--text); font-size: 14px;
+  outline: none; font-family: inherit;
+  transition: border-color .15s, box-shadow .15s;
+}
+.search-wrap input:focus {
+  border-color: var(--focus);
+  box-shadow: 0 0 0 3px rgba(31,111,235,.2);
+}
+.search-wrap input::placeholder { color: var(--muted); }
+.search-icon {
+  position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+  color: var(--muted); font-size: 16px; pointer-events: none;
+}
+
+/* ===== SECTION ===== */
+.section { max-width: 1100px; margin: 0 auto; padding: 0 24px 64px; }
+.section-header {
+  display: flex; align-items: baseline; gap: 12px;
+  margin-bottom: 28px; padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+.section-header h2 { font-size: 18px; font-weight: 700; }
+.section-count {
+  font-size: 11px; color: var(--muted);
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 10px; padding: 1px 8px;
+}
+
+/* ===== CARD GRID ===== */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+.sheet-card {
+  background: var(--card-bg); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 24px;
+  display: flex; flex-direction: column; gap: 12px;
+  transition: transform .2s, box-shadow .2s, border-color .2s;
+  position: relative; overflow: hidden;
+}
+.sheet-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, var(--card-accent, var(--blue)), transparent);
+  opacity: 0; transition: opacity .2s;
+}
+.sheet-card:hover::before { opacity: 1; }
+.sheet-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 32px rgba(0,0,0,.35);
+  border-color: var(--card-accent, var(--blue));
+  background: var(--card-hover);
+}
+.sheet-card.coming-soon {
+  opacity: .55; pointer-events: none;
+}
+.sheet-card.coming-soon .card-btn { display: none; }
+.card-icon {
+  font-size: 28px; width: 48px; height: 48px;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--surface); border-radius: var(--radius);
+  border: 1px solid var(--border); flex-shrink: 0;
+}
+.card-header-row { display: flex; align-items: flex-start; gap: 12px; }
+.card-title { font-size: 15px; font-weight: 700; margin-bottom: 2px; }
+.card-subtitle { font-size: 11px; color: var(--muted); }
+.card-desc { font-size: 13px; color: var(--muted); line-height: 1.6; flex: 1; }
+.card-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.card-tag {
+  font-size: 10px; font-weight: 600; padding: 2px 8px;
+  border-radius: 10px; border: 1px solid; letter-spacing: .03em;
+}
+.tag-cisco { border-color: #0d7377; color: #a0e6e8; background: rgba(13,115,119,.15); }
+.tag-routing { border-color: #8a4f00; color: #ffcf88; background: rgba(138,79,0,.15); }
+.tag-switching { border-color: #2d7a2d; color: #90d890; background: rgba(45,122,45,.15); }
+.tag-security { border-color: #5a3e8a; color: #d4b8ff; background: rgba(90,62,138,.15); }
+.tag-linux { border-color: #7a5200; color: #ffdf88; background: rgba(122,82,0,.15); }
+.tag-protocols { border-color: #1a5276; color: #7ec8e3; background: rgba(26,82,118,.15); }
+.tag-tools { border-color: #4a235a; color: #e8b4f8; background: rgba(74,35,90,.15); }
+.tag-docker { border-color: #0e4d8a; color: #7ab8f5; background: rgba(14,77,138,.15); }
+.tag-bgp { border-color: #7a0e0e; color: #f5a0a0; background: rgba(122,14,14,.15); }
+.card-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 4px; }
+.coming-badge {
+  font-size: 10px; font-weight: 700; padding: 3px 10px;
+  border-radius: 10px; background: var(--surface); color: var(--muted);
+  border: 1px solid var(--border); letter-spacing: .05em; text-transform: uppercase;
+}
+.card-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 16px; border-radius: var(--radius);
+  font-size: 12px; font-weight: 600; cursor: pointer;
+  border: none; font-family: inherit;
+  background: var(--focus); color: #fff;
+  transition: opacity .15s, transform .1s;
+}
+.card-btn:hover { opacity: .88; transform: translateY(-1px); }
+.card-btn .arrow { font-size: 13px; transition: transform .15s; }
+.sheet-card:hover .card-btn .arrow { transform: translateX(3px); }
+
+/* ===== STATS BAR ===== */
+.stats-bar {
+  max-width: 1100px; margin: 0 auto 48px; padding: 0 24px;
+  display: flex; gap: 0; flex-wrap: wrap;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); overflow: hidden;
+}
+.stat-item {
+  flex: 1; min-width: 120px; padding: 16px 20px;
+  border-right: 1px solid var(--border);
+  text-align: center;
+}
+.stat-item:last-child { border-right: none; }
+.stat-value { font-size: 22px; font-weight: 800; color: var(--blue); }
+.stat-label { font-size: 11px; color: var(--muted); margin-top: 2px; text-transform: uppercase; letter-spacing: .05em; }
+
+/* ===== FOOTER ===== */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 32px 24px; text-align: center;
+  color: var(--muted); font-size: 12px;
+}
+footer a { color: var(--blue); }
+footer a:hover { text-decoration: underline; }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 640px) {
+  #hero { padding: 48px 16px 40px; }
+  .section { padding: 0 16px 48px; }
+  .card-grid { grid-template-columns: 1fr; }
+  .stats-bar { flex-direction: column; }
+  .stat-item { border-right: none; border-bottom: 1px solid var(--border); }
+  .stat-item:last-child { border-bottom: none; }
+}
+
+/* ===== NO RESULTS ===== */
+.no-results {
+  text-align: center; padding: 48px 24px; color: var(--muted);
+  display: none;
+}
+.no-results.visible { display: block; }
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div id="topbar">
+  <div class="brand">NetOps <span>Cheat Sheets</span></div>
+  <div class="topbar-spacer"></div>
+  <div class="topbar-actions">
+    <a href="https://github.com/Likkyh/cheat-sheets" target="_blank" rel="noopener" class="gh-link">
+      <svg viewBox="0 0 16 16"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+      GitHub
+    </a>
+    <button class="icon-btn" id="theme-btn" title="Toggle theme">☀</button>
+  </div>
+</div>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-glow"></div>
+  <h1>Network Engineering<br>Cheat Sheets</h1>
+  <p>Quick reference guides and step-by-step procedures for network professionals.</p>
+  <div class="search-wrap">
+    <span class="search-icon">⌕</span>
+    <input type="text" id="search-input" placeholder="Search cheat sheets…" autocomplete="off" spellcheck="false">
+  </div>
+  <div class="hero-badges">
+    <span class="hero-badge hb-cisco">Cisco IOS</span>
+    <span class="hero-badge hb-network">Networking</span>
+    <span class="hero-badge hb-security">Security</span>
+    <span class="hero-badge hb-linux">Linux</span>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats-bar">
+  <div class="stat-item">
+    <div class="stat-value" id="stat-total">5</div>
+    <div class="stat-label">Planned Sheets</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-value" id="stat-available">1</div>
+    <div class="stat-label">Available Now</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-value">300+</div>
+    <div class="stat-label">IOS Commands</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-value">15</div>
+    <div class="stat-label">Procedures</div>
+  </div>
+</div>
+
+<!-- MAIN SECTION -->
+<div class="section">
+  <div class="section-header">
+    <h2>Reference Sheets</h2>
+    <span class="section-count" id="visible-count">5 sheets</span>
+  </div>
+
+  <div class="card-grid" id="card-grid">
+
+    <!-- ===== AVAILABLE: Cisco IOS ===== -->
+    <div class="sheet-card" style="--card-accent: var(--green);" data-tags="cisco routing switching security ios commands">
+      <div class="card-header-row">
+        <div class="card-icon">🔌</div>
+        <div>
+          <div class="card-title">Cisco IOS Reference</div>
+          <div class="card-subtitle">Routing &amp; Switching</div>
+        </div>
+      </div>
+      <div class="card-desc">Complete command reference for Cisco IOS: switching, VLANs, trunking, STP, EtherChannel, OSPF, EIGRP, BGP, NAT, ACLs — plus step-by-step configuration procedures.</div>
+      <div class="card-tags">
+        <span class="card-tag tag-cisco">Cisco</span>
+        <span class="card-tag tag-switching">Switching</span>
+        <span class="card-tag tag-routing">Routing</span>
+        <span class="card-tag tag-security">Security</span>
+      </div>
+      <div class="card-footer">
+        <span style="font-size:11px;color:var(--green);font-weight:600;">● Available</span>
+        <a href="ios-reference-sheet.html" class="card-btn">Open Sheet <span class="arrow">→</span></a>
+      </div>
+    </div>
+
+    <!-- ===== COMING SOON: Linux Networking ===== -->
+    <div class="sheet-card coming-soon" style="--card-accent: var(--orange);" data-tags="linux networking ip route iptables tcpdump">
+      <div class="card-header-row">
+        <div class="card-icon">🐧</div>
+        <div>
+          <div class="card-title">Linux Networking</div>
+          <div class="card-subtitle">ip, ss, iptables, netplan</div>
+        </div>
+      </div>
+      <div class="card-desc">Essential Linux networking commands: ip link/addr/route, ss, iptables, nftables, netplan, NetworkManager, bonding, bridging, and VLANs on Linux.</div>
+      <div class="card-tags">
+        <span class="card-tag tag-linux">Linux</span>
+        <span class="card-tag tag-protocols">IP Stack</span>
+        <span class="card-tag tag-security">Firewalls</span>
+      </div>
+      <div class="card-footer">
+        <span class="coming-badge">Coming Soon</span>
+      </div>
+    </div>
+
+    <!-- ===== COMING SOON: Wireshark ===== -->
+    <div class="sheet-card coming-soon" style="--card-accent: var(--blue);" data-tags="wireshark packet capture analysis tshark filters">
+      <div class="card-header-row">
+        <div class="card-icon">🦈</div>
+        <div>
+          <div class="card-title">Wireshark &amp; Packet Analysis</div>
+          <div class="card-subtitle">Capture, filter, analyze</div>
+        </div>
+      </div>
+      <div class="card-desc">Wireshark display filters, capture filters, tshark CLI, common protocol dissection, performance analysis, and troubleshooting workflows.</div>
+      <div class="card-tags">
+        <span class="card-tag tag-tools">Wireshark</span>
+        <span class="card-tag tag-tools">tshark</span>
+        <span class="card-tag tag-protocols">Protocols</span>
+      </div>
+      <div class="card-footer">
+        <span class="coming-badge">Coming Soon</span>
+      </div>
+    </div>
+
+    <!-- ===== COMING SOON: BGP Deep Dive ===== -->
+    <div class="sheet-card coming-soon" style="--card-accent: var(--purple);" data-tags="bgp routing protocol autonomous system peering internet">
+      <div class="card-header-row">
+        <div class="card-icon">🌐</div>
+        <div>
+          <div class="card-title">BGP Deep Dive</div>
+          <div class="card-subtitle">eBGP, iBGP, route policies</div>
+        </div>
+      </div>
+      <div class="card-desc">BGP fundamentals and advanced: peering configuration, route maps, communities, AS path manipulation, prefix filtering, route reflectors, and multi-homing.</div>
+      <div class="card-tags">
+        <span class="card-tag tag-bgp">BGP</span>
+        <span class="card-tag tag-routing">Routing</span>
+        <span class="card-tag tag-cisco">Cisco</span>
+      </div>
+      <div class="card-footer">
+        <span class="coming-badge">Coming Soon</span>
+      </div>
+    </div>
+
+    <!-- ===== COMING SOON: Docker Networking ===== -->
+    <div class="sheet-card coming-soon" style="--card-accent: var(--blue);" data-tags="docker kubernetes container networking overlay vxlan">
+      <div class="card-header-row">
+        <div class="card-icon">🐳</div>
+        <div>
+          <div class="card-title">Container Networking</div>
+          <div class="card-subtitle">Docker, Kubernetes, overlay</div>
+        </div>
+      </div>
+      <div class="card-desc">Docker network modes, bridge/overlay/macvlan, Kubernetes CNI plugins, service mesh basics, network policies, and inter-container communication.</div>
+      <div class="card-tags">
+        <span class="card-tag tag-docker">Docker</span>
+        <span class="card-tag tag-docker">Kubernetes</span>
+        <span class="card-tag tag-protocols">Overlay</span>
+      </div>
+      <div class="card-footer">
+        <span class="coming-badge">Coming Soon</span>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="no-results" id="no-results">
+    No cheat sheets match your search. Try a different keyword.
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <p>Built for network professionals &middot; <a href="https://github.com/Likkyh/cheat-sheets" target="_blank" rel="noopener">Contribute on GitHub</a> &middot; Hosted on <a href="https://pages.github.com" target="_blank" rel="noopener">GitHub Pages</a></p>
+</footer>
+
+<script>
+/* ===== Theme ===== */
+const themeBtn = document.getElementById('theme-btn');
+function applyTheme(t) {
+  document.body.dataset.theme = t;
+  themeBtn.textContent = t === 'dark' ? '☀' : '☾';
+  try { localStorage.setItem('netops-theme', t); } catch(e) {}
+}
+(function() {
+  applyTheme(localStorage.getItem('netops-theme') || 'dark');
+})();
+themeBtn.addEventListener('click', () => {
+  applyTheme(document.body.dataset.theme === 'dark' ? 'light' : 'dark');
+});
+
+/* ===== Search ===== */
+const searchInput = document.getElementById('search-input');
+const cards = document.querySelectorAll('.sheet-card');
+const noResults = document.getElementById('no-results');
+const visibleCount = document.getElementById('visible-count');
+
+searchInput.addEventListener('input', () => {
+  const q = searchInput.value.trim().toLowerCase();
+  let visible = 0;
+  cards.forEach(card => {
+    const tags = card.dataset.tags || '';
+    const title = card.querySelector('.card-title')?.textContent.toLowerCase() || '';
+    const desc = card.querySelector('.card-desc')?.textContent.toLowerCase() || '';
+    const match = !q || tags.includes(q) || title.includes(q) || desc.includes(q);
+    card.style.display = match ? '' : 'none';
+    if (match) visible++;
+  });
+  visibleCount.textContent = visible + ' sheet' + (visible !== 1 ? 's' : '');
+  noResults.classList.toggle('visible', visible === 0);
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key === '/' && document.activeElement.tagName !== 'INPUT') {
+    e.preventDefault();
+    searchInput.focus();
+  }
+  if (e.key === 'Escape') searchInput.blur();
+  if ((e.key === 't' || e.key === 'T') && document.activeElement.tagName !== 'INPUT') {
+    applyTheme(document.body.dataset.theme === 'dark' ? 'light' : 'dark');
+  }
+});
+</script>
+</body>
+</html>
