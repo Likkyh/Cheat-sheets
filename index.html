@@ -223,22 +223,6 @@ a { text-decoration: none; color: inherit; }
 .card-btn .arrow { font-size: 13px; transition: transform .15s; }
 .sheet-card:hover .card-btn .arrow { transform: translateX(3px); }
 
-/* ===== STATS BAR ===== */
-.stats-bar {
-  max-width: 1100px; margin: 0 auto 48px; padding: 0 24px;
-  display: flex; gap: 0; flex-wrap: wrap;
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: var(--radius-lg); overflow: hidden;
-}
-.stat-item {
-  flex: 1; min-width: 120px; padding: 16px 20px;
-  border-right: 1px solid var(--border);
-  text-align: center;
-}
-.stat-item:last-child { border-right: none; }
-.stat-value { font-size: 22px; font-weight: 800; color: var(--blue); }
-.stat-label { font-size: 11px; color: var(--muted); margin-top: 2px; text-transform: uppercase; letter-spacing: .05em; }
-
 /* ===== FOOTER ===== */
 footer {
   border-top: 1px solid var(--border);
@@ -253,9 +237,7 @@ footer a:hover { text-decoration: underline; }
   #hero { padding: 48px 16px 40px; }
   .section { padding: 0 16px 48px; }
   .card-grid { grid-template-columns: 1fr; }
-  .stats-bar { flex-direction: column; }
-  .stat-item { border-right: none; border-bottom: 1px solid var(--border); }
-  .stat-item:last-child { border-bottom: none; }
+
 }
 
 /* ===== NO RESULTS ===== */
@@ -298,31 +280,11 @@ footer a:hover { text-decoration: underline; }
   </div>
 </section>
 
-<!-- STATS -->
-<div class="stats-bar">
-  <div class="stat-item">
-    <div class="stat-value" id="stat-total">5</div>
-    <div class="stat-label">Planned Sheets</div>
-  </div>
-  <div class="stat-item">
-    <div class="stat-value" id="stat-available">1</div>
-    <div class="stat-label">Available Now</div>
-  </div>
-  <div class="stat-item">
-    <div class="stat-value">300+</div>
-    <div class="stat-label">IOS Commands</div>
-  </div>
-  <div class="stat-item">
-    <div class="stat-value">15</div>
-    <div class="stat-label">Procedures</div>
-  </div>
-</div>
-
 <!-- MAIN SECTION -->
 <div class="section">
   <div class="section-header">
     <h2>Reference Sheets</h2>
-    <span class="section-count" id="visible-count">5 sheets</span>
+    <span class="section-count" id="visible-count">3 sheets</span>
   </div>
 
   <div class="card-grid" id="card-grid">
@@ -369,60 +331,20 @@ footer a:hover { text-decoration: underline; }
       </div>
     </div>
 
-    <!-- ===== COMING SOON: Wireshark ===== -->
-    <div class="sheet-card coming-soon" style="--card-accent: var(--blue);" data-tags="wireshark packet capture analysis tshark filters">
-      <div class="card-header-row">
-        <div class="card-icon">🦈</div>
-        <div>
-          <div class="card-title">Wireshark &amp; Packet Analysis</div>
-          <div class="card-subtitle">Capture, filter, analyze</div>
-        </div>
-      </div>
-      <div class="card-desc">Wireshark display filters, capture filters, tshark CLI, common protocol dissection, performance analysis, and troubleshooting workflows.</div>
-      <div class="card-tags">
-        <span class="card-tag tag-tools">Wireshark</span>
-        <span class="card-tag tag-tools">tshark</span>
-        <span class="card-tag tag-protocols">Protocols</span>
-      </div>
-      <div class="card-footer">
-        <span class="coming-badge">Coming Soon</span>
-      </div>
-    </div>
-
-    <!-- ===== COMING SOON: BGP Deep Dive ===== -->
-    <div class="sheet-card coming-soon" style="--card-accent: var(--purple);" data-tags="bgp routing protocol autonomous system peering internet">
-      <div class="card-header-row">
-        <div class="card-icon">🌐</div>
-        <div>
-          <div class="card-title">BGP Deep Dive</div>
-          <div class="card-subtitle">eBGP, iBGP, route policies</div>
-        </div>
-      </div>
-      <div class="card-desc">BGP fundamentals and advanced: peering configuration, route maps, communities, AS path manipulation, prefix filtering, route reflectors, and multi-homing.</div>
-      <div class="card-tags">
-        <span class="card-tag tag-bgp">BGP</span>
-        <span class="card-tag tag-routing">Routing</span>
-        <span class="card-tag tag-cisco">Cisco</span>
-      </div>
-      <div class="card-footer">
-        <span class="coming-badge">Coming Soon</span>
-      </div>
-    </div>
-
-    <!-- ===== COMING SOON: Docker Networking ===== -->
-    <div class="sheet-card coming-soon" style="--card-accent: var(--blue);" data-tags="docker kubernetes container networking overlay vxlan">
+    <!-- ===== COMING SOON: Docker Cheat Sheet ===== -->
+    <div class="sheet-card coming-soon" style="--card-accent: var(--blue);" data-tags="docker container image volume compose dockerfile cli">
       <div class="card-header-row">
         <div class="card-icon">🐳</div>
         <div>
-          <div class="card-title">Container Networking</div>
-          <div class="card-subtitle">Docker, Kubernetes, overlay</div>
+          <div class="card-title">Docker Cheat Sheet</div>
+          <div class="card-subtitle">Containers, images, volumes, networking</div>
         </div>
       </div>
-      <div class="card-desc">Docker network modes, bridge/overlay/macvlan, Kubernetes CNI plugins, service mesh basics, network policies, and inter-container communication.</div>
+      <div class="card-desc">Docker CLI essentials: images, containers, volumes, networks, Compose, Dockerfile best practices, debugging, and registry operations.</div>
       <div class="card-tags">
         <span class="card-tag tag-docker">Docker</span>
-        <span class="card-tag tag-docker">Kubernetes</span>
-        <span class="card-tag tag-protocols">Overlay</span>
+        <span class="card-tag tag-docker">Compose</span>
+        <span class="card-tag tag-tools">CLI</span>
       </div>
       <div class="card-footer">
         <span class="coming-badge">Coming Soon</span>
