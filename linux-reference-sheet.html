@@ -1236,8 +1236,124 @@ document.getElementById('shortcuts-modal').addEventListener('click', e => {
 
 <script>
 /* ============================================================
-   SECTION DATA — added in subsequent batches
+   SECTION DATA
    ============================================================ */
+
+/* ==================== FILESYSTEM ==================== */
+SECTIONS.push({
+  id: 'filesystem', title: 'FILESYSTEM', type: 'filesystem',
+  tree: [
+    { indent: '/', name: '/', desc: 'Root of the filesystem — everything lives here' },
+    { indent: '├── ', name: '/bin', desc: 'Essential user command binaries (ls, cp, mv, bash…)' },
+    { indent: '├── ', name: '/boot', desc: 'Boot loader files, kernel images, initrd' },
+    { indent: '├── ', name: '/dev', desc: 'Device files (block, char, pseudo-devices)' },
+    { indent: '├── ', name: '/etc', desc: 'System-wide configuration files' },
+    { indent: '├── ', name: '/home', desc: 'User home directories (/home/<username>)' },
+    { indent: '├── ', name: '/lib', desc: 'Shared libraries for /bin and /sbin' },
+    { indent: '├── ', name: '/lib64', desc: '64-bit shared libraries (on x86_64 systems)' },
+    { indent: '├── ', name: '/media', desc: 'Mount points for removable media (USB, CD-ROM)' },
+    { indent: '├── ', name: '/mnt', desc: 'Temporary mount point for manual mounts' },
+    { indent: '├── ', name: '/opt', desc: 'Optional / third-party software packages' },
+    { indent: '├── ', name: '/proc', desc: 'Virtual filesystem: kernel & process info (read-only)' },
+    { indent: '├── ', name: '/root', desc: 'Home directory for the root user' },
+    { indent: '├── ', name: '/run', desc: 'Runtime data (PID files, sockets) — cleared on boot' },
+    { indent: '├── ', name: '/sbin', desc: 'System administration binaries (fdisk, iptables…)' },
+    { indent: '├── ', name: '/srv', desc: 'Service data (web, FTP) — often empty by default' },
+    { indent: '├── ', name: '/sys', desc: 'Virtual filesystem: hardware/kernel device tree' },
+    { indent: '├── ', name: '/tmp', desc: 'Temporary files — cleared on reboot (or via tmpfs)' },
+    { indent: '├── ', name: '/usr', desc: 'Secondary hierarchy for user programs and data' },
+    { indent: '│   ├── ', name: '/usr/bin', desc: 'Non-essential user commands (git, python3, vim…)' },
+    { indent: '│   ├── ', name: '/usr/sbin', desc: 'Non-essential system admin commands' },
+    { indent: '│   ├── ', name: '/usr/lib', desc: 'Libraries for /usr/bin and /usr/sbin' },
+    { indent: '│   ├── ', name: '/usr/local', desc: 'Locally compiled/installed software (not via package manager)' },
+    { indent: '│   ├── ', name: '/usr/share', desc: 'Architecture-independent data (man pages, icons, docs)' },
+    { indent: '│   └── ', name: '/usr/include', desc: 'C/C++ header files' },
+    { indent: '└── ', name: '/var', desc: 'Variable data — logs, spools, databases, caches' },
+    { indent: '    ├── ', name: '/var/log', desc: 'System and application log files' },
+    { indent: '    ├── ', name: '/var/spool', desc: 'Spool data (print, mail, cron queues)' },
+    { indent: '    ├── ', name: '/var/cache', desc: 'Cached application data (apt cache, etc.)' },
+    { indent: '    ├── ', name: '/var/lib', desc: 'Persistent state data for services (dpkg db, etc.)' },
+    { indent: '    └── ', name: '/var/tmp', desc: 'Temporary files preserved between reboots' },
+  ],
+  dirs: [
+    {
+      path: '/etc', desc: 'System-wide configuration. Never delete anything here without a backup.',
+      items: [
+        { name: '/etc/fstab', desc: 'Filesystem mount table — defines auto-mounted filesystems' },
+        { name: '/etc/passwd', desc: 'User accounts (username, UID, GID, home, shell)' },
+        { name: '/etc/shadow', desc: 'Hashed passwords and password policy (root-readable)' },
+        { name: '/etc/group', desc: 'Group definitions and group memberships' },
+        { name: '/etc/hosts', desc: 'Static hostname-to-IP mappings' },
+        { name: '/etc/hostname', desc: 'System hostname' },
+        { name: '/etc/resolv.conf', desc: 'DNS resolver configuration (nameservers, search domains)' },
+        { name: '/etc/sudoers', desc: 'sudo policy — edit only with visudo' },
+        { name: '/etc/ssh/sshd_config', desc: 'OpenSSH server configuration' },
+        { name: '/etc/crontab', desc: 'System-wide cron schedule' },
+        { name: '/etc/os-release', desc: 'OS identification (NAME, VERSION_ID, ID_LIKE…)' },
+        { name: '/etc/environment', desc: 'System-wide environment variables (login shells)' },
+      ]
+    },
+    {
+      path: '/proc', desc: 'Virtual filesystem exposing kernel internals. Files are read live from kernel memory.',
+      items: [
+        { name: '/proc/cpuinfo', desc: 'CPU model, cores, flags, cache info' },
+        { name: '/proc/meminfo', desc: 'RAM and swap statistics' },
+        { name: '/proc/version', desc: 'Kernel version and compiler info' },
+        { name: '/proc/uptime', desc: 'Seconds since boot and idle time' },
+        { name: '/proc/mounts', desc: 'Currently mounted filesystems' },
+        { name: '/proc/net/dev', desc: 'Network interface statistics (bytes, packets, errors)' },
+        { name: '/proc/sys/', desc: 'Tunable kernel parameters (also via sysctl)' },
+        { name: '/proc/<PID>/', desc: 'Per-process directory: cmdline, fd, maps, status, net…' },
+      ]
+    },
+    {
+      path: '/sys', desc: 'sysfs: kernel device model. Used to inspect and control hardware and kernel modules.',
+      items: [
+        { name: '/sys/class/net/', desc: 'Network interfaces with attributes (speed, operstate…)' },
+        { name: '/sys/block/', desc: 'Block devices (disks, partitions)' },
+        { name: '/sys/bus/pci/', desc: 'PCI devices tree' },
+        { name: '/sys/module/', desc: 'Loaded kernel modules and their parameters' },
+        { name: '/sys/power/', desc: 'Power management (suspend, hibernate)' },
+      ]
+    },
+    {
+      path: '/dev', desc: 'Device files — interface between userspace and kernel drivers.',
+      items: [
+        { name: '/dev/sda, /dev/nvme0n1', desc: 'First SATA/NVMe disk' },
+        { name: '/dev/sda1', desc: 'First partition of first SATA disk' },
+        { name: '/dev/tty', desc: 'Controlling terminal of current process' },
+        { name: '/dev/ttyS0', desc: 'First serial (COM1) port' },
+        { name: '/dev/null', desc: 'Discard all writes; reads return EOF' },
+        { name: '/dev/zero', desc: 'Returns infinite null bytes (useful for dd, wiping)' },
+        { name: '/dev/random, /dev/urandom', desc: 'Cryptographic random number generators' },
+        { name: '/dev/loop0', desc: 'Loop device for mounting image files' },
+        { name: '/dev/mapper/', desc: 'Device mapper targets (LVM, LUKS encrypted volumes)' },
+      ]
+    },
+    {
+      path: '/var/log', desc: 'Log files. Most modern distros also use journald (journalctl).',
+      items: [
+        { name: 'syslog / messages', desc: 'General system messages (Ubuntu: syslog, RHEL: messages)' },
+        { name: 'auth.log / secure', desc: 'Authentication events (sudo, SSH logins)' },
+        { name: 'kern.log', desc: 'Kernel messages (same as dmesg output)' },
+        { name: 'dpkg.log', desc: 'Package install/remove history (Debian/Ubuntu)' },
+        { name: 'dnf.log', desc: 'Package install/remove history (Fedora/RHEL)' },
+        { name: 'pacman.log', desc: 'Package install/remove history (Arch)' },
+        { name: 'nginx/ apache2/', desc: 'Web server access and error logs' },
+        { name: 'journal/', desc: 'systemd journal binary files (read with journalctl)' },
+      ]
+    },
+    {
+      path: '/usr/local', desc: 'Local installations not managed by the distro package manager.',
+      items: [
+        { name: '/usr/local/bin', desc: 'Locally installed executables (highest priority in PATH)' },
+        { name: '/usr/local/lib', desc: 'Local shared libraries' },
+        { name: '/usr/local/etc', desc: 'Configuration for locally installed software' },
+        { name: '/usr/local/share', desc: 'Architecture-independent data for local software' },
+      ]
+    },
+  ]
+});
 
 render();
 </script>
