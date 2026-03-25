@@ -1,0 +1,1245 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Linux Command Reference</title>
+<style>
+/* ===== VARIABLES ===== */
+:root {
+  --bg: #0d1117;
+  --sidebar-bg: #161b22;
+  --border: #30363d;
+  --text: #e6edf3;
+  --muted: #8b949e;
+  --fs-color: #3fb950;
+  --cmd-color: #79c0ff;
+  --ol-color: #f78166;
+  --proc-color: #58a6ff;
+  --param-color: #ffa657;
+  --optional-color: #a5d6ff;
+  --choice-color: #d2a8ff;
+  --keyword-color: #e6edf3;
+  --badge-ubuntu: #1a5f1a;
+  --badge-arch: #1a3a6b;
+  --badge-fedora: #6b1a1a;
+  --badge-all: #5a3e8a;
+  --topbar-bg: #010409;
+  --topbar-h: 52px;
+  --sidebar-w: 260px;
+  --table-head: #1c2128;
+  --table-row-alt: #161b22;
+  --table-row: #0d1117;
+  --card-bg: #161b22;
+  --shadow: 0 1px 3px rgba(0,0,0,.5);
+  --radius: 6px;
+  --toast-bg: #238636;
+  --search-bg: #21262d;
+  --search-border: #30363d;
+  --focus-ring: #1f6feb;
+  --shortcut-bg: #21262d;
+}
+[data-theme="light"] {
+  --bg: #ffffff;
+  --sidebar-bg: #f6f8fa;
+  --border: #d0d7de;
+  --text: #1f2328;
+  --muted: #57606a;
+  --topbar-bg: #24292f;
+  --table-head: #f6f8fa;
+  --table-row-alt: #f6f8fa;
+  --table-row: #ffffff;
+  --card-bg: #f6f8fa;
+  --search-bg: #ffffff;
+  --search-border: #d0d7de;
+  --shortcut-bg: #eaeef2;
+  --shadow: 0 1px 3px rgba(0,0,0,.12);
+}
+
+/* ===== RESET ===== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  background: var(--bg);
+  color: var(--text);
+  transition: background .2s, color .2s;
+}
+a { color: var(--cmd-color); text-decoration: none; }
+a:hover { text-decoration: underline; }
+code, pre, .mono {
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 12px;
+}
+
+/* ===== TOP BAR ===== */
+#topbar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  height: var(--topbar-h);
+  background: var(--topbar-bg);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 12px;
+  padding: 0 16px;
+}
+#topbar .brand {
+  font-size: 15px; font-weight: 600; white-space: nowrap;
+  color: var(--text); flex-shrink: 0;
+}
+#topbar .brand span { color: var(--fs-color); }
+#search-wrap {
+  flex: 1; max-width: 380px; position: relative;
+}
+#search-input {
+  width: 100%; padding: 6px 12px 6px 32px;
+  background: var(--search-bg); border: 1px solid var(--search-border);
+  border-radius: var(--radius); color: var(--text);
+  font-size: 13px; outline: none;
+  transition: border-color .15s;
+}
+#search-input:focus { border-color: var(--focus-ring); }
+#search-wrap .search-icon {
+  position: absolute; left: 9px; top: 50%; transform: translateY(-50%);
+  color: var(--muted); pointer-events: none; font-size: 13px;
+}
+#search-kbd {
+  position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+  font-size: 10px; color: var(--muted);
+  background: var(--shortcut-bg); border-radius: 3px; padding: 1px 5px;
+  pointer-events: none;
+}
+#distro-filter { display: flex; gap: 4px; flex-shrink: 0; }
+.filter-btn {
+  padding: 4px 10px; border-radius: var(--radius); border: 1px solid var(--border);
+  background: transparent; color: var(--muted); cursor: pointer; font-size: 12px;
+  transition: background .15s, color .15s, border-color .15s;
+}
+.filter-btn:hover { background: var(--card-bg); color: var(--text); }
+.filter-btn.active { background: var(--focus-ring); border-color: var(--focus-ring); color: #fff; }
+#theme-btn {
+  padding: 5px 8px; border-radius: var(--radius); border: 1px solid var(--border);
+  background: transparent; color: var(--muted); cursor: pointer; font-size: 15px;
+  transition: background .15s; flex-shrink: 0;
+}
+#theme-btn:hover { background: var(--card-bg); color: var(--text); }
+#help-btn {
+  padding: 4px 8px; border-radius: var(--radius); border: 1px solid var(--border);
+  background: transparent; color: var(--muted); cursor: pointer; font-size: 12px;
+  flex-shrink: 0;
+}
+#help-btn:hover { background: var(--card-bg); color: var(--text); }
+#sidebar-toggle {
+  padding: 5px 8px; border-radius: var(--radius); border: 1px solid var(--border);
+  background: transparent; color: var(--muted); cursor: pointer; font-size: 15px;
+  flex-shrink: 0; line-height: 1;
+  transition: background .15s, color .15s;
+}
+#sidebar-toggle:hover { background: var(--card-bg); color: var(--text); }
+
+/* ===== LAYOUT ===== */
+#layout {
+  display: flex;
+  margin-top: var(--topbar-h);
+  min-height: calc(100vh - var(--topbar-h));
+}
+
+/* ===== SIDEBAR ===== */
+#sidebar {
+  width: var(--sidebar-w);
+  flex-shrink: 0;
+  background: var(--sidebar-bg);
+  border-right: 1px solid var(--border);
+  position: sticky; top: var(--topbar-h);
+  height: calc(100vh - var(--topbar-h));
+  overflow-y: auto; overflow-x: hidden;
+  padding: 12px 0 24px;
+  transition: width .2s ease, padding .2s ease, border-color .2s ease;
+}
+body.sidebar-collapsed #sidebar {
+  width: 0;
+  padding: 0;
+  border-right-color: transparent;
+  overflow: hidden;
+}
+body.sidebar-collapsed #main {
+  max-width: 100vw;
+}
+#sidebar::-webkit-scrollbar { width: 4px; }
+#sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+.toc-group { margin-bottom: 4px; }
+.toc-group-title {
+  display: block; padding: 6px 16px;
+  font-size: 10px; font-weight: 700; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--muted);
+}
+.toc-group-title.commands { color: var(--cmd-color); }
+.toc-group-title.filesystem { color: var(--fs-color); }
+.toc-group-title.oneliners { color: var(--ol-color); }
+.toc-group-title.procedure { color: var(--proc-color); }
+.toc-link {
+  display: block; padding: 4px 16px 4px 24px;
+  font-size: 12px; color: var(--muted);
+  cursor: pointer; border-left: 2px solid transparent;
+  transition: color .15s, border-color .15s, background .15s;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.toc-link:hover { color: var(--text); background: var(--bg); }
+.toc-link.active { color: var(--text); border-left-color: var(--cmd-color); background: var(--bg); }
+
+/* ===== MAIN ===== */
+#main {
+  flex: 1; padding: 24px 24px 64px;
+  min-width: 0;
+  max-width: calc(100vw - var(--sidebar-w));
+  transition: max-width .2s ease;
+}
+
+/* ===== LEGEND ===== */
+#legend {
+  background: var(--card-bg); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 12px 16px;
+  margin-bottom: 24px;
+}
+#legend summary {
+  cursor: pointer; font-size: 12px; font-weight: 600;
+  color: var(--muted); user-select: none;
+  list-style: none; display: flex; align-items: center; gap: 6px;
+}
+#legend summary::before { content: "▶"; font-size: 9px; transition: transform .2s; }
+#legend[open] summary::before { transform: rotate(90deg); }
+#legend .legend-grid {
+  display: flex; flex-wrap: wrap; gap: 16px; margin-top: 10px;
+}
+.legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; }
+.legend-item code { font-size: 12px; }
+
+/* ===== CATEGORY SECTION ===== */
+.cat-section { margin-bottom: 40px; }
+.cat-header {
+  display: flex; align-items: center; gap: 12px;
+  cursor: pointer; user-select: none;
+  padding: 10px 0; border-bottom: 2px solid var(--border);
+  margin-bottom: 20px;
+}
+.cat-header h2 {
+  font-size: 20px; font-weight: 700; letter-spacing: .03em;
+}
+.cat-header.commands h2 { color: var(--cmd-color); }
+.cat-header.filesystem h2 { color: var(--fs-color); }
+.cat-header.oneliners h2 { color: var(--ol-color); }
+.cat-header.procedure h2 { color: var(--proc-color); }
+.cat-chevron {
+  margin-left: auto; font-size: 12px; color: var(--muted);
+  transition: transform .2s;
+}
+.cat-section.collapsed .cat-chevron { transform: rotate(-90deg); }
+.cat-section.collapsed .cat-body { display: none; }
+
+/* ===== SUBSECTION ===== */
+.subsection { margin-bottom: 28px; }
+.subsection-header {
+  display: flex; align-items: center; gap: 8px;
+  cursor: pointer; user-select: none;
+  padding: 6px 0; margin-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+.subsection-header h3 {
+  font-size: 14px; font-weight: 600; color: var(--text);
+}
+.sub-chevron {
+  margin-left: auto; font-size: 10px; color: var(--muted);
+  transition: transform .2s;
+}
+.subsection.collapsed .sub-chevron { transform: rotate(-90deg); }
+.subsection.collapsed .sub-body { display: none; }
+.cmd-count {
+  font-size: 10px; background: var(--card-bg); color: var(--muted);
+  border: 1px solid var(--border); border-radius: 10px; padding: 1px 7px;
+}
+
+/* ===== COMMAND TABLE ===== */
+.cmd-table-wrap { overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--border); }
+.cmd-table {
+  width: 100%; border-collapse: collapse; font-size: 13px;
+}
+.cmd-table thead th {
+  background: var(--table-head); padding: 8px 12px;
+  text-align: left; font-size: 11px; font-weight: 600;
+  color: var(--muted); text-transform: uppercase; letter-spacing: .06em;
+  border-bottom: 1px solid var(--border); white-space: nowrap;
+}
+.cmd-table tbody tr {
+  border-bottom: 1px solid var(--border);
+  background: var(--table-row);
+  transition: background .1s;
+}
+.cmd-table tbody tr:nth-child(even) { background: var(--table-row-alt); }
+.cmd-table tbody tr:hover { background: var(--card-bg); }
+.cmd-table tbody tr.hidden { display: none; }
+.cmd-table td { padding: 8px 12px; vertical-align: top; }
+.cmd-table .td-cmd { white-space: nowrap; }
+.cmd-table .td-syntax { min-width: 220px; }
+.cmd-table .td-args { min-width: 160px; }
+.cmd-table .td-desc { min-width: 200px; color: var(--text); }
+.cmd-table .td-distros { white-space: nowrap; }
+
+/* ===== COMMAND NAME ===== */
+.cmd-name {
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 12px; color: var(--cmd-color); font-weight: 600;
+}
+.cmd-name.oneliners { color: var(--ol-color); }
+.cmd-name.filesystem { color: var(--fs-color); }
+
+/* ===== SYNTAX HIGHLIGHTING ===== */
+.syntax {
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 12px; white-space: pre-wrap; word-break: break-all;
+  line-height: 1.5;
+}
+.syn-keyword { color: var(--keyword-color); }
+.syn-required { color: var(--param-color); }
+.syn-optional { color: var(--optional-color); }
+.syn-choice { color: var(--choice-color); }
+.syn-pipe { color: var(--muted); }
+
+/* ===== SYNTAX CELL (with copy btn) ===== */
+.syntax-cell { display: flex; align-items: flex-start; gap: 6px; }
+.copy-btn {
+  flex-shrink: 0; background: none; border: none; cursor: pointer;
+  color: var(--muted); padding: 2px 4px; border-radius: 4px;
+  font-size: 11px; opacity: 0; transition: opacity .15s, background .15s;
+  margin-top: 1px;
+}
+.cmd-table tbody tr:hover .copy-btn { opacity: 1; }
+.copy-btn:hover { background: var(--card-bg); color: var(--text); }
+
+/* ===== ARGS DETAILS ===== */
+.args-details summary {
+  cursor: pointer; font-size: 11px; color: var(--muted);
+  list-style: none; display: flex; align-items: center; gap: 4px;
+  white-space: nowrap;
+}
+.args-details summary::before { content: "▶"; font-size: 8px; transition: transform .2s; }
+.args-details[open] summary::before { transform: rotate(90deg); }
+.args-table {
+  margin-top: 6px; border-collapse: collapse; font-size: 11px; width: 100%;
+}
+.args-table th {
+  color: var(--muted); font-weight: 600; padding: 2px 8px 2px 0;
+  text-align: left; white-space: nowrap; border-bottom: 1px solid var(--border);
+}
+.args-table td {
+  padding: 3px 8px 3px 0; vertical-align: top; border-bottom: 1px solid var(--border);
+}
+.args-table tr:last-child td { border-bottom: none; }
+.arg-name { color: var(--param-color); font-family: monospace; }
+.arg-req { color: var(--fs-color); font-size: 10px; font-weight: 700; }
+.arg-opt { color: var(--muted); font-size: 10px; }
+
+/* ===== DISTRO BADGES ===== */
+.badge {
+  display: inline-block; padding: 1px 6px; border-radius: 10px;
+  font-size: 10px; font-weight: 600; margin: 1px 2px; white-space: nowrap;
+}
+.badge-ubuntu { background: var(--badge-ubuntu); color: #90d890; }
+.badge-arch { background: var(--badge-arch); color: #7ec8e3; }
+.badge-fedora { background: var(--badge-fedora); color: #f5a0a0; }
+.badge-all { background: var(--badge-all); color: #d4b8ff; }
+
+/* ===== SEARCH RESULTS OVERLAY ===== */
+#search-results {
+  position: fixed; top: calc(var(--topbar-h) + 4px); left: 0; right: 0;
+  z-index: 200; display: none;
+  justify-content: center; pointer-events: none;
+}
+#search-results.visible { display: flex; }
+#search-results-inner {
+  background: var(--sidebar-bg); border: 1px solid var(--border);
+  border-radius: var(--radius); box-shadow: 0 8px 24px rgba(0,0,0,.4);
+  width: 600px; max-height: 400px; overflow-y: auto;
+  pointer-events: all;
+}
+.sr-header {
+  padding: 8px 12px; font-size: 11px; color: var(--muted);
+  border-bottom: 1px solid var(--border);
+  background: var(--sidebar-bg); position: sticky; top: 0;
+}
+.sr-item {
+  padding: 8px 12px; cursor: pointer; border-bottom: 1px solid var(--border);
+  display: flex; flex-direction: column; gap: 2px;
+  transition: background .1s;
+}
+.sr-item:hover, .sr-item.focused { background: var(--card-bg); }
+.sr-item:last-child { border-bottom: none; }
+.sr-cmd { font-size: 12px; color: var(--cmd-color); font-family: monospace; font-weight: 600; }
+.sr-desc { font-size: 11px; color: var(--muted); }
+.sr-section { font-size: 10px; color: var(--muted); margin-left: auto; white-space: nowrap; }
+.sr-top { display: flex; align-items: baseline; gap: 8px; }
+mark { background: #e3b34133; color: var(--param-color); border-radius: 2px; padding: 0 1px; }
+
+/* ===== TOAST ===== */
+#toast {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px);
+  background: var(--toast-bg); color: #fff;
+  padding: 8px 16px; border-radius: var(--radius);
+  font-size: 13px; font-weight: 500; pointer-events: none;
+  opacity: 0; transition: opacity .2s, transform .2s; z-index: 300;
+}
+#toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ===== SHORTCUTS MODAL ===== */
+#shortcuts-modal {
+  display: none; position: fixed; inset: 0; z-index: 400;
+  background: rgba(0,0,0,.6); align-items: center; justify-content: center;
+}
+#shortcuts-modal.visible { display: flex; }
+#shortcuts-box {
+  background: var(--sidebar-bg); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 24px; width: 360px;
+  box-shadow: 0 8px 32px rgba(0,0,0,.5);
+}
+#shortcuts-box h3 { font-size: 15px; margin-bottom: 16px; }
+.shortcut-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 5px 0; border-bottom: 1px solid var(--border); font-size: 13px;
+}
+.shortcut-row:last-child { border-bottom: none; }
+.shortcut-key {
+  background: var(--shortcut-bg); border: 1px solid var(--border);
+  border-radius: 4px; padding: 2px 8px; font-family: monospace; font-size: 12px;
+}
+#shortcuts-box .close-btn {
+  display: block; margin-top: 16px; text-align: center; cursor: pointer;
+  color: var(--muted); font-size: 12px;
+}
+
+/* ===== PROCEDURES ===== */
+.proc-card {
+  background: var(--card-bg); border: 1px solid var(--border);
+  border-radius: var(--radius); margin-bottom: 20px; overflow: hidden;
+}
+.proc-card .proc-card-header {
+  background: var(--table-head); padding: 10px 16px;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer; user-select: none;
+  display: flex; align-items: center; gap: 8px;
+}
+.proc-card .proc-card-header h3 { font-size: 14px; font-weight: 600; color: var(--text); }
+.proc-desc { padding: 10px 16px 0; font-size: 12px; color: var(--muted); font-style: italic; }
+.proc-steps { padding: 8px 16px 16px; }
+.proc-step { display: flex; gap: 14px; margin-top: 16px; }
+.proc-step-num {
+  flex-shrink: 0; width: 22px; height: 22px; border-radius: 50%;
+  background: var(--focus-ring); color: #fff;
+  font-size: 11px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center; margin-top: 1px;
+}
+.proc-step-body { flex: 1; min-width: 0; }
+.proc-step-title { font-size: 13px; font-weight: 600; margin-bottom: 4px; color: var(--text); }
+.proc-step-desc { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+.proc-code-wrap { position: relative; }
+.proc-code {
+  background: #010409; border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 10px 14px;
+  font-size: 12px; font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  overflow-x: auto; white-space: pre; line-height: 1.7; color: var(--text); margin: 0;
+}
+.proc-code .pc { color: var(--cmd-color); }
+.proc-code .cc { color: var(--muted); font-style: italic; }
+.proc-copy-btn {
+  position: absolute; top: 5px; right: 5px;
+  background: var(--card-bg); border: 1px solid var(--border);
+  border-radius: 4px; padding: 2px 7px;
+  font-size: 10px; cursor: pointer; color: var(--muted);
+  transition: background .15s, color .15s; opacity: 0;
+}
+.proc-code-wrap:hover .proc-copy-btn { opacity: 1; }
+.proc-copy-btn:hover { background: var(--search-bg); color: var(--text); }
+
+/* ===== FILESYSTEM TREE ===== */
+.fs-tree-block {
+  background: #010409; border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 14px 18px;
+  font-size: 12px; font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  overflow-x: auto; white-space: pre; line-height: 1.8;
+  margin-bottom: 20px;
+}
+.fs-dir { color: var(--fs-color); font-weight: 600; }
+.fs-sep { color: var(--muted); }
+.fs-desc { color: var(--muted); font-style: italic; }
+.fs-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; margin-bottom: 20px; }
+.fs-card {
+  background: var(--card-bg); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 14px;
+}
+.fs-card-title {
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 13px; color: var(--fs-color); font-weight: 700; margin-bottom: 6px;
+}
+.fs-card-desc { font-size: 12px; color: var(--muted); margin-bottom: 8px; line-height: 1.5; }
+.fs-card-items { list-style: none; }
+.fs-card-items li {
+  font-size: 11px; padding: 2px 0; border-bottom: 1px solid var(--border);
+  display: flex; gap: 8px;
+}
+.fs-card-items li:last-child { border-bottom: none; }
+.fs-item-name { color: var(--cmd-color); font-family: monospace; white-space: nowrap; flex-shrink: 0; }
+.fs-item-desc { color: var(--muted); }
+
+/* ===== ONE-LINERS ===== */
+.ol-card {
+  background: var(--card-bg); border: 1px solid var(--border);
+  border-radius: var(--radius); margin-bottom: 14px; overflow: hidden;
+}
+.ol-card-header {
+  background: var(--table-head); padding: 8px 14px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+}
+.ol-card-title { font-size: 12px; font-weight: 600; color: var(--text); }
+.ol-card-tag { font-size: 10px; color: var(--muted); background: var(--search-bg); padding: 1px 7px; border-radius: 10px; }
+.ol-cmd-wrap { position: relative; }
+.ol-cmd {
+  background: #010409; padding: 10px 14px;
+  font-size: 12px; font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  overflow-x: auto; white-space: pre; line-height: 1.7; color: var(--ol-color);
+  border-bottom: 1px solid var(--border);
+}
+.ol-copy-btn {
+  position: absolute; top: 5px; right: 5px;
+  background: var(--card-bg); border: 1px solid var(--border);
+  border-radius: 4px; padding: 2px 7px;
+  font-size: 10px; cursor: pointer; color: var(--muted);
+  transition: background .15s, color .15s; opacity: 0;
+}
+.ol-cmd-wrap:hover .ol-copy-btn { opacity: 1; }
+.ol-copy-btn:hover { background: var(--search-bg); color: var(--text); }
+.ol-desc { padding: 8px 14px; font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+/* ===== PRINT ===== */
+@media print {
+  #topbar, #sidebar, #shortcuts-modal, #toast, #search-results { display: none !important; }
+  #layout { margin-top: 0; }
+  #main { max-width: 100%; padding: 0; }
+  .cat-section.collapsed .cat-body,
+  .subsection.collapsed .sub-body { display: block !important; }
+  .cat-header, .subsection-header { cursor: default; }
+  .copy-btn { display: none; }
+  body { background: #fff; color: #000; font-size: 11px; }
+  .cmd-table { font-size: 10px; }
+  .badge { border: 1px solid #ccc; }
+  .cmd-name { color: #0969da; }
+  .syn-required { color: #9a6700; }
+  .syn-optional { color: #0550ae; }
+  .syn-choice { color: #6639ba; }
+}
+
+/* ===== SCROLLBAR ===== */
+#main::-webkit-scrollbar { width: 6px; }
+#main::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* ===== MISC ===== */
+.no-results {
+  text-align: center; padding: 40px; color: var(--muted); font-size: 14px;
+}
+.section-note {
+  font-size: 12px; color: var(--muted); margin-bottom: 10px; font-style: italic;
+}
+
+/* ===== HOME LINK ===== */
+#home-link {
+  display: flex; align-items: center; gap: 5px;
+  color: var(--muted); font-size: 12px; font-weight: 500;
+  padding: 4px 10px; border-radius: var(--radius); border: 1px solid var(--border);
+  transition: color .15s, background .15s; flex-shrink: 0; text-decoration: none;
+}
+#home-link:hover { color: var(--text); background: var(--card-bg); text-decoration: none; }
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div id="topbar">
+  <button id="sidebar-toggle" title="Toggle sidebar (B)">☰</button>
+  <a href="index.html" id="home-link" title="Back to home">⌂ Home</a>
+  <div class="brand">Linux <span>Reference</span></div>
+  <div id="search-wrap">
+    <span class="search-icon">⌕</span>
+    <input type="text" id="search-input" placeholder="Search commands…" autocomplete="off" spellcheck="false">
+    <span id="search-kbd">/</span>
+  </div>
+  <div id="distro-filter">
+    <button class="filter-btn active" data-filter="all">All</button>
+    <button class="filter-btn" data-filter="ubuntu">Ubuntu</button>
+    <button class="filter-btn" data-filter="arch">Arch</button>
+    <button class="filter-btn" data-filter="fedora">Fedora</button>
+  </div>
+  <button id="theme-btn" title="Toggle theme (T)">☀</button>
+  <button id="help-btn" title="Keyboard shortcuts (?)">?</button>
+</div>
+
+<!-- SEARCH OVERLAY -->
+<div id="search-results">
+  <div id="search-results-inner">
+    <div class="sr-header" id="sr-header">No results</div>
+    <div id="sr-list"></div>
+  </div>
+</div>
+
+<!-- LAYOUT -->
+<div id="layout">
+  <!-- SIDEBAR -->
+  <nav id="sidebar">
+    <div id="toc"></div>
+  </nav>
+
+  <!-- MAIN -->
+  <main id="main">
+    <!-- LEGEND -->
+    <details id="legend">
+      <summary>Syntax Notation &amp; Badge Legend</summary>
+      <div class="legend-grid">
+        <div class="legend-item"><code class="syn-required">&lt;param&gt;</code> Required variable</div>
+        <div class="legend-item"><code class="syn-optional">[param]</code> Optional parameter</div>
+        <div class="legend-item"><code class="syn-choice">{a|b}</code> Choose one value</div>
+        <div class="legend-item"><code class="syn-keyword">keyword</code> Literal keyword</div>
+        <div class="legend-item"><span class="badge badge-ubuntu">Ubuntu</span> Ubuntu / Debian</div>
+        <div class="legend-item"><span class="badge badge-arch">Arch</span> Arch / Manjaro</div>
+        <div class="legend-item"><span class="badge badge-fedora">Fedora</span> Fedora / RHEL</div>
+        <div class="legend-item"><span class="badge badge-all">All</span> Any distro</div>
+      </div>
+    </details>
+
+    <!-- SECTIONS RENDERED BY JS -->
+    <div id="sections-root"></div>
+  </main>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- SHORTCUTS MODAL -->
+<div id="shortcuts-modal">
+  <div id="shortcuts-box">
+    <h3>Keyboard Shortcuts</h3>
+    <div class="shortcut-row"><span>Focus search</span><span class="shortcut-key">/</span></div>
+    <div class="shortcut-row"><span>Close search / modal</span><span class="shortcut-key">Esc</span></div>
+    <div class="shortcut-row"><span>Toggle theme</span><span class="shortcut-key">T</span></div>
+    <div class="shortcut-row"><span>Expand all sections</span><span class="shortcut-key">E</span></div>
+    <div class="shortcut-row"><span>Collapse all sections</span><span class="shortcut-key">C</span></div>
+    <div class="shortcut-row"><span>Toggle sidebar</span><span class="shortcut-key">B</span></div>
+    <div class="shortcut-row"><span>Show shortcuts</span><span class="shortcut-key">?</span></div>
+    <div class="shortcut-row"><span>Navigate search results</span><span class="shortcut-key">↑ / ↓</span></div>
+    <div class="shortcut-row"><span>Select search result</span><span class="shortcut-key">Enter</span></div>
+    <span class="close-btn" id="shortcuts-close">Close</span>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   COMMAND DATA
+   distros: array of 'ubuntu','arch','fedora','all'
+   ============================================================ */
+
+const SECTIONS = [];
+
+/* ============================================================
+   RENDERING ENGINE
+   ============================================================ */
+
+/* ----- Syntax tokenizer ----- */
+function tokenizeSyntax(raw) {
+  const out = [];
+  let i = 0;
+  while (i < raw.length) {
+    if (raw[i] === '<') {
+      const end = raw.indexOf('>', i);
+      if (end !== -1) {
+        out.push('<span class="syn-required">' + esc(raw.slice(i, end+1)) + '</span>');
+        i = end + 1; continue;
+      }
+    }
+    if (raw[i] === '[') {
+      const end = raw.indexOf(']', i);
+      if (end !== -1) {
+        out.push('<span class="syn-optional">' + esc(raw.slice(i, end+1)) + '</span>');
+        i = end + 1; continue;
+      }
+    }
+    if (raw[i] === '{') {
+      const end = raw.indexOf('}', i);
+      if (end !== -1) {
+        const inner = raw.slice(i+1, end);
+        const formatted = inner.split('|').map((p,idx,arr) =>
+          '<span class="syn-choice">' + esc(p) + '</span>' + (idx<arr.length-1?'<span class="syn-pipe">|</span>':'')
+        ).join('');
+        out.push('{' + formatted + '}');
+        i = end + 1; continue;
+      }
+    }
+    let j = i;
+    while (j < raw.length && raw[j] !== '<' && raw[j] !== '[' && raw[j] !== '{') j++;
+    if (j > i) {
+      out.push('<span class="syn-keyword">' + esc(raw.slice(i, j)) + '</span>');
+      i = j;
+    } else {
+      out.push(esc(raw[i]));
+      i++;
+    }
+  }
+  return out.join('');
+}
+
+function esc(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+/* ----- Badge builder ----- */
+function buildBadges(distros) {
+  return distros.map(d => {
+    if (d==='ubuntu') return '<span class="badge badge-ubuntu">Ubuntu</span>';
+    if (d==='arch')   return '<span class="badge badge-arch">Arch</span>';
+    if (d==='fedora') return '<span class="badge badge-fedora">Fedora</span>';
+    if (d==='all')    return '<span class="badge badge-all">All</span>';
+    return '';
+  }).join('');
+}
+
+/* ----- Args table builder ----- */
+function buildArgs(args) {
+  if (!args || args.length === 0) return '<span style="color:var(--muted);font-size:11px;">—</span>';
+  const rows = args.map(a => `
+    <tr>
+      <td class="arg-name">${esc(a.name)}</td>
+      <td>${esc(a.type||'')}</td>
+      <td>${esc(a.range||'')}</td>
+      <td>${a.req ? '<span class="arg-req">REQ</span>' : '<span class="arg-opt">opt</span>'}</td>
+      <td>${esc(a.def||'')}</td>
+      <td>${esc(a.desc||'')}</td>
+    </tr>`).join('');
+  return `<details class="args-details">
+    <summary>${args.length} argument${args.length>1?'s':''}</summary>
+    <table class="args-table">
+      <thead><tr><th>Name</th><th>Type</th><th>Range</th><th>Req?</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+  </details>`;
+}
+
+/* ----- Command row builder ----- */
+let rowIndex = 0;
+function buildRow(cmd, sectionType) {
+  rowIndex++;
+  const id = 'row-' + rowIndex;
+  const distroList = cmd.distros || ['all'];
+  const distroClasses = distroList.join(' ');
+  const rawSyntax = cmd.syntax || cmd.cmd;
+  return `<tr class="cmd-row ${distroClasses}" data-distros="${distroList.join(',')}" data-id="${id}"
+            data-cmd="${esc(cmd.cmd)}" data-desc="${esc(cmd.desc||'')}" data-syntax="${esc(rawSyntax)}">
+    <td class="td-cmd">
+      <span class="cmd-name ${sectionType}">${esc(cmd.cmd)}</span>
+    </td>
+    <td class="td-syntax">
+      <div class="syntax-cell">
+        <code class="syntax">${tokenizeSyntax(rawSyntax)}</code>
+        <button class="copy-btn" title="Copy syntax" onclick="copySyntax(this,'${esc(rawSyntax).replace(/'/g,"\\'")}')">⎘</button>
+      </div>
+    </td>
+    <td class="td-args">${buildArgs(cmd.args)}</td>
+    <td class="td-desc">${esc(cmd.desc||'')}</td>
+    <td class="td-distros">${buildBadges(distroList)}</td>
+  </tr>`;
+}
+
+/* ----- Commands subsection builder ----- */
+function buildSubsection(sub, sectionType) {
+  const rows = sub.commands.map(c => buildRow(c, sectionType)).join('');
+  return `<div class="subsection" id="${sub.id}">
+    <div class="subsection-header" onclick="toggleSub(this)">
+      <h3>${esc(sub.title)}</h3>
+      <span class="cmd-count">${sub.commands.length} commands</span>
+      <span class="sub-chevron">▼</span>
+    </div>
+    <div class="sub-body">
+      <div class="cmd-table-wrap">
+        <table class="cmd-table">
+          <thead><tr>
+            <th style="width:160px">Command</th>
+            <th>Syntax</th>
+            <th style="width:160px">Arguments</th>
+            <th>Description</th>
+            <th style="width:130px">Distro</th>
+          </tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ----- Filesystem section renderer ----- */
+function buildFsTree(sec) {
+  // sec.tree: array of {indent, name, desc} — tree lines
+  // sec.dirs: array of {path, desc, items:[{name,desc}]}
+  let treeHtml = '';
+  if (sec.tree) {
+    const lines = sec.tree.map(line => {
+      const indent = esc(line.indent || '');
+      const name = `<span class="fs-dir">${esc(line.name)}</span>`;
+      const sep = line.desc ? `<span class="fs-sep">  —  </span>` : '';
+      const d = line.desc ? `<span class="fs-desc">${esc(line.desc)}</span>` : '';
+      return indent + name + sep + d;
+    }).join('\n');
+    treeHtml = `<pre class="fs-tree-block">${lines}</pre>`;
+  }
+  let cardsHtml = '';
+  if (sec.dirs) {
+    cardsHtml = '<div class="fs-cards">' + sec.dirs.map(dir => {
+      const items = (dir.items||[]).map(it =>
+        `<li><span class="fs-item-name">${esc(it.name)}</span><span class="fs-item-desc">${esc(it.desc)}</span></li>`
+      ).join('');
+      return `<div class="fs-card">
+        <div class="fs-card-title">${esc(dir.path)}</div>
+        <div class="fs-card-desc">${esc(dir.desc)}</div>
+        ${items ? `<ul class="fs-card-items">${items}</ul>` : ''}
+      </div>`;
+    }).join('') + '</div>';
+  }
+  return `<section class="cat-section" id="${sec.id}">
+    <div class="cat-header filesystem" onclick="toggleCat(this)">
+      <h2>${esc(sec.title)}</h2>
+      <span class="cat-chevron">▼</span>
+    </div>
+    <div class="cat-body">${treeHtml}${cardsHtml}</div>
+  </section>`;
+}
+
+/* ----- One-liners subsection renderer ----- */
+let olCopyIdx = 0;
+function buildOnelinersSubsection(sub) {
+  const cards = sub.items.map(item => {
+    const cid = 'ol-' + (++olCopyIdx);
+    return `<div class="ol-card">
+      <div class="ol-card-header">
+        <span class="ol-card-title">${esc(item.title)}</span>
+        ${item.tag ? `<span class="ol-card-tag">${esc(item.tag)}</span>` : ''}
+      </div>
+      <div class="ol-cmd-wrap">
+        <pre class="ol-cmd" id="${cid}">${esc(item.cmd)}</pre>
+        <button class="ol-copy-btn" onclick="copyProc('${cid}')">⎘ Copy</button>
+      </div>
+      ${item.desc ? `<div class="ol-desc">${esc(item.desc)}</div>` : ''}
+    </div>`;
+  }).join('');
+  return `<div class="subsection" id="${sub.id}">
+    <div class="subsection-header" onclick="toggleSub(this)">
+      <h3>${esc(sub.title)}</h3>
+      <span class="cmd-count">${sub.items.length} one-liners</span>
+      <span class="sub-chevron">▼</span>
+    </div>
+    <div class="sub-body">${cards}</div>
+  </div>`;
+}
+
+/* ----- Procedure renderer ----- */
+function fmtProcCode(code) {
+  return code.split('\n').map(line => {
+    const t = line.trimStart();
+    if (t.startsWith('#')) return '<span class="cc">' + esc(line) + '</span>';
+    return '<span class="pc">' + esc(line) + '</span>';
+  }).join('\n');
+}
+let procCopyIdx = 0;
+function buildProcStep(step, idx) {
+  const cid = 'pc-' + (++procCopyIdx);
+  const code = step.code ? `<div class="proc-code-wrap">
+    <pre class="proc-code" id="${cid}">${fmtProcCode(step.code)}</pre>
+    <button class="proc-copy-btn" onclick="copyProc('${cid}')">⎘ Copy</button>
+  </div>` : '';
+  return `<div class="proc-step">
+    <div class="proc-step-num">${idx+1}</div>
+    <div class="proc-step-body">
+      <div class="proc-step-title">${esc(step.title)}</div>
+      ${step.desc ? `<div class="proc-step-desc">${esc(step.desc)}</div>` : ''}
+      ${code}
+    </div>
+  </div>`;
+}
+function buildProcCard(sub) {
+  const steps = sub.steps.map((s,i) => buildProcStep(s,i)).join('');
+  return `<div class="proc-card subsection" id="${sub.id}">
+    <div class="proc-card-header subsection-header" onclick="toggleSub(this)">
+      <h3>${esc(sub.title)}</h3>
+      <span class="sub-chevron">▼</span>
+    </div>
+    ${sub.desc ? `<div class="proc-desc">${esc(sub.desc)}</div>` : ''}
+    <div class="sub-body proc-steps">${steps}</div>
+  </div>`;
+}
+function copyProc(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const text = el.textContent;
+  navigator.clipboard.writeText(text).then(() => showToast('Copied!')).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = text; ta.style.position='fixed'; ta.style.opacity='0';
+    document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta);
+    showToast('Copied!');
+  });
+}
+
+/* ----- Main section dispatcher ----- */
+function buildSection(sec) {
+  if (sec.type === 'filesystem') return buildFsTree(sec);
+  if (sec.type === 'procedure') {
+    const cards = sec.subsections.map(s => buildProcCard(s)).join('');
+    return `<section class="cat-section" id="${sec.id}">
+      <div class="cat-header procedure" onclick="toggleCat(this)">
+        <h2>${esc(sec.title)}</h2>
+        <span class="cat-chevron">▼</span>
+      </div>
+      <div class="cat-body">${cards}</div>
+    </section>`;
+  }
+  if (sec.type === 'oneliners') {
+    const subs = sec.subsections.map(s => buildOnelinersSubsection(s)).join('');
+    return `<section class="cat-section" id="${sec.id}">
+      <div class="cat-header oneliners" onclick="toggleCat(this)">
+        <h2>${esc(sec.title)}</h2>
+        <span class="cat-chevron">▼</span>
+      </div>
+      <div class="cat-body">${subs}</div>
+    </section>`;
+  }
+  // default: 'commands'
+  const subs = sec.subsections.map(s => buildSubsection(s, sec.type)).join('');
+  return `<section class="cat-section" id="${sec.id}">
+    <div class="cat-header ${sec.type}" onclick="toggleCat(this)">
+      <h2>${esc(sec.title)}</h2>
+      <span class="cat-chevron">▼</span>
+    </div>
+    <div class="cat-body">${subs}</div>
+  </section>`;
+}
+
+/* ----- Render everything (called at end of last script block) ----- */
+function render() {
+  const root = document.getElementById('sections-root');
+  root.innerHTML = SECTIONS.map(buildSection).join('');
+  buildTOC();
+  restoreCollapseState();
+  initSearch();
+  initTOCObserver();
+}
+
+/* ----- TOC builder ----- */
+function buildTOC() {
+  const toc = document.getElementById('toc');
+  let html = '';
+  SECTIONS.forEach(sec => {
+    html += `<div class="toc-group">
+      <span class="toc-group-title ${sec.type}">${sec.title}</span>`;
+    if (sec.type === 'filesystem') {
+      html += `<a class="toc-link" data-target="${sec.id}" onclick="scrollToSection('${sec.id}')">${esc(sec.title)}</a>`;
+    } else if (sec.subsections) {
+      sec.subsections.forEach(sub => {
+        html += `<a class="toc-link" data-target="${sub.id}" onclick="scrollToSection('${sub.id}')">${esc(sub.title)}</a>`;
+      });
+    }
+    html += '</div>';
+  });
+  toc.innerHTML = html;
+}
+
+function scrollToSection(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const top = el.getBoundingClientRect().top + window.scrollY - 70;
+  window.scrollTo({ top, behavior: 'smooth' });
+}
+
+/* ============================================================
+   INTERACTIVITY
+   ============================================================ */
+
+/* ----- Collapse / expand ----- */
+function toggleCat(header) {
+  const sec = header.closest('.cat-section');
+  sec.classList.toggle('collapsed');
+  saveSectionState();
+}
+function toggleSub(header) {
+  const sub = header.closest('.subsection');
+  sub.classList.toggle('collapsed');
+  saveSectionState();
+}
+function expandAll() {
+  document.querySelectorAll('.cat-section,.subsection').forEach(el => el.classList.remove('collapsed'));
+  saveSectionState();
+}
+function collapseAll() {
+  document.querySelectorAll('.cat-section,.subsection').forEach(el => el.classList.add('collapsed'));
+  saveSectionState();
+}
+function saveSectionState() {
+  const state = {};
+  document.querySelectorAll('.cat-section[id],.subsection[id]').forEach(el => {
+    state[el.id] = el.classList.contains('collapsed');
+  });
+  try { localStorage.setItem('linux-ref-collapse', JSON.stringify(state)); } catch(e){}
+}
+function restoreCollapseState() {
+  try {
+    const state = JSON.parse(localStorage.getItem('linux-ref-collapse') || '{}');
+    Object.entries(state).forEach(([id, collapsed]) => {
+      const el = document.getElementById(id);
+      if (el) el.classList.toggle('collapsed', collapsed);
+    });
+  } catch(e) {}
+}
+
+/* ----- Distro filter ----- */
+let activeFilter = 'all';
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    activeFilter = btn.dataset.filter;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    applyFilter();
+  });
+});
+function applyFilter() {
+  document.querySelectorAll('.cmd-row').forEach(row => {
+    if (activeFilter === 'all') {
+      row.classList.remove('hidden');
+    } else {
+      const distros = (row.dataset.distros||'').split(',');
+      const visible = distros.includes(activeFilter) || distros.includes('all');
+      row.classList.toggle('hidden', !visible);
+    }
+  });
+  document.querySelectorAll('.subsection').forEach(sub => {
+    if (!sub.querySelector('.cmd-row')) return; // skip proc cards / ol cards
+    const visible = sub.querySelectorAll('.cmd-row:not(.hidden)').length > 0;
+    sub.style.display = visible ? '' : 'none';
+  });
+  document.querySelectorAll('.cat-section').forEach(sec => {
+    const subs = sec.querySelectorAll('.subsection:not([style*="none"]),.ol-card,.proc-card');
+    sec.style.display = subs.length > 0 ? '' : 'none';
+  });
+}
+
+/* ----- Theme toggle ----- */
+const themeBtn = document.getElementById('theme-btn');
+function applyTheme(theme) {
+  document.body.dataset.theme = theme;
+  themeBtn.textContent = theme === 'dark' ? '☀' : '☾';
+  try { localStorage.setItem('linux-ref-theme', theme); } catch(e){}
+}
+(function initTheme() {
+  const saved = localStorage.getItem('linux-ref-theme') || 'dark';
+  applyTheme(saved);
+})();
+themeBtn.addEventListener('click', () => {
+  applyTheme(document.body.dataset.theme === 'dark' ? 'light' : 'dark');
+});
+
+/* ----- Copy to clipboard ----- */
+function copySyntax(btn, syntax) {
+  const plain = syntax.replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&');
+  navigator.clipboard.writeText(plain).then(() => showToast('Copied!')).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = plain; ta.style.position='fixed'; ta.style.opacity='0';
+    document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta);
+    showToast('Copied!');
+  });
+}
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+/* ----- Search ----- */
+let searchIndex = [];
+function initSearch() {
+  searchIndex = [];
+  SECTIONS.forEach(sec => {
+    if (sec.type === 'procedure' || sec.type === 'filesystem') return;
+    if (!sec.subsections) return;
+    sec.subsections.forEach(sub => {
+      if (sub.commands) {
+        sub.commands.forEach(cmd => {
+          searchIndex.push({
+            cmd: cmd.cmd,
+            syntax: cmd.syntax || cmd.cmd,
+            desc: cmd.desc || '',
+            section: sub.title,
+            sectionId: sub.id,
+            sectionType: sec.type
+          });
+        });
+      } else if (sub.items) {
+        sub.items.forEach(item => {
+          searchIndex.push({
+            cmd: item.title,
+            syntax: item.cmd || '',
+            desc: item.desc || '',
+            section: sub.title,
+            sectionId: sub.id,
+            sectionType: sec.type
+          });
+        });
+      }
+    });
+  });
+}
+
+const searchInput = document.getElementById('search-input');
+const searchResults = document.getElementById('search-results');
+const srList = document.getElementById('sr-list');
+const srHeader = document.getElementById('sr-header');
+let focusedIdx = -1;
+
+function highlight(text, query) {
+  if (!query) return esc(text);
+  const re = new RegExp('(' + query.replace(/[.*+?^${}()|[\]\\]/g,'\\$&') + ')', 'gi');
+  return esc(text).replace(re, '<mark>$1</mark>');
+}
+
+searchInput.addEventListener('input', () => {
+  const q = searchInput.value.trim().toLowerCase();
+  if (!q) { closeSearch(); return; }
+  const results = searchIndex.filter(item =>
+    item.cmd.toLowerCase().includes(q) ||
+    item.syntax.toLowerCase().includes(q) ||
+    item.desc.toLowerCase().includes(q)
+  ).slice(0, 30);
+  focusedIdx = -1;
+  if (results.length === 0) {
+    srHeader.textContent = 'No results for "' + searchInput.value + '"';
+    srList.innerHTML = '';
+  } else {
+    srHeader.textContent = results.length + ' result' + (results.length !== 1 ? 's' : '');
+    srList.innerHTML = results.map((r, i) => `
+      <div class="sr-item" data-idx="${i}" data-section-id="${r.sectionId}" onclick="goToResult('${r.sectionId}')">
+        <div class="sr-top">
+          <span class="sr-cmd">${highlight(r.cmd, searchInput.value.trim())}</span>
+          <span class="sr-section">${esc(r.section)}</span>
+        </div>
+        <div class="sr-desc">${highlight(r.desc.slice(0,100), searchInput.value.trim())}</div>
+      </div>`).join('');
+  }
+  searchResults.classList.add('visible');
+});
+
+function goToResult(sectionId) {
+  closeSearch();
+  const sub = document.getElementById(sectionId);
+  if (sub) {
+    sub.classList.remove('collapsed');
+    const cat = sub.closest('.cat-section');
+    if (cat) cat.classList.remove('collapsed');
+    saveSectionState();
+    setTimeout(() => scrollToSection(sectionId), 50);
+  }
+}
+function closeSearch() {
+  searchResults.classList.remove('visible');
+  focusedIdx = -1;
+}
+searchInput.addEventListener('keydown', e => {
+  const items = srList.querySelectorAll('.sr-item');
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    focusedIdx = Math.min(focusedIdx + 1, items.length - 1);
+    updateFocus(items);
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    focusedIdx = Math.max(focusedIdx - 1, 0);
+    updateFocus(items);
+  } else if (e.key === 'Enter' && focusedIdx >= 0) {
+    const focused = items[focusedIdx];
+    if (focused) focused.click();
+  } else if (e.key === 'Escape') {
+    closeSearch();
+    searchInput.blur();
+  }
+});
+function updateFocus(items) {
+  items.forEach((item, i) => item.classList.toggle('focused', i === focusedIdx));
+  if (items[focusedIdx]) items[focusedIdx].scrollIntoView({ block: 'nearest' });
+}
+document.addEventListener('click', e => {
+  if (!e.target.closest('#search-wrap') && !e.target.closest('#search-results')) closeSearch();
+});
+
+/* ----- TOC IntersectionObserver ----- */
+function initTOCObserver() {
+  const tocLinks = document.querySelectorAll('.toc-link');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.id;
+        tocLinks.forEach(l => l.classList.toggle('active', l.dataset.target === id));
+      }
+    });
+  }, { rootMargin: '-60px 0px -70% 0px', threshold: 0 });
+  document.querySelectorAll('.subsection[id],.cat-section[id]').forEach(el => observer.observe(el));
+}
+
+/* ----- Keyboard shortcuts ----- */
+document.addEventListener('keydown', e => {
+  const tag = document.activeElement.tagName;
+  const inInput = tag === 'INPUT' || tag === 'TEXTAREA';
+  if (e.key === '/' && !inInput) {
+    e.preventDefault();
+    searchInput.focus(); searchInput.select();
+  }
+  if (e.key === 'Escape') {
+    closeSearch();
+    document.getElementById('shortcuts-modal').classList.remove('visible');
+  }
+  if (!inInput) {
+    if (e.key === 't' || e.key === 'T') {
+      applyTheme(document.body.dataset.theme === 'dark' ? 'light' : 'dark');
+    }
+    if (e.key === 'e' || e.key === 'E') expandAll();
+    if (e.key === 'c' || e.key === 'C') collapseAll();
+    if (e.key === 'b' || e.key === 'B') toggleSidebar();
+    if (e.key === '?') {
+      document.getElementById('shortcuts-modal').classList.toggle('visible');
+    }
+  }
+});
+function toggleSidebar() {
+  document.body.classList.toggle('sidebar-collapsed');
+}
+document.getElementById('sidebar-toggle').addEventListener('click', toggleSidebar);
+document.getElementById('help-btn').addEventListener('click', () => {
+  document.getElementById('shortcuts-modal').classList.toggle('visible');
+});
+document.getElementById('shortcuts-close').addEventListener('click', () => {
+  document.getElementById('shortcuts-modal').classList.remove('visible');
+});
+document.getElementById('shortcuts-modal').addEventListener('click', e => {
+  if (e.target === document.getElementById('shortcuts-modal'))
+    document.getElementById('shortcuts-modal').classList.remove('visible');
+});
+</script>
+
+<script>
+/* ============================================================
+   SECTION DATA — added in subsequent batches
+   ============================================================ */
+
+render();
+</script>
+</body>
+</html>
