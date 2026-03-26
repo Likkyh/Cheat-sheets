@@ -240,6 +240,26 @@ footer a:hover { text-decoration: underline; }
 
 }
 
+/* ===== TABS ===== */
+.tab-bar {
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 28px; padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+.tab-btn {
+  padding: 6px 18px; border-radius: var(--radius);
+  border: 1px solid var(--border); background: transparent;
+  color: var(--muted); cursor: pointer; font-size: 13px;
+  font-weight: 600; font-family: inherit;
+  transition: background .15s, color .15s, border-color .15s;
+}
+.tab-btn:hover { background: var(--card-bg); color: var(--text); }
+.tab-btn.active { background: var(--focus); border-color: var(--focus); color: #fff; }
+.tab-pane { display: none; }
+.tab-pane.active { display: block; }
+.tab-spacer { flex: 1; }
+
 /* ===== NO RESULTS ===== */
 .no-results {
   text-align: center; padding: 48px 24px; color: var(--muted);
@@ -282,82 +302,115 @@ footer a:hover { text-decoration: underline; }
 
 <!-- MAIN SECTION -->
 <div class="section">
-  <div class="section-header">
-    <h2>Reference Sheets</h2>
-    <span class="section-count" id="visible-count">3 sheets</span>
+  <div class="tab-bar">
+    <button class="tab-btn active" data-tab="sheets">Reference Sheets</button>
+    <button class="tab-btn" data-tab="certs">Certifications</button>
+    <span class="tab-spacer"></span>
+    <span class="section-count" id="visible-count">3 items</span>
   </div>
 
-  <div class="card-grid" id="card-grid">
+  <!-- ===== TAB: Reference Sheets ===== -->
+  <div class="tab-pane active" id="tab-sheets">
+    <div class="card-grid">
 
-    <!-- ===== AVAILABLE: Cisco IOS ===== -->
-    <div class="sheet-card" style="--card-accent: var(--green);" data-tags="cisco routing switching security ios commands">
-      <div class="card-header-row">
-        <div class="card-icon">🔌</div>
-        <div>
-          <div class="card-title">Cisco IOS Reference</div>
-          <div class="card-subtitle">Routing &amp; Switching</div>
+      <!-- Cisco IOS -->
+      <div class="sheet-card" style="--card-accent: var(--green);" data-tags="cisco routing switching security ios commands">
+        <div class="card-header-row">
+          <div class="card-icon">🔌</div>
+          <div>
+            <div class="card-title">Cisco IOS Reference</div>
+            <div class="card-subtitle">Routing &amp; Switching</div>
+          </div>
+        </div>
+        <div class="card-desc">Complete command reference for Cisco IOS: switching, VLANs, trunking, STP, EtherChannel, OSPF, EIGRP, BGP, NAT, ACLs — plus step-by-step configuration procedures.</div>
+        <div class="card-tags">
+          <span class="card-tag tag-cisco">Cisco</span>
+          <span class="card-tag tag-switching">Switching</span>
+          <span class="card-tag tag-routing">Routing</span>
+          <span class="card-tag tag-security">Security</span>
+        </div>
+        <div class="card-footer">
+          <span style="font-size:11px;color:var(--green);font-weight:600;">● Available</span>
+          <a href="ios-reference-sheet.html" class="card-btn">Open Sheet <span class="arrow">→</span></a>
         </div>
       </div>
-      <div class="card-desc">Complete command reference for Cisco IOS: switching, VLANs, trunking, STP, EtherChannel, OSPF, EIGRP, BGP, NAT, ACLs — plus step-by-step configuration procedures.</div>
-      <div class="card-tags">
-        <span class="card-tag tag-cisco">Cisco</span>
-        <span class="card-tag tag-switching">Switching</span>
-        <span class="card-tag tag-routing">Routing</span>
-        <span class="card-tag tag-security">Security</span>
-      </div>
-      <div class="card-footer">
-        <span style="font-size:11px;color:var(--green);font-weight:600;">● Available</span>
-        <a href="ios-reference-sheet.html" class="card-btn">Open Sheet <span class="arrow">→</span></a>
-      </div>
-    </div>
 
-    <!-- ===== AVAILABLE: Linux Reference ===== -->
-    <div class="sheet-card" style="--card-accent: var(--orange);" data-tags="linux filesystem commands permissions users networking systemd packages processes disk storage ubuntu arch fedora">
-      <div class="card-header-row">
-        <div class="card-icon">🐧</div>
-        <div>
-          <div class="card-title">Linux Reference</div>
-          <div class="card-subtitle">Commands, filesystem, systemd, packages</div>
+      <!-- Linux Reference -->
+      <div class="sheet-card" style="--card-accent: var(--orange);" data-tags="linux filesystem commands permissions users networking systemd packages processes disk storage ubuntu arch fedora">
+        <div class="card-header-row">
+          <div class="card-icon">🐧</div>
+          <div>
+            <div class="card-title">Linux Reference</div>
+            <div class="card-subtitle">Commands, filesystem, systemd, packages</div>
+          </div>
+        </div>
+        <div class="card-desc">Comprehensive Linux command reference: filesystem tree, file management, text processing, networking, users & permissions, disk/LVM, systemd, package management (APT/DNF/Pacman), one-liners, and distro-specific procedures.</div>
+        <div class="card-tags">
+          <span class="card-tag tag-linux">Linux</span>
+          <span class="card-tag tag-protocols">Networking</span>
+          <span class="card-tag tag-security">Security</span>
+          <span class="card-tag tag-tools">Systemd</span>
+        </div>
+        <div class="card-footer">
+          <span style="font-size:11px;color:var(--orange);font-weight:600;">● Available</span>
+          <a href="linux-reference-sheet.html" class="card-btn">Open Sheet <span class="arrow">→</span></a>
         </div>
       </div>
-      <div class="card-desc">Comprehensive Linux command reference: filesystem tree, file management, text processing, networking, users & permissions, disk/LVM, systemd, package management (APT/DNF/Pacman), one-liners, and distro-specific procedures.</div>
-      <div class="card-tags">
-        <span class="card-tag tag-linux">Linux</span>
-        <span class="card-tag tag-protocols">Networking</span>
-        <span class="card-tag tag-security">Security</span>
-        <span class="card-tag tag-tools">Systemd</span>
-      </div>
-      <div class="card-footer">
-        <span style="font-size:11px;color:var(--orange);font-weight:600;">● Available</span>
-        <a href="linux-reference-sheet.html" class="card-btn">Open Sheet <span class="arrow">→</span></a>
-      </div>
-    </div>
 
-    <!-- ===== COMING SOON: Docker Cheat Sheet ===== -->
-    <div class="sheet-card coming-soon" style="--card-accent: var(--blue);" data-tags="docker container image volume compose dockerfile cli">
-      <div class="card-header-row">
-        <div class="card-icon">🐳</div>
-        <div>
-          <div class="card-title">Docker Cheat Sheet</div>
-          <div class="card-subtitle">Containers, images, volumes, networking</div>
+      <!-- Docker (Coming Soon) -->
+      <div class="sheet-card coming-soon" style="--card-accent: var(--blue);" data-tags="docker container image volume compose dockerfile cli">
+        <div class="card-header-row">
+          <div class="card-icon">🐳</div>
+          <div>
+            <div class="card-title">Docker Cheat Sheet</div>
+            <div class="card-subtitle">Containers, images, volumes, networking</div>
+          </div>
+        </div>
+        <div class="card-desc">Docker CLI essentials: images, containers, volumes, networks, Compose, Dockerfile best practices, debugging, and registry operations.</div>
+        <div class="card-tags">
+          <span class="card-tag tag-docker">Docker</span>
+          <span class="card-tag tag-docker">Compose</span>
+          <span class="card-tag tag-tools">CLI</span>
+        </div>
+        <div class="card-footer">
+          <span class="coming-badge">Coming Soon</span>
         </div>
       </div>
-      <div class="card-desc">Docker CLI essentials: images, containers, volumes, networks, Compose, Dockerfile best practices, debugging, and registry operations.</div>
-      <div class="card-tags">
-        <span class="card-tag tag-docker">Docker</span>
-        <span class="card-tag tag-docker">Compose</span>
-        <span class="card-tag tag-tools">CLI</span>
-      </div>
-      <div class="card-footer">
-        <span class="coming-badge">Coming Soon</span>
-      </div>
-    </div>
 
+    </div>
+    <div class="no-results" id="no-results-sheets">No sheets match your search.</div>
   </div>
 
-  <div class="no-results" id="no-results">
-    No cheat sheets match your search. Try a different keyword.
+  <!-- ===== TAB: Certifications ===== -->
+  <div class="tab-pane" id="tab-certs">
+    <div class="card-grid">
+
+      <!-- SC-300 -->
+      <div class="sheet-card" style="--card-accent: var(--purple);" data-tags="microsoft azure entra identity access sc300 sc-300 certification iam conditional access pim mfa authentication">
+        <div class="card-header-row">
+          <div class="card-icon">🛡️</div>
+          <div>
+            <div class="card-title">SC-300 Study Guide</div>
+            <div class="card-subtitle">Microsoft Identity and Access Administrator</div>
+          </div>
+        </div>
+        <div class="card-desc">Comprehensive study guide for the SC-300 exam: Microsoft Entra ID, authentication methods, Conditional Access, PIM, app registrations, entitlement management, and identity governance.</div>
+        <div class="card-tags">
+          <span class="card-tag tag-security">Security</span>
+          <span class="card-tag tag-tools">Microsoft</span>
+          <span class="card-tag tag-bgp">Identity</span>
+          <span class="card-tag tag-security">Azure</span>
+        </div>
+        <div class="card-footer">
+          <span style="font-size:11px;color:var(--purple);font-weight:600;">● Available</span>
+          <a href="sc300-study-guide.html" class="card-btn">Open Guide <span class="arrow">→</span></a>
+        </div>
+      </div>
+
+    </div>
+    <div class="no-results" id="no-results-certs">No certifications match your search.</div>
   </div>
+
 </div>
 
 <!-- FOOTER -->
@@ -373,23 +426,43 @@ function applyTheme(t) {
   themeBtn.textContent = t === 'dark' ? '☀' : '☾';
   try { localStorage.setItem('netops-theme', t); } catch(e) {}
 }
-(function() {
-  applyTheme(localStorage.getItem('netops-theme') || 'dark');
-})();
+(function() { applyTheme(localStorage.getItem('netops-theme') || 'dark'); })();
 themeBtn.addEventListener('click', () => {
   applyTheme(document.body.dataset.theme === 'dark' ? 'light' : 'dark');
 });
 
-/* ===== Search ===== */
-const searchInput = document.getElementById('search-input');
-const cards = document.querySelectorAll('.sheet-card');
-const noResults = document.getElementById('no-results');
+/* ===== Tabs ===== */
+const tabBtns = document.querySelectorAll('.tab-btn');
+const tabPanes = document.querySelectorAll('.tab-pane');
 const visibleCount = document.getElementById('visible-count');
 
-searchInput.addEventListener('input', () => {
+function activateTab(tabId, save) {
+  tabBtns.forEach(b => b.classList.toggle('active', b.dataset.tab === tabId));
+  tabPanes.forEach(p => p.classList.toggle('active', p.id === 'tab-' + tabId));
+  if (save) { try { localStorage.setItem('netops-tab', tabId); } catch(e) {} }
+  runSearch();
+}
+
+tabBtns.forEach(btn => {
+  btn.addEventListener('click', () => activateTab(btn.dataset.tab, true));
+});
+
+(function() {
+  const saved = localStorage.getItem('netops-tab') || 'sheets';
+  activateTab(saved, false);
+})();
+
+/* ===== Search ===== */
+const searchInput = document.getElementById('search-input');
+
+function runSearch() {
   const q = searchInput.value.trim().toLowerCase();
+  const activePane = document.querySelector('.tab-pane.active');
+  if (!activePane) return;
+  const paneCards = activePane.querySelectorAll('.sheet-card');
+  const noRes = activePane.querySelector('.no-results');
   let visible = 0;
-  cards.forEach(card => {
+  paneCards.forEach(card => {
     const tags = card.dataset.tags || '';
     const title = card.querySelector('.card-title')?.textContent.toLowerCase() || '';
     const desc = card.querySelector('.card-desc')?.textContent.toLowerCase() || '';
@@ -397,14 +470,16 @@ searchInput.addEventListener('input', () => {
     card.style.display = match ? '' : 'none';
     if (match) visible++;
   });
-  visibleCount.textContent = visible + ' sheet' + (visible !== 1 ? 's' : '');
-  noResults.classList.toggle('visible', visible === 0);
-});
+  const label = activePane.id === 'tab-certs' ? 'guide' : 'sheet';
+  visibleCount.textContent = visible + ' ' + label + (visible !== 1 ? 's' : '');
+  if (noRes) noRes.classList.toggle('visible', visible === 0);
+}
+
+searchInput.addEventListener('input', runSearch);
 
 document.addEventListener('keydown', e => {
   if (e.key === '/' && document.activeElement.tagName !== 'INPUT') {
-    e.preventDefault();
-    searchInput.focus();
+    e.preventDefault(); searchInput.focus();
   }
   if (e.key === 'Escape') searchInput.blur();
   if ((e.key === 't' || e.key === 'T') && document.activeElement.tagName !== 'INPUT') {

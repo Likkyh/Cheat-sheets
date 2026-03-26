@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SC-300 Study Guide — Microsoft Identity and Access Administrator</title>
+<style>
+/* ===== VARIABLES ===== */
+:root {
+  --bg: #0d1117;
+  --surface: #161b22;
+  --border: #30363d;
+  --text: #e6edf3;
+  --muted: #8b949e;
+  --topbar-bg: #010409;
+  --topbar-h: 56px;
+  --sidebar-w: 280px;
+  --blue: #79c0ff;
+  --green: #3fb950;
+  --orange: #f78166;
+  --purple: #d2a8ff;
+  --yellow: #e3b341;
+  --focus: #1f6feb;
+  --cmd-color: #79c0ff;
+  --surface2: #1c2128;
+  --radius: 6px;
+  --radius-lg: 10px;
+  /* Domain accent colors */
+  --d1: #79c0ff;
+  --d2: #f78166;
+  --d3: #3fb950;
+  --d4: #d2a8ff;
+}
+[data-theme="light"] {
+  --bg: #ffffff;
+  --surface: #f6f8fa;
+  --surface2: #eaeef2;
+  --border: #d0d7de;
+  --text: #1f2328;
+  --muted: #57606a;
+  --topbar-bg: #24292f;
+  --cmd-color: #0550ae;
+}
+
+/* ===== RESET ===== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  font-size: 14px; line-height: 1.6;
+  background: var(--bg); color: var(--text);
+  transition: background .2s, color .2s;
+}
+a { text-decoration: none; color: inherit; }
+strong { font-weight: 600; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas, monospace;
+  font-size: 12px; background: var(--surface2);
+  border: 1px solid var(--border); border-radius: 3px;
+  padding: 1px 5px;
+}
+
+/* ===== TOPBAR ===== */
+#topbar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+  height: var(--topbar-h); background: var(--topbar-bg);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 12px; padding: 0 16px;
+}
+#home-link {
+  font-size: 12px; font-weight: 500; color: var(--muted);
+  padding: 4px 10px; border-radius: var(--radius);
+  border: 1px solid var(--border); background: transparent;
+  transition: background .15s, color .15s;
+  white-space: nowrap;
+}
+#home-link:hover { background: var(--surface); color: var(--text); }
+.topbar-sep { color: var(--border); }
+.topbar-title { font-size: 14px; font-weight: 700; color: var(--text); letter-spacing: -.01em; flex: 1; min-width: 0; }
+.topbar-title .exam-code {
+  display: inline-block; font-size: 11px; font-weight: 700;
+  padding: 1px 7px; border-radius: 10px;
+  background: rgba(210,168,255,.15); color: var(--purple);
+  border: 1px solid rgba(210,168,255,.3); margin-right: 8px;
+  vertical-align: middle;
+}
+.topbar-actions { display: flex; align-items: center; gap: 6px; }
+.icon-btn {
+  display: flex; align-items: center; justify-content: center;
+  width: 32px; height: 32px; border-radius: var(--radius);
+  border: 1px solid var(--border); background: transparent;
+  color: var(--muted); cursor: pointer; font-size: 15px;
+  transition: background .15s, color .15s;
+}
+.icon-btn:hover { background: var(--surface); color: var(--text); }
+#search-btn { font-size: 12px; font-weight: 500; width: auto; padding: 0 10px; gap: 6px; }
+
+/* ===== SEARCH OVERLAY ===== */
+#search-overlay {
+  display: none; position: fixed; inset: 0; z-index: 500;
+  background: rgba(1,4,9,.7); backdrop-filter: blur(4px);
+  align-items: flex-start; justify-content: center; padding-top: 80px;
+}
+#search-overlay.open { display: flex; }
+.search-box {
+  width: 100%; max-width: 560px; background: var(--surface);
+  border: 1px solid var(--border); border-radius: var(--radius-lg);
+  overflow: hidden; box-shadow: 0 16px 48px rgba(0,0,0,.6);
+}
+.search-box input {
+  width: 100%; padding: 14px 16px; background: transparent;
+  border: none; outline: none; color: var(--text); font-size: 15px;
+  font-family: inherit; border-bottom: 1px solid var(--border);
+}
+.search-box input::placeholder { color: var(--muted); }
+#search-results { max-height: 360px; overflow-y: auto; }
+.search-result {
+  padding: 10px 16px; cursor: pointer; border-bottom: 1px solid var(--border);
+  transition: background .1s;
+}
+.search-result:last-child { border-bottom: none; }
+.search-result:hover, .search-result.active { background: var(--surface2); }
+.sr-title { font-size: 13px; font-weight: 600; color: var(--text); }
+.sr-meta { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.search-empty { padding: 24px 16px; text-align: center; color: var(--muted); font-size: 13px; }
+
+/* ===== LAYOUT ===== */
+#layout { display: flex; margin-top: var(--topbar-h); min-height: calc(100vh - var(--topbar-h)); }
+
+/* ===== SIDEBAR ===== */
+#sidebar {
+  width: var(--sidebar-w); flex-shrink: 0;
+  position: sticky; top: var(--topbar-h);
+  height: calc(100vh - var(--topbar-h));
+  overflow-y: auto; overflow-x: hidden;
+  border-right: 1px solid var(--border);
+  padding: 16px 0 32px;
+  scrollbar-width: thin; scrollbar-color: var(--border) transparent;
+}
+body.sidebar-collapsed #sidebar { display: none; }
+.toc-section { margin-bottom: 4px; }
+.toc-domain-label {
+  font-size: 10px; font-weight: 700; letter-spacing: .08em;
+  text-transform: uppercase; padding: 10px 16px 4px;
+  color: var(--muted);
+}
+.toc-link {
+  display: block; padding: 5px 16px 5px 24px;
+  font-size: 12px; color: var(--muted);
+  border-left: 2px solid transparent;
+  transition: color .1s, border-color .1s, background .1s;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.toc-link:hover { color: var(--text); background: rgba(255,255,255,.03); }
+.toc-link.active { color: var(--blue); border-left-color: var(--blue); background: rgba(121,192,255,.05); }
+.toc-link.d1 { border-left-color: transparent; }
+.toc-link.d1.active { color: var(--d1); border-left-color: var(--d1); background: rgba(121,192,255,.05); }
+.toc-link.d2.active { color: var(--d2); border-left-color: var(--d2); background: rgba(247,129,102,.05); }
+.toc-link.d3.active { color: var(--d3); border-left-color: var(--d3); background: rgba(63,185,80,.05); }
+.toc-link.d4.active { color: var(--d4); border-left-color: var(--d4); background: rgba(210,168,255,.05); }
+
+/* ===== MAIN CONTENT ===== */
+#main { flex: 1; min-width: 0; padding: 0 0 80px; }
+
+/* ===== EXAM OVERVIEW ===== */
+.exam-overview {
+  padding: 32px 40px 24px;
+  border-bottom: 1px solid var(--border);
+}
+.exam-overview h1 {
+  font-size: 26px; font-weight: 800; letter-spacing: -.02em;
+  margin-bottom: 6px;
+}
+.exam-overview .exam-subtitle { color: var(--muted); font-size: 14px; margin-bottom: 24px; }
+.exam-meta-cards {
+  display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 28px;
+}
+.exam-meta-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 12px 16px; min-width: 130px;
+}
+.emc-label { font-size: 10px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+.emc-value { font-size: 18px; font-weight: 700; margin-top: 2px; }
+.weight-chart { margin-bottom: 8px; }
+.weight-chart-title { font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 10px; text-transform: uppercase; letter-spacing: .05em; }
+.weight-bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.weight-bar-label { font-size: 12px; color: var(--text); min-width: 200px; }
+.weight-bar-track {
+  flex: 1; height: 8px; background: var(--surface2);
+  border-radius: 4px; overflow: hidden; max-width: 280px;
+}
+.weight-bar-fill { height: 100%; border-radius: 4px; }
+.weight-bar-pct { font-size: 11px; color: var(--muted); min-width: 60px; }
+
+/* ===== DOMAIN SECTION ===== */
+.domain-section { border-bottom: 1px solid var(--border); }
+.domain-header {
+  display: flex; align-items: center; gap: 12px;
+  padding: 20px 40px 16px; cursor: pointer;
+  user-select: none;
+  transition: background .1s;
+}
+.domain-header:hover { background: rgba(255,255,255,.02); }
+.domain-badge {
+  font-size: 10px; font-weight: 700; padding: 3px 10px;
+  border-radius: 10px; letter-spacing: .05em; white-space: nowrap;
+  flex-shrink: 0;
+}
+.d1-badge { background: rgba(121,192,255,.15); color: var(--d1); border: 1px solid rgba(121,192,255,.3); }
+.d2-badge { background: rgba(247,129,102,.15); color: var(--d2); border: 1px solid rgba(247,129,102,.3); }
+.d3-badge { background: rgba(63,185,80,.15); color: var(--d3); border: 1px solid rgba(63,185,80,.3); }
+.d4-badge { background: rgba(210,168,255,.15); color: var(--d4); border: 1px solid rgba(210,168,255,.3); }
+.domain-title { font-size: 17px; font-weight: 700; flex: 1; }
+.domain-weight-badge {
+  font-size: 11px; font-weight: 600; color: var(--muted);
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 10px; padding: 2px 10px;
+}
+.domain-collapse-icon { color: var(--muted); font-size: 12px; transition: transform .2s; }
+.domain-section.collapsed .domain-collapse-icon { transform: rotate(-90deg); }
+.domain-body { padding: 0 40px 24px; }
+.domain-section.collapsed .domain-body { display: none; }
+
+/* ===== LESSON CARD ===== */
+.lesson-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); margin-bottom: 16px;
+  overflow: hidden;
+}
+.lesson-header {
+  display: flex; align-items: center; gap: 10px;
+  padding: 14px 18px; cursor: pointer; user-select: none;
+  transition: background .1s;
+}
+.lesson-header:hover { background: var(--surface2); }
+.lesson-num {
+  font-size: 10px; font-weight: 700; color: var(--muted);
+  min-width: 32px;
+}
+.lesson-title { font-size: 14px; font-weight: 600; flex: 1; }
+.lesson-collapse-icon { color: var(--muted); font-size: 11px; transition: transform .2s; }
+.lesson-card.collapsed .lesson-collapse-icon { transform: rotate(-90deg); }
+.lesson-card.collapsed .lesson-body { display: none; }
+.lesson-body { padding: 0 18px 18px; border-top: 1px solid var(--border); }
+
+/* ===== LESSON BODY CONTENT ===== */
+.lesson-body p { margin: 12px 0; color: var(--text); font-size: 13px; line-height: 1.7; }
+.lesson-body p:first-child { margin-top: 14px; }
+.lesson-body h4 { font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin: 18px 0 8px; }
+.lesson-body ul, .lesson-body ol { margin: 8px 0 8px 20px; }
+.lesson-body li { font-size: 13px; line-height: 1.7; color: var(--text); margin-bottom: 3px; }
+.lesson-body li::marker { color: var(--muted); }
+.lesson-body table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 12px; }
+.lesson-body th { background: var(--surface2); padding: 7px 10px; text-align: left; font-weight: 600; border: 1px solid var(--border); color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .04em; }
+.lesson-body td { padding: 7px 10px; border: 1px solid var(--border); vertical-align: top; }
+.lesson-body td:first-child { color: var(--blue); font-family: ui-monospace, monospace; font-size: 11px; }
+
+/* ===== CONCEPT PILLS ===== */
+.concept-pills { display: flex; flex-wrap: wrap; gap: 6px; margin: 14px 0 4px; }
+.pill {
+  font-size: 11px; font-weight: 600; padding: 3px 10px;
+  border-radius: 12px; border: 1px solid var(--border);
+  background: var(--surface2); color: var(--text);
+  letter-spacing: .02em;
+}
+
+/* ===== EXAM TIP ===== */
+.exam-tip {
+  background: rgba(227,179,65,.07); border: 1px solid rgba(227,179,65,.25);
+  border-left: 3px solid var(--yellow); border-radius: var(--radius);
+  padding: 12px 14px; margin: 14px 0;
+  font-size: 12px; line-height: 1.65;
+}
+.exam-tip-header { font-weight: 700; color: var(--yellow); font-size: 11px; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 4px; }
+.exam-tip p { margin: 0; color: var(--text); }
+
+/* ===== DIAGRAM ===== */
+.diagram-wrap {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 20px;
+  margin: 14px 0; overflow-x: auto;
+}
+.diagram-wrap svg { display: block; max-width: 100%; }
+
+/* ===== COMMAND TABLE (quickref) ===== */
+.cmd-table-wrap { overflow-x: auto; margin: 12px 0; }
+.cmd-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.cmd-table th {
+  background: var(--surface2); padding: 7px 10px;
+  text-align: left; font-size: 10px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .06em;
+  color: var(--muted); border: 1px solid var(--border);
+  white-space: nowrap;
+}
+.cmd-table td {
+  padding: 7px 10px; border: 1px solid var(--border);
+  vertical-align: top;
+}
+.cmd-table .col-cmd { color: var(--cmd-color); font-family: ui-monospace, monospace; font-size: 11px; }
+.cmd-table .col-syntax { font-family: ui-monospace, monospace; font-size: 11px; }
+.cmd-table .col-desc { color: var(--muted); }
+.cmd-table .syn-req { color: var(--orange); }
+.cmd-table .syn-opt { color: var(--blue); }
+.cmd-table .syn-kw { color: var(--text); }
+.cmd-table tr:hover td { background: rgba(255,255,255,.02); }
+
+/* ===== ARGS TABLE ===== */
+.args-wrap { margin-top: 6px; }
+.args-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+.args-table th { background: var(--surface2); padding: 5px 8px; text-align: left; font-weight: 600; color: var(--muted); border: 1px solid var(--border); font-size: 10px; text-transform: uppercase; letter-spacing: .04em; }
+.args-table td { padding: 5px 8px; border: 1px solid var(--border); vertical-align: top; }
+.req-badge { font-size: 9px; font-weight: 700; padding: 1px 5px; border-radius: 3px; background: rgba(247,129,102,.2); color: var(--orange); border: 1px solid rgba(247,129,102,.3); letter-spacing: .04em; }
+.opt-badge { font-size: 9px; font-weight: 700; padding: 1px 5px; border-radius: 3px; background: rgba(121,192,255,.15); color: var(--blue); border: 1px solid rgba(121,192,255,.25); letter-spacing: .04em; }
+
+/* ===== SHORTCUTS MODAL ===== */
+#shortcuts-modal {
+  display: none; position: fixed; inset: 0; z-index: 600;
+  background: rgba(1,4,9,.7); backdrop-filter: blur(4px);
+  align-items: center; justify-content: center;
+}
+#shortcuts-modal.open { display: flex; }
+.shortcuts-box {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 24px; min-width: 280px;
+  max-width: 380px;
+}
+.shortcuts-box h3 { font-size: 14px; font-weight: 700; margin-bottom: 14px; }
+.shortcut-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; font-size: 13px; color: var(--muted); }
+kbd { font-size: 11px; font-weight: 600; padding: 2px 7px; border-radius: 4px; background: var(--surface2); border: 1px solid var(--border); color: var(--text); font-family: inherit; }
+
+/* ===== PRINT ===== */
+@media print {
+  #topbar, #sidebar, #search-overlay, #shortcuts-modal { display: none !important; }
+  #main { margin-left: 0 !important; }
+  .domain-section.collapsed .domain-body,
+  .lesson-card.collapsed .lesson-body { display: block !important; }
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  :root { --sidebar-w: 0px; }
+  #sidebar { display: none; }
+  body.sidebar-open #sidebar { display: block; position: fixed; top: var(--topbar-h); bottom: 0; left: 0; z-index: 150; width: 260px; }
+  .exam-overview, .domain-header, .domain-body { padding-left: 16px; padding-right: 16px; }
+}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div id="topbar">
+  <a href="index.html" id="home-link">← Home</a>
+  <span class="topbar-sep">/</span>
+  <div class="topbar-title">
+    <span class="exam-code">SC-300</span>Identity and Access Administrator
+  </div>
+  <div class="topbar-actions">
+    <button class="icon-btn" id="search-btn" title="Search (/)">⌕ Search</button>
+    <button class="icon-btn" id="sidebar-toggle" title="Toggle sidebar (B)">☰</button>
+    <button class="icon-btn" id="expand-btn" title="Expand all (E)">⊞</button>
+    <button class="icon-btn" id="collapse-btn" title="Collapse all (C)">⊟</button>
+    <button class="icon-btn" id="theme-btn" title="Toggle theme (T)">☀</button>
+    <button class="icon-btn" id="shortcuts-btn" title="Keyboard shortcuts (?)">?</button>
+  </div>
+</div>
+
+<!-- SEARCH OVERLAY -->
+<div id="search-overlay">
+  <div class="search-box">
+    <input type="text" id="search-input" placeholder="Search topics, concepts, commands…" autocomplete="off" spellcheck="false">
+    <div id="search-results"></div>
+  </div>
+</div>
+
+<!-- SHORTCUTS MODAL -->
+<div id="shortcuts-modal">
+  <div class="shortcuts-box">
+    <h3>Keyboard Shortcuts</h3>
+    <div class="shortcut-row"><span>Focus search</span><kbd>/</kbd></div>
+    <div class="shortcut-row"><span>Close overlay</span><kbd>Esc</kbd></div>
+    <div class="shortcut-row"><span>Toggle theme</span><kbd>T</kbd></div>
+    <div class="shortcut-row"><span>Toggle sidebar</span><kbd>B</kbd></div>
+    <div class="shortcut-row"><span>Expand all</span><kbd>E</kbd></div>
+    <div class="shortcut-row"><span>Collapse all</span><kbd>C</kbd></div>
+    <div class="shortcut-row"><span>This modal</span><kbd>?</kbd></div>
+  </div>
+</div>
+
+<!-- LAYOUT -->
+<div id="layout">
+
+  <!-- SIDEBAR TOC (built by JS) -->
+  <nav id="sidebar"></nav>
+
+  <!-- MAIN -->
+  <main id="main">
+
+    <!-- EXAM OVERVIEW (static, not from SECTIONS) -->
+    <div class="exam-overview" id="exam-overview">
+      <h1>SC-300 Study Guide</h1>
+      <div class="exam-subtitle">Microsoft Identity and Access Administrator Associate — Comprehensive Exam Preparation</div>
+
+      <div class="exam-meta-cards">
+        <div class="exam-meta-card">
+          <div class="emc-label">Exam</div>
+          <div class="emc-value" style="color:var(--purple)">SC-300</div>
+        </div>
+        <div class="exam-meta-card">
+          <div class="emc-label">Passing Score</div>
+          <div class="emc-value">700 <span style="font-size:12px;color:var(--muted)">/1000</span></div>
+        </div>
+        <div class="exam-meta-card">
+          <div class="emc-label">Questions</div>
+          <div class="emc-value">40–60</div>
+        </div>
+        <div class="exam-meta-card">
+          <div class="emc-label">Duration</div>
+          <div class="emc-value">120 <span style="font-size:12px;color:var(--muted)">min</span></div>
+        </div>
+        <div class="exam-meta-card">
+          <div class="emc-label">Question Types</div>
+          <div class="emc-value" style="font-size:13px">MCQ, Case Studies, Labs</div>
+        </div>
+      </div>
+
+      <div class="weight-chart">
+        <div class="weight-chart-title">Domain Weight Distribution</div>
+        <div class="weight-bar-row">
+          <div class="weight-bar-label">Domain 1 — Implement and Manage User Identities</div>
+          <div class="weight-bar-track"><div class="weight-bar-fill" style="width:27%;background:var(--d1)"></div></div>
+          <div class="weight-bar-pct" style="color:var(--d1)">25–30%</div>
+        </div>
+        <div class="weight-bar-row">
+          <div class="weight-bar-label">Domain 2 — Implement Authentication and Access Management</div>
+          <div class="weight-bar-track"><div class="weight-bar-fill" style="width:27%;background:var(--d2)"></div></div>
+          <div class="weight-bar-pct" style="color:var(--d2)">25–30%</div>
+        </div>
+        <div class="weight-bar-row">
+          <div class="weight-bar-label">Domain 3 — Implement Access Management for Applications</div>
+          <div class="weight-bar-track"><div class="weight-bar-fill" style="width:17%;background:var(--d3)"></div></div>
+          <div class="weight-bar-pct" style="color:var(--d3)">15–20%</div>
+        </div>
+        <div class="weight-bar-row">
+          <div class="weight-bar-label">Domain 4 — Plan and Implement Identity Governance</div>
+          <div class="weight-bar-track"><div class="weight-bar-fill" style="width:22%;background:var(--d4)"></div></div>
+          <div class="weight-bar-pct" style="color:var(--d4)">20–25%</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTIONS rendered here by JS -->
+    <div id="content"></div>
+
+  </main>
+</div>
+
+<script>
+/* ================================================================
+   SC-300 RENDERING ENGINE
+   ================================================================ */
+
+/* ---------- Syntax tokenizer (reused from reference sheets) ---------- */
+function tokenizeSyntax(s) {
+  if (!s) return '';
+  return s
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/\[([^\]]+)\]/g, '<span class="syn-opt">[$1]</span>')
+    .replace(/&lt;([^&]+)&gt;/g, '<span class="syn-req">&lt;$1&gt;</span>');
+}
+
+/* ---------- Build command table row ---------- */
+function buildCmdRow(c) {
+  const argsHtml = c.args && c.args.length ? `
+    <tr class="args-row">
+      <td colspan="3" style="padding:0 10px 8px 10px;">
+        <div class="args-wrap">
+          <table class="args-table">
+            <tr><th>Parameter</th><th>Type</th><th>Range</th><th>Req?</th><th>Default</th><th>Description</th></tr>
+            ${c.args.map(a => `<tr>
+              <td style="font-family:monospace;color:var(--orange)">${a.name}</td>
+              <td>${a.type||''}</td>
+              <td>${a.range||'-'}</td>
+              <td><span class="${a.req?'req-badge':'opt-badge'}">${a.req?'REQ':'opt'}</span></td>
+              <td>${a.def||'-'}</td>
+              <td style="color:var(--muted)">${a.desc||''}</td>
+            </tr>`).join('')}
+          </table>
+        </div>
+      </td>
+    </tr>` : '';
+  return `<tr class="cmd-row">
+    <td class="col-cmd">${c.cmd}</td>
+    <td class="col-syntax">${tokenizeSyntax(c.syntax)}</td>
+    <td class="col-desc">${c.desc||''}</td>
+  </tr>${argsHtml}`;
+}
+
+/* ---------- Build quickref command table ---------- */
+function buildQuickref(sub) {
+  const rows = (sub.commands||[]).map(buildCmdRow).join('');
+  return `<div class="cmd-table-wrap">
+    <table class="cmd-table">
+      <thead><tr><th style="width:22%">Command</th><th style="width:35%">Syntax</th><th>Description</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+  </div>`;
+}
+
+/* ---------- Build concept pills ---------- */
+function buildPills(concepts) {
+  if (!concepts || !concepts.length) return '';
+  return `<div class="concept-pills">${concepts.map(c => `<span class="pill">${c}</span>`).join('')}</div>`;
+}
+
+/* ---------- Build exam tip ---------- */
+function buildTip(tip) {
+  if (!tip) return '';
+  return `<div class="exam-tip"><div class="exam-tip-header">💡 Exam Tip</div><p>${tip}</p></div>`;
+}
+
+/* ---------- Build diagram ---------- */
+function buildDiagram(svg) {
+  if (!svg) return '';
+  return `<div class="diagram-wrap">${svg}</div>`;
+}
+
+/* ---------- Build lesson card ---------- */
+function buildLesson(sub, idx, domainClass) {
+  const id = sub.id || ('lesson-' + idx);
+  const body = `
+    <div class="lesson-body">
+      ${sub.concepts ? buildPills(sub.concepts) : ''}
+      ${sub.body || ''}
+      ${sub.diagram ? buildDiagram(sub.diagram) : ''}
+      ${sub.tip ? buildTip(sub.tip) : ''}
+      ${sub.commands && sub.commands.length ? buildQuickref(sub) : ''}
+    </div>`;
+  return `<div class="lesson-card" id="${id}">
+    <div class="lesson-header" onclick="toggleLesson(this)">
+      <span class="lesson-num">${String(idx).padStart(2,'0')}</span>
+      <span class="lesson-title">${sub.title}</span>
+      <span class="lesson-collapse-icon">▾</span>
+    </div>
+    ${body}
+  </div>`;
+}
+
+/* ---------- Build domain section ---------- */
+function buildDomain(sec) {
+  const idx = sec.domainNum || 1;
+  const badgeClass = `d${idx}-badge`;
+  const domClass = `d${idx}`;
+  const lessons = (sec.subsections || []).map((s, i) => buildLesson(s, i + 1, domClass)).join('');
+  return `<div class="domain-section" id="${sec.id}">
+    <div class="domain-header" onclick="toggleDomain(this)">
+      <span class="domain-badge ${badgeClass}">Domain ${idx}</span>
+      <span class="domain-title">${sec.title}</span>
+      <span class="domain-weight-badge">${sec.weight || ''}</span>
+      <span class="domain-collapse-icon">▾</span>
+    </div>
+    <div class="domain-body">${lessons}</div>
+  </div>`;
+}
+
+/* ---------- Master renderer ---------- */
+function render() {
+  const content = document.getElementById('content');
+  content.innerHTML = SECTIONS.map(sec => {
+    if (sec.type === 'domain') return buildDomain(sec);
+    return '';
+  }).join('');
+  buildTOC();
+  initTOCObserver();
+  restoreCollapseState();
+}
+
+/* ================================================================
+   TOC
+   ================================================================ */
+function buildTOC() {
+  const sidebar = document.getElementById('sidebar');
+  let html = '';
+  SECTIONS.forEach(sec => {
+    if (sec.type !== 'domain') return;
+    const idx = sec.domainNum || 1;
+    html += `<div class="toc-section">
+      <div class="toc-domain-label">Domain ${idx}</div>
+      <a class="toc-link d${idx}" href="#${sec.id}" onclick="scrollToSection('${sec.id}');return false;">${sec.title}</a>
+      ${(sec.subsections||[]).map(s =>
+        `<a class="toc-link d${idx}" href="#${s.id}" style="padding-left:36px;font-size:11px;"
+           onclick="scrollToSection('${s.id}');return false;">${s.title}</a>`
+      ).join('')}
+    </div>`;
+  });
+  sidebar.innerHTML = html;
+}
+
+function scrollToSection(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  // Expand parent domain if collapsed
+  const domain = el.closest('.domain-section');
+  if (domain) domain.classList.remove('collapsed');
+  // Expand lesson if collapsed
+  if (el.classList.contains('lesson-card')) el.classList.remove('collapsed');
+  saveCollapseState();
+  requestAnimationFrame(() => {
+    const top = el.getBoundingClientRect().top + window.scrollY - 70;
+    window.scrollTo({ top, behavior: 'smooth' });
+  });
+}
+
+function initTOCObserver() {
+  const links = document.querySelectorAll('.toc-link');
+  if (!links.length) return;
+  const idMap = {};
+  links.forEach(l => {
+    const href = l.getAttribute('href');
+    if (href && href.startsWith('#')) idMap[href.slice(1)] = l;
+  });
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting && idMap[e.target.id]) {
+        links.forEach(l => l.classList.remove('active'));
+        idMap[e.target.id].classList.add('active');
+      }
+    });
+  }, { rootMargin: '-60px 0px -70% 0px', threshold: 0 });
+  document.querySelectorAll('.domain-section, .lesson-card').forEach(el => obs.observe(el));
+}
+
+/* ================================================================
+   COLLAPSE / EXPAND
+   ================================================================ */
+function toggleDomain(header) {
+  header.closest('.domain-section').classList.toggle('collapsed');
+  saveCollapseState();
+}
+function toggleLesson(header) {
+  header.closest('.lesson-card').classList.toggle('collapsed');
+  saveCollapseState();
+}
+function saveCollapseState() {
+  const state = {};
+  document.querySelectorAll('.domain-section, .lesson-card').forEach(el => {
+    if (el.id) state[el.id] = el.classList.contains('collapsed');
+  });
+  try { localStorage.setItem('sc300-collapse', JSON.stringify(state)); } catch(e) {}
+}
+function restoreCollapseState() {
+  let state = {};
+  try { state = JSON.parse(localStorage.getItem('sc300-collapse') || '{}'); } catch(e) {}
+  document.querySelectorAll('.domain-section, .lesson-card').forEach(el => {
+    if (el.id && state[el.id]) el.classList.add('collapsed');
+  });
+}
+
+/* ================================================================
+   SEARCH
+   ================================================================ */
+let searchIndex = [];
+
+function buildSearchIndex() {
+  searchIndex = [];
+  SECTIONS.forEach(sec => {
+    if (sec.type !== 'domain') return;
+    (sec.subsections || []).forEach(sub => {
+      // Index lesson title + concepts + body text (stripped)
+      const bodyText = (sub.body || '').replace(/<[^>]+>/g, ' ');
+      const concepts = (sub.concepts || []).join(' ');
+      searchIndex.push({
+        id: sub.id,
+        title: sub.title,
+        domain: sec.title,
+        domainId: sec.id,
+        text: bodyText + ' ' + concepts
+      });
+      // Index commands
+      (sub.commands || []).forEach(c => {
+        searchIndex.push({
+          id: sub.id,
+          title: c.cmd + ' — ' + (c.desc || ''),
+          domain: sec.title,
+          domainId: sec.id,
+          text: c.syntax + ' ' + c.desc
+        });
+      });
+    });
+  });
+}
+
+const searchOverlay = document.getElementById('search-overlay');
+const searchInput = document.getElementById('search-input');
+const searchResults = document.getElementById('search-results');
+let searchActive = -1;
+
+function openSearch() {
+  searchOverlay.classList.add('open');
+  searchInput.value = '';
+  searchResults.innerHTML = '<div class="search-empty">Type to search…</div>';
+  searchActive = -1;
+  searchInput.focus();
+}
+function closeSearch() {
+  searchOverlay.classList.remove('open');
+  searchActive = -1;
+}
+
+searchInput.addEventListener('input', () => {
+  const q = searchInput.value.trim().toLowerCase();
+  searchActive = -1;
+  if (!q) { searchResults.innerHTML = '<div class="search-empty">Type to search…</div>'; return; }
+  const hits = searchIndex.filter(e =>
+    e.title.toLowerCase().includes(q) || e.text.toLowerCase().includes(q)
+  ).slice(0, 25);
+  if (!hits.length) { searchResults.innerHTML = '<div class="search-empty">No results for "' + q + '"</div>'; return; }
+  searchResults.innerHTML = hits.map((h, i) => `
+    <div class="search-result" data-id="${h.id}" data-idx="${i}" onmousedown="selectResult('${h.id}')">
+      <div class="sr-title">${h.title}</div>
+      <div class="sr-meta">${h.domain}</div>
+    </div>`).join('');
+});
+
+function selectResult(id) {
+  closeSearch();
+  scrollToSection(id);
+}
+
+searchInput.addEventListener('keydown', e => {
+  const items = searchResults.querySelectorAll('.search-result');
+  if (e.key === 'ArrowDown') { e.preventDefault(); searchActive = Math.min(searchActive + 1, items.length - 1); items.forEach((el, i) => el.classList.toggle('active', i === searchActive)); }
+  else if (e.key === 'ArrowUp') { e.preventDefault(); searchActive = Math.max(searchActive - 1, 0); items.forEach((el, i) => el.classList.toggle('active', i === searchActive)); }
+  else if (e.key === 'Enter' && searchActive >= 0) { const el = items[searchActive]; if (el) selectResult(el.dataset.id); }
+  else if (e.key === 'Escape') closeSearch();
+});
+
+searchOverlay.addEventListener('click', e => { if (e.target === searchOverlay) closeSearch(); });
+document.getElementById('search-btn').addEventListener('click', openSearch);
+
+/* ================================================================
+   THEME
+   ================================================================ */
+const themeBtn = document.getElementById('theme-btn');
+function applyTheme(t) {
+  document.documentElement.dataset.theme = t;
+  themeBtn.textContent = t === 'dark' ? '☀' : '☾';
+  try { localStorage.setItem('sc300-theme', t); } catch(e) {}
+}
+(function() { applyTheme(localStorage.getItem('sc300-theme') || 'dark'); })();
+themeBtn.addEventListener('click', () => {
+  applyTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark');
+});
+
+/* ================================================================
+   SIDEBAR TOGGLE
+   ================================================================ */
+document.getElementById('sidebar-toggle').addEventListener('click', () => {
+  document.body.classList.toggle('sidebar-collapsed');
+  try { localStorage.setItem('sc300-sidebar', document.body.classList.contains('sidebar-collapsed') ? '1' : '0'); } catch(e) {}
+});
+(function() {
+  if (localStorage.getItem('sc300-sidebar') === '1') document.body.classList.add('sidebar-collapsed');
+})();
+
+/* ================================================================
+   EXPAND / COLLAPSE ALL
+   ================================================================ */
+document.getElementById('expand-btn').addEventListener('click', () => {
+  document.querySelectorAll('.domain-section, .lesson-card').forEach(el => el.classList.remove('collapsed'));
+  saveCollapseState();
+});
+document.getElementById('collapse-btn').addEventListener('click', () => {
+  document.querySelectorAll('.domain-section, .lesson-card').forEach(el => el.classList.add('collapsed'));
+  saveCollapseState();
+});
+
+/* ================================================================
+   SHORTCUTS MODAL
+   ================================================================ */
+const shortcutsModal = document.getElementById('shortcuts-modal');
+document.getElementById('shortcuts-btn').addEventListener('click', () => shortcutsModal.classList.toggle('open'));
+shortcutsModal.addEventListener('click', e => { if (e.target === shortcutsModal) shortcutsModal.classList.remove('open'); });
+
+/* ================================================================
+   KEYBOARD
+   ================================================================ */
+document.addEventListener('keydown', e => {
+  if (searchOverlay.classList.contains('open')) return;
+  if (shortcutsModal.classList.contains('open') && e.key === 'Escape') { shortcutsModal.classList.remove('open'); return; }
+  const tag = document.activeElement.tagName;
+  if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+  switch (e.key) {
+    case '/': e.preventDefault(); openSearch(); break;
+    case 'Escape': shortcutsModal.classList.remove('open'); break;
+    case 't': case 'T': applyTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'); break;
+    case 'b': case 'B': document.body.classList.toggle('sidebar-collapsed'); break;
+    case 'e': case 'E': document.querySelectorAll('.domain-section,.lesson-card').forEach(el => el.classList.remove('collapsed')); saveCollapseState(); break;
+    case 'c': case 'C': document.querySelectorAll('.domain-section,.lesson-card').forEach(el => el.classList.add('collapsed')); saveCollapseState(); break;
+    case '?': shortcutsModal.classList.toggle('open'); break;
+  }
+});
+</script>
+
+<!-- ================================================================
+     DATA — SECTIONS array
+     Each section uses type:'domain'
+     ================================================================ -->
+<script>
+const SECTIONS = [];
+</script>
+
+<!-- Content batches will be added as SECTIONS.push({...}) calls below -->
+<!-- BATCH 2: Domain 1 -->
+<!-- BATCH 3: Domain 1 continued -->
+<!-- BATCH 4: Domain 2 -->
+<!-- BATCH 5: Domain 2 continued -->
+<!-- BATCH 6: Domain 3 -->
+<!-- BATCH 7: Domain 4 -->
+<!-- BATCH 8: Domain 4 continued -->
+
+<script>
+// Final render + search index build — must be after all SECTIONS.push() calls
+render();
+buildSearchIndex();
+</script>
+
+</body>
+</html>
