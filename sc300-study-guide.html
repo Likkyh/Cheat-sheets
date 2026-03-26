@@ -961,21 +961,21 @@ SECTIONS.push({
   <rect x="10" y="20" width="160" height="160" rx="8" fill="#161b22" stroke="#30363d" stroke-width="1.5"/>
   <text x="90" y="42" text-anchor="middle" fill="#8b949e" font-size="9" font-weight="600" letter-spacing="1">ON-PREMISES</text>
   <rect x="30" y="55" width="120" height="40" rx="5" fill="#1c2128" stroke="#30363d"/>
-  <text x="90" y="72" text-anchor="middle" fill="#e6edf3" font-weight="600">Active Directory</text>
+  <text x="90" y="72" text-anchor="middle" fill="#e6edf3" font-weight="600" textLength="108" lengthAdjust="spacingAndGlyphs">Active Directory</text>
   <text x="90" y="85" text-anchor="middle" fill="#8b949e" font-size="9">AD DS</text>
   <rect x="30" y="110" width="120" height="40" rx="5" fill="#1c2128" stroke="#30363d"/>
-  <text x="90" y="127" text-anchor="middle" fill="#e6edf3" font-weight="600">Entra Connect</text>
-  <text x="90" y="140" text-anchor="middle" fill="#8b949e" font-size="9">or Cloud Sync Agent</text>
+  <text x="90" y="127" text-anchor="middle" fill="#e6edf3" font-weight="600" textLength="108" lengthAdjust="spacingAndGlyphs">Entra Connect</text>
+  <text x="90" y="140" text-anchor="middle" fill="#8b949e" font-size="9" textLength="108" lengthAdjust="spacingAndGlyphs">or Cloud Sync Agent</text>
   <!-- Arrows from AD to Connect -->
   <line x1="90" y1="95" x2="90" y2="110" stroke="#30363d" stroke-width="1.5" marker-end="url(#arr)"/>
   <!-- Three sync methods -->
   <rect x="220" y="35" width="140" height="35" rx="5" fill="rgba(121,192,255,0.1)" stroke="rgba(121,192,255,0.4)"/>
-  <text x="290" y="54" text-anchor="middle" fill="#79c0ff" font-weight="600">Password Hash Sync</text>
+  <text x="290" y="54" text-anchor="middle" fill="#79c0ff" font-weight="600" textLength="128" lengthAdjust="spacingAndGlyphs">Password Hash Sync</text>
   <text x="290" y="65" text-anchor="middle" fill="#79c0ff" font-size="9">(recommended)</text>
   <rect x="220" y="83" width="140" height="35" rx="5" fill="rgba(63,185,80,0.1)" stroke="rgba(63,185,80,0.4)"/>
-  <text x="290" y="104" text-anchor="middle" fill="#3fb950" font-weight="600">Pass-Through Auth</text>
+  <text x="290" y="104" text-anchor="middle" fill="#3fb950" font-weight="600" textLength="128" lengthAdjust="spacingAndGlyphs">Pass-Through Auth</text>
   <rect x="220" y="131" width="140" height="35" rx="5" fill="rgba(210,168,255,0.1)" stroke="rgba(210,168,255,0.4)"/>
-  <text x="290" y="152" text-anchor="middle" fill="#d2a8ff" font-weight="600">Federation (AD FS)</text>
+  <text x="290" y="152" text-anchor="middle" fill="#d2a8ff" font-weight="600" textLength="128" lengthAdjust="spacingAndGlyphs">Federation (AD FS)</text>
   <!-- Arrows from Connect to methods -->
   <line x1="150" y1="130" x2="220" y2="52" stroke="#30363d" stroke-width="1" stroke-dasharray="4"/>
   <line x1="150" y1="130" x2="220" y2="100" stroke="#30363d" stroke-width="1" stroke-dasharray="4"/>
@@ -985,11 +985,11 @@ SECTIONS.push({
   <text x="540" y="42" text-anchor="middle" fill="#8b949e" font-size="9" font-weight="600" letter-spacing="1">MICROSOFT ENTRA ID</text>
   <rect x="430" y="55" width="220" height="50" rx="5" fill="#1c2128" stroke="#30363d"/>
   <text x="540" y="76" text-anchor="middle" fill="#e6edf3" font-weight="600">Synced User Objects</text>
-  <text x="540" y="90" text-anchor="middle" fill="#8b949e" font-size="9">UPN • Attributes • Group memberships</text>
+  <text x="540" y="90" text-anchor="middle" fill="#8b949e" font-size="9" textLength="208" lengthAdjust="spacingAndGlyphs">UPN • Attributes • Group memberships</text>
   <rect x="430" y="120" width="100" height="40" rx="5" fill="#1c2128" stroke="#30363d"/>
-  <text x="480" y="142" text-anchor="middle" fill="#f78166">Identity Protection</text>
+  <text x="480" y="142" text-anchor="middle" fill="#f78166" textLength="88" lengthAdjust="spacingAndGlyphs">Identity Protection</text>
   <rect x="540" y="120" width="110" height="40" rx="5" fill="#1c2128" stroke="#30363d"/>
-  <text x="595" y="142" text-anchor="middle" fill="#d2a8ff">Conditional Access</text>
+  <text x="595" y="142" text-anchor="middle" fill="#d2a8ff" textLength="98" lengthAdjust="spacingAndGlyphs">Conditional Access</text>
   <!-- Arrows from methods to Entra -->
   <line x1="360" y1="52" x2="410" y2="80" stroke="#79c0ff" stroke-width="1.5"/>
   <line x1="360" y1="100" x2="410" y2="80" stroke="#3fb950" stroke-width="1.5"/>
@@ -1106,16 +1106,16 @@ SECTIONS.push({
       diagram: `<svg viewBox="0 0 700 230" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="10">
   <text x="350" y="18" text-anchor="middle" fill="#8b949e" font-size="9" font-weight="600" letter-spacing="1">CONDITIONAL ACCESS — POLICY EVALUATION FLOW</text>
   <rect x="10" y="35" width="110" height="45" rx="6" fill="#1c2128" stroke="#30363d"/>
-  <text x="65" y="55" text-anchor="middle" fill="#e6edf3" font-weight="600">User Sign-in</text>
+  <text x="65" y="55" text-anchor="middle" fill="#e6edf3" font-weight="600" textLength="98" lengthAdjust="spacingAndGlyphs">User Sign-in</text>
   <text x="65" y="68" text-anchor="middle" fill="#8b949e" font-size="9">Attempt</text>
   <rect x="145" y="35" width="120" height="58" rx="6" fill="#1c2128" stroke="#79c0ff" stroke-width="1.5"/>
-  <text x="205" y="53" text-anchor="middle" fill="#79c0ff" font-weight="600">Signal Collection</text>
-  <text x="205" y="66" text-anchor="middle" fill="#8b949e" font-size="9">User • App • Location</text>
-  <text x="205" y="78" text-anchor="middle" fill="#8b949e" font-size="9">Device • Risk Score</text>
+  <text x="205" y="53" text-anchor="middle" fill="#79c0ff" font-weight="600" textLength="108" lengthAdjust="spacingAndGlyphs">Signal Collection</text>
+  <text x="205" y="66" text-anchor="middle" fill="#8b949e" font-size="9" textLength="108" lengthAdjust="spacingAndGlyphs">User • App • Location</text>
+  <text x="205" y="78" text-anchor="middle" fill="#8b949e" font-size="9" textLength="108" lengthAdjust="spacingAndGlyphs">Device • Risk Score</text>
   <rect x="290" y="35" width="130" height="58" rx="6" fill="#1c2128" stroke="#d2a8ff" stroke-width="1.5"/>
-  <text x="355" y="53" text-anchor="middle" fill="#d2a8ff" font-weight="600">Policy Matching</text>
-  <text x="355" y="66" text-anchor="middle" fill="#8b949e" font-size="9">All matching policies</text>
-  <text x="355" y="78" text-anchor="middle" fill="#8b949e" font-size="9">(most restrictive wins)</text>
+  <text x="355" y="53" text-anchor="middle" fill="#d2a8ff" font-weight="600" textLength="118" lengthAdjust="spacingAndGlyphs">Policy Matching</text>
+  <text x="355" y="66" text-anchor="middle" fill="#8b949e" font-size="9" textLength="118" lengthAdjust="spacingAndGlyphs">All matching policies</text>
+  <text x="355" y="78" text-anchor="middle" fill="#8b949e" font-size="9" textLength="118" lengthAdjust="spacingAndGlyphs">(most restrictive wins)</text>
   <polygon points="515,57 558,80 515,103 472,80" fill="#1c2128" stroke="#f78166" stroke-width="1.5"/>
   <text x="515" y="77" text-anchor="middle" fill="#f78166" font-weight="600">Block?</text>
   <text x="515" y="89" text-anchor="middle" fill="#f78166" font-size="9">Any policy</text>
@@ -1123,10 +1123,10 @@ SECTIONS.push({
   <text x="642" y="78" text-anchor="middle" fill="#f78166" font-weight="700">BLOCKED</text>
   <rect x="400" y="150" width="160" height="50" rx="6" fill="rgba(63,185,80,.1)" stroke="rgba(63,185,80,.4)"/>
   <text x="480" y="168" text-anchor="middle" fill="#3fb950" font-weight="600">Grant Controls</text>
-  <text x="480" y="181" text-anchor="middle" fill="#8b949e" font-size="9">MFA / Compliant device</text>
+  <text x="480" y="181" text-anchor="middle" fill="#8b949e" font-size="9" textLength="148" lengthAdjust="spacingAndGlyphs">MFA / Compliant device</text>
   <text x="480" y="192" text-anchor="middle" fill="#8b949e" font-size="9">Auth strength / ToU</text>
   <rect x="220" y="160" width="150" height="35" rx="6" fill="rgba(121,192,255,.1)" stroke="rgba(121,192,255,.4)"/>
-  <text x="295" y="181" text-anchor="middle" fill="#79c0ff" font-weight="700">ACCESS GRANTED</text>
+  <text x="295" y="181" text-anchor="middle" fill="#79c0ff" font-weight="700" textLength="138" lengthAdjust="spacingAndGlyphs">ACCESS GRANTED</text>
   <line x1="120" y1="57" x2="145" y2="57" stroke="#30363d" stroke-width="1.5" marker-end="url(#a3)"/>
   <line x1="265" y1="57" x2="290" y2="57" stroke="#30363d" stroke-width="1.5" marker-end="url(#a3)"/>
   <line x1="420" y1="57" x2="472" y2="80" stroke="#30363d" stroke-width="1.5" marker-end="url(#a3)"/>
@@ -1471,8 +1471,8 @@ SECTIONS.push({
   <text x="60" y="54" text-anchor="middle" fill="#79c0ff" font-weight="600">User</text>
   <text x="60" y="67" text-anchor="middle" fill="#79c0ff" font-size="9">Eligible member</text>
   <rect x="140" y="35" width="120" height="45" rx="6" fill="#1c2128" stroke="#30363d"/>
-  <text x="200" y="54" text-anchor="middle" fill="#e6edf3" font-weight="600">Request Activation</text>
-  <text x="200" y="67" text-anchor="middle" fill="#8b949e" font-size="9">Duration + Justification</text>
+  <text x="200" y="54" text-anchor="middle" fill="#e6edf3" font-weight="600" textLength="108" lengthAdjust="spacingAndGlyphs">Request Activation</text>
+  <text x="200" y="67" text-anchor="middle" fill="#8b949e" font-size="9" textLength="108" lengthAdjust="spacingAndGlyphs">Duration + Justification</text>
   <!-- MFA diamond -->
   <polygon points="320,57 360,80 320,103 280,80" fill="#1c2128" stroke="#f78166" stroke-width="1.5"/>
   <text x="320" y="76" text-anchor="middle" fill="#f78166" font-weight="600">MFA?</text>
@@ -1488,11 +1488,11 @@ SECTIONS.push({
   <!-- Active role -->
   <rect x="230" y="148" width="140" height="40" rx="6" fill="rgba(63,185,80,.1)" stroke="rgba(63,185,80,.4)"/>
   <text x="300" y="164" text-anchor="middle" fill="#3fb950" font-weight="600">Role Active</text>
-  <text x="300" y="177" text-anchor="middle" fill="#3fb949" font-size="9">Time-limited (JIT)</text>
+  <text x="300" y="177" text-anchor="middle" fill="#3fb949" font-size="9" textLength="128" lengthAdjust="spacingAndGlyphs">Time-limited (JIT)</text>
   <!-- Approver wait -->
   <rect x="590" y="55" width="65" height="45" rx="6" fill="rgba(210,168,255,.1)" stroke="rgba(210,168,255,.3)"/>
-  <text x="622" y="73" text-anchor="middle" fill="#d2a8ff">Awaits</text>
-  <text x="622" y="86" text-anchor="middle" fill="#d2a8ff">Approver</text>
+  <text x="622" y="73" text-anchor="middle" fill="#d2a8ff" textLength="53" lengthAdjust="spacingAndGlyphs">Awaits</text>
+  <text x="622" y="86" text-anchor="middle" fill="#d2a8ff" textLength="53" lengthAdjust="spacingAndGlyphs">Approver</text>
   <!-- Arrows -->
   <line x1="110" y1="57" x2="140" y2="57" stroke="#30363d" stroke-width="1.5" marker-end="url(#a4)"/>
   <line x1="260" y1="57" x2="280" y2="80" stroke="#30363d" stroke-width="1.5" marker-end="url(#a4)"/>
