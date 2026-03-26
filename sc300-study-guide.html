@@ -183,14 +183,14 @@ body.sidebar-collapsed #sidebar { display: none; }
 .emc-value { font-size: 18px; font-weight: 700; margin-top: 2px; }
 .weight-chart { margin-bottom: 8px; }
 .weight-chart-title { font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 10px; text-transform: uppercase; letter-spacing: .05em; }
-.weight-bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
-.weight-bar-label { font-size: 12px; color: var(--text); min-width: 200px; }
+.weight-bars-grid { display: grid; grid-template-columns: max-content 1fr auto; align-items: center; gap: 8px 12px; }
+.weight-bar-label { font-size: 12px; color: var(--text); white-space: nowrap; }
 .weight-bar-track {
-  flex: 1; height: 8px; background: var(--surface2);
+  height: 8px; background: var(--surface2);
   border-radius: 4px; overflow: hidden; max-width: 280px;
 }
 .weight-bar-fill { height: 100%; border-radius: 4px; }
-.weight-bar-pct { font-size: 11px; color: var(--muted); min-width: 60px; }
+.weight-bar-pct { font-size: 11px; color: var(--muted); }
 
 /* ===== DOMAIN SECTION ===== */
 .domain-section { border-bottom: 1px solid var(--border); }
@@ -349,6 +349,9 @@ kbd { font-size: 11px; font-weight: 600; padding: 2px 7px; border-radius: 4px; b
 
 <!-- TOPBAR -->
 <div id="topbar">
+  <button class="icon-btn" id="sidebar-toggle" title="Toggle sidebar (B)">☰</button>
+  <button class="icon-btn" id="expand-btn" title="Expand all (E)">⊞</button>
+  <button class="icon-btn" id="collapse-btn" title="Collapse all (C)">⊟</button>
   <a href="index.html" id="home-link">← Home</a>
   <span class="topbar-sep">/</span>
   <div class="topbar-title">
@@ -356,9 +359,6 @@ kbd { font-size: 11px; font-weight: 600; padding: 2px 7px; border-radius: 4px; b
   </div>
   <div class="topbar-actions">
     <button class="icon-btn" id="search-btn" title="Search (/)">⌕ Search</button>
-    <button class="icon-btn" id="sidebar-toggle" title="Toggle sidebar (B)">☰</button>
-    <button class="icon-btn" id="expand-btn" title="Expand all (E)">⊞</button>
-    <button class="icon-btn" id="collapse-btn" title="Collapse all (C)">⊟</button>
     <button class="icon-btn" id="theme-btn" title="Toggle theme (T)">☀</button>
     <button class="icon-btn" id="shortcuts-btn" title="Keyboard shortcuts (?)">?</button>
   </div>
@@ -425,22 +425,16 @@ kbd { font-size: 11px; font-weight: 600; padding: 2px 7px; border-radius: 4px; b
 
       <div class="weight-chart">
         <div class="weight-chart-title">Domain Weight Distribution</div>
-        <div class="weight-bar-row">
+        <div class="weight-bars-grid">
           <div class="weight-bar-label">Domain 1 — Implement and Manage User Identities</div>
           <div class="weight-bar-track"><div class="weight-bar-fill" style="width:22%;background:var(--d1)"></div></div>
           <div class="weight-bar-pct" style="color:var(--d1)">20–25%</div>
-        </div>
-        <div class="weight-bar-row">
           <div class="weight-bar-label">Domain 2 — Implement Authentication and Access Management</div>
           <div class="weight-bar-track"><div class="weight-bar-fill" style="width:27%;background:var(--d2)"></div></div>
           <div class="weight-bar-pct" style="color:var(--d2)">25–30%</div>
-        </div>
-        <div class="weight-bar-row">
           <div class="weight-bar-label">Domain 3 — Plan and Implement Workload Identities</div>
           <div class="weight-bar-track"><div class="weight-bar-fill" style="width:22%;background:var(--d3)"></div></div>
           <div class="weight-bar-pct" style="color:var(--d3)">20–25%</div>
-        </div>
-        <div class="weight-bar-row">
           <div class="weight-bar-label">Domain 4 — Plan and Automate Identity Governance</div>
           <div class="weight-bar-track"><div class="weight-bar-fill" style="width:22%;background:var(--d4)"></div></div>
           <div class="weight-bar-pct" style="color:var(--d4)">20–25%</div>
@@ -1104,14 +1098,14 @@ SECTIONS.push({
   <rect x="10" y="35" width="110" height="45" rx="6" fill="#1c2128" stroke="#30363d"/>
   <text x="65" y="56" text-anchor="middle" fill="#e6edf3" font-weight="600">User Sign-in</text>
   <text x="65" y="72" text-anchor="middle" fill="#8b949e" font-size="10">Attempt</text>
-  <rect x="145" y="35" width="120" height="45" rx="6" fill="#1c2128" stroke="#79c0ff" stroke-width="1.5"/>
+  <rect x="145" y="35" width="120" height="58" rx="6" fill="#1c2128" stroke="#79c0ff" stroke-width="1.5"/>
   <text x="205" y="55" text-anchor="middle" fill="#79c0ff" font-weight="600">Signal Collection</text>
   <text x="205" y="70" text-anchor="middle" fill="#8b949e" font-size="10">User • App • Location</text>
-  <text x="205" y="82" text-anchor="middle" fill="#8b949e" font-size="10">Device • Risk Score</text>
-  <rect x="290" y="35" width="130" height="45" rx="6" fill="#1c2128" stroke="#d2a8ff" stroke-width="1.5"/>
+  <text x="205" y="83" text-anchor="middle" fill="#8b949e" font-size="10">Device • Risk Score</text>
+  <rect x="290" y="35" width="130" height="58" rx="6" fill="#1c2128" stroke="#d2a8ff" stroke-width="1.5"/>
   <text x="355" y="55" text-anchor="middle" fill="#d2a8ff" font-weight="600">Policy Matching</text>
   <text x="355" y="70" text-anchor="middle" fill="#8b949e" font-size="10">All matching policies</text>
-  <text x="355" y="82" text-anchor="middle" fill="#8b949e" font-size="10">evaluated (most restrictive)</text>
+  <text x="355" y="83" text-anchor="middle" fill="#8b949e" font-size="10">(most restrictive wins)</text>
   <polygon points="515,57 558,80 515,103 472,80" fill="#1c2128" stroke="#f78166" stroke-width="1.5"/>
   <text x="515" y="77" text-anchor="middle" fill="#f78166" font-weight="600" font-size="11">Block?</text>
   <text x="515" y="91" text-anchor="middle" fill="#f78166" font-size="10">Any policy</text>
@@ -1467,8 +1461,8 @@ SECTIONS.push({
   <text x="60" y="55" text-anchor="middle" fill="#79c0ff" font-weight="600">User</text>
   <text x="60" y="70" text-anchor="middle" fill="#79c0ff" font-size="10">Eligible member</text>
   <rect x="140" y="35" width="120" height="45" rx="6" fill="#1c2128" stroke="#30363d"/>
-  <text x="200" y="55" text-anchor="middle" fill="#e6edf3" font-weight="600">Request Activation</text>
-  <text x="200" y="70" text-anchor="middle" fill="#8b949e" font-size="10">Duration + Justification</text>
+  <text x="200" y="54" text-anchor="middle" fill="#e6edf3" font-weight="600" font-size="11">Request Activation</text>
+  <text x="200" y="70" text-anchor="middle" fill="#8b949e" font-size="9">Duration + Justification</text>
   <!-- MFA diamond -->
   <polygon points="320,57 360,80 320,103 280,80" fill="#1c2128" stroke="#f78166" stroke-width="1.5"/>
   <text x="320" y="77" text-anchor="middle" fill="#f78166" font-weight="600" font-size="11">MFA?</text>
