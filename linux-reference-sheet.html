@@ -2899,6 +2899,232 @@ SECTIONS.push({
   ]
 });
 
+/* ==================== PROCEDURES ==================== */
+SECTIONS.push({
+  id: 'procedures', title: 'PROCEDURES', type: 'procedure',
+  subsections: [
+    {
+      id: 'proc-init-ubuntu', title: '1. Initial System Setup — Ubuntu/Debian',
+      desc: 'Baseline steps after a fresh Ubuntu/Debian server installation.',
+      steps: [
+        { title: 'Update the system', desc: 'Refresh package lists and upgrade all packages.',
+          code: 'apt update && apt upgrade -y' },
+        { title: 'Set hostname', desc: 'Replace myserver with your desired hostname.',
+          code: 'hostnamectl set-hostname myserver' },
+        { title: 'Create an admin user', desc: 'Create a non-root user and grant sudo access.',
+          code: 'useradd -m -s /bin/bash -G sudo alice\npasswd alice' },
+        { title: 'Configure SSH key authentication', desc: 'Copy your public key to the new user.',
+          code: 'mkdir -p /home/alice/.ssh\nchmod 700 /home/alice/.ssh\n# Paste your public key:\necho "ssh-ed25519 AAAA... user@host" >> /home/alice/.ssh/authorized_keys\nchown -R alice:alice /home/alice/.ssh\nchmod 600 /home/alice/.ssh/authorized_keys' },
+        { title: 'Harden SSH', desc: 'Edit /etc/ssh/sshd_config and restart.',
+          code: '# In /etc/ssh/sshd_config:\nPermitRootLogin no\nPasswordAuthentication no\nPubkeyAuthentication yes\n\nsystemctl restart ssh' },
+        { title: 'Enable UFW firewall', code: 'ufw default deny incoming\nufw default allow outgoing\nufw allow 22/tcp\nufw enable\nufw status verbose' },
+        { title: 'Install essential tools',
+          code: 'apt install -y curl wget git vim htop unzip net-tools dnsutils' },
+        { title: 'Enable automatic security updates',
+          code: 'apt install -y unattended-upgrades\ndpkg-reconfigure --priority=low unattended-upgrades' },
+      ]
+    },
+    {
+      id: 'proc-init-arch', title: '2. Initial System Setup — Arch Linux',
+      desc: 'Post-install baseline for a fresh Arch Linux system (assumes base is installed).',
+      steps: [
+        { title: 'Update the system',
+          code: 'pacman -Syu' },
+        { title: 'Set timezone and locale',
+          code: 'timedatectl set-timezone Europe/Paris\ntimedatectl set-ntp true\n\n# Edit /etc/locale.gen, uncomment your locale, then:\nlocale-gen\necho "LANG=en_US.UTF-8" > /etc/locale.conf' },
+        { title: 'Set hostname',
+          code: 'hostnamectl set-hostname myarch\necho "127.0.1.1 myarch.localdomain myarch" >> /etc/hosts' },
+        { title: 'Create a non-root user',
+          code: 'useradd -m -s /bin/bash -G wheel alice\npasswd alice' },
+        { title: 'Enable sudo for wheel group',
+          code: '# Run visudo and uncomment:\n# %wheel ALL=(ALL:ALL) ALL\nvisudo' },
+        { title: 'Install base tools',
+          code: 'pacman -S --needed base-devel git curl wget openssh htop vim' },
+        { title: 'Enable SSH',
+          code: 'systemctl enable --now sshd' },
+        { title: 'Install an AUR helper (yay)',
+          code: 'cd /tmp\ngit clone https://aur.archlinux.org/yay.git\ncd yay\nmakepkg -si\ncd ~ && rm -rf /tmp/yay' },
+      ]
+    },
+    {
+      id: 'proc-init-fedora', title: '3. Initial System Setup — Fedora',
+      desc: 'Baseline steps after a fresh Fedora server installation.',
+      steps: [
+        { title: 'Update the system',
+          code: 'dnf upgrade -y' },
+        { title: 'Set hostname',
+          code: 'hostnamectl set-hostname myfedora' },
+        { title: 'Create an admin user',
+          code: 'useradd -m -s /bin/bash alice\npasswd alice\nusermod -aG wheel alice' },
+        { title: 'Configure SSH hardening',
+          code: '# Edit /etc/ssh/sshd_config:\nPermitRootLogin no\nPasswordAuthentication no\n\nsystemctl restart sshd' },
+        { title: 'Configure firewalld',
+          code: 'systemctl enable --now firewalld\nfirewall-cmd --add-service=ssh --permanent\nfirewall-cmd --reload\nfirewall-cmd --list-all' },
+        { title: 'Install essential tools',
+          code: 'dnf install -y curl wget git vim htop unzip bind-utils net-tools' },
+        { title: 'Enable RPM Fusion repositories', desc: 'For multimedia codecs and proprietary software.',
+          code: 'dnf install -y https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm' },
+      ]
+    },
+    {
+      id: 'proc-static-ip-ubuntu', title: '4. Configure Static IP — Ubuntu (Netplan)',
+      desc: 'Set a static IP on Ubuntu 18.04+ using Netplan (typically /etc/netplan/00-installer-config.yaml).',
+      steps: [
+        { title: 'Identify interface name',
+          code: 'ip link show\n# Note your interface: ens3, eth0, enp0s3, etc.' },
+        { title: 'Edit Netplan configuration',
+          code: '# /etc/netplan/00-installer-config.yaml\nnetwork:\n  version: 2\n  ethernets:\n    ens3:\n      addresses:\n        - 192.168.1.100/24\n      routes:\n        - to: default\n          via: 192.168.1.1\n      nameservers:\n        addresses: [1.1.1.1, 8.8.8.8]\n      dhcp4: false' },
+        { title: 'Apply configuration',
+          code: 'netplan apply\n# Verify:\nip addr show ens3\nip route show' },
+      ]
+    },
+    {
+      id: 'proc-static-ip-arch', title: '5. Configure Static IP — Arch (systemd-networkd)',
+      desc: 'Set a static IP on Arch Linux using systemd-networkd.',
+      steps: [
+        { title: 'Find interface name',
+          code: 'ip link show' },
+        { title: 'Create network file',
+          code: '# /etc/systemd/network/20-wired.network\n[Match]\nName=ens3\n\n[Network]\nAddress=192.168.1.100/24\nGateway=192.168.1.1\nDNS=1.1.1.1\nDNS=8.8.8.8' },
+        { title: 'Enable and start networkd & resolved',
+          code: 'systemctl enable --now systemd-networkd\nsystemctl enable --now systemd-resolved\nln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf' },
+        { title: 'Verify',
+          code: 'networkctl status ens3\nip addr show ens3\nping -c3 1.1.1.1' },
+      ]
+    },
+    {
+      id: 'proc-static-ip-fedora', title: '6. Configure Static IP — Fedora (nmcli)',
+      desc: 'Set a static IP on Fedora using NetworkManager CLI.',
+      steps: [
+        { title: 'Find connection name',
+          code: 'nmcli connection show' },
+        { title: 'Set static IP on connection',
+          code: 'nmcli connection modify "Wired connection 1" \\\n  ipv4.method manual \\\n  ipv4.addresses 192.168.1.100/24 \\\n  ipv4.gateway 192.168.1.1 \\\n  ipv4.dns "1.1.1.1,8.8.8.8"' },
+        { title: 'Apply changes',
+          code: 'nmcli connection down "Wired connection 1"\nnmcli connection up "Wired connection 1"\nip addr show' },
+      ]
+    },
+    {
+      id: 'proc-ssh-server', title: '7. Install & Configure SSH Server',
+      desc: 'Set up OpenSSH server with key-based authentication on any distro.',
+      steps: [
+        { title: 'Install OpenSSH server', desc: 'Choose the command for your distro.',
+          code: '# Ubuntu/Debian:\napt install -y openssh-server\n\n# Fedora:\ndnf install -y openssh-server\n\n# Arch:\npacman -S openssh' },
+        { title: 'Enable and start the SSH service',
+          code: 'systemctl enable --now sshd\nsystemctl status sshd' },
+        { title: 'Generate SSH key pair on the client', desc: 'Run this on your local machine, not the server.',
+          code: 'ssh-keygen -t ed25519 -C "your@email.com"\n# Key saved to: ~/.ssh/id_ed25519' },
+        { title: 'Copy public key to server',
+          code: 'ssh-copy-id -i ~/.ssh/id_ed25519.pub user@server-ip\n# Or manually:\ncat ~/.ssh/id_ed25519.pub | ssh user@server "mkdir -p ~/.ssh && cat >> ~/.ssh/authorized_keys"' },
+        { title: 'Harden /etc/ssh/sshd_config',
+          code: '# Edit /etc/ssh/sshd_config:\nPermitRootLogin no\nPasswordAuthentication no\nPubkeyAuthentication yes\nAuthorizedKeysFile .ssh/authorized_keys\nX11Forwarding no\nMaxAuthTries 3\nClientAliveInterval 300\nClientAliveCountMax 2' },
+        { title: 'Restart SSH and test',
+          code: 'systemctl restart sshd\n# Test from a NEW terminal (do not close the current session):\nssh -i ~/.ssh/id_ed25519 user@server-ip' },
+      ]
+    },
+    {
+      id: 'proc-firewall', title: '8. Set Up Firewall',
+      desc: 'Configure a basic firewall — choose the tool for your distro.',
+      steps: [
+        { title: 'UFW (Ubuntu/Debian) — allow SSH + HTTP/HTTPS',
+          code: 'ufw default deny incoming\nufw default allow outgoing\nufw allow 22/tcp\nufw allow 80/tcp\nufw allow 443/tcp\nufw enable\nufw status numbered' },
+        { title: 'firewalld (Fedora/RHEL) — allow services',
+          code: 'systemctl enable --now firewalld\nfirewall-cmd --add-service={ssh,http,https} --permanent\nfirewall-cmd --reload\nfirewall-cmd --list-all' },
+        { title: 'nftables (any distro) — basic ruleset',
+          code: '# /etc/nftables.conf\ntable inet filter {\n  chain input {\n    type filter hook input priority 0; policy drop;\n    ct state established,related accept\n    iif "lo" accept\n    tcp dport { 22, 80, 443 } accept\n    icmp type echo-request accept\n  }\n  chain forward { type filter hook forward priority 0; policy drop; }\n  chain output  { type filter hook output priority 0; policy accept; }\n}\n\n# Apply:\nnft -f /etc/nftables.conf\nsystemctl enable --now nftables' },
+      ]
+    },
+    {
+      id: 'proc-user-sudo', title: '9. Add a User with Sudo',
+      desc: 'Create a new user and grant administrative privileges.',
+      steps: [
+        { title: 'Create the user with a home directory and bash shell',
+          code: 'useradd -m -s /bin/bash alice\npasswd alice' },
+        { title: 'Grant sudo access',
+          code: '# Ubuntu/Debian (sudo group):\nusermod -aG sudo alice\n\n# Fedora/RHEL (wheel group):\nusermod -aG wheel alice\n\n# Arch (wheel group, requires visudo to enable):\nusermod -aG wheel alice\nvisudo  # Uncomment: %wheel ALL=(ALL:ALL) ALL' },
+        { title: 'Verify sudo access', desc: 'Log in as alice and test.',
+          code: 'su - alice\nsudo whoami\n# Expected output: root' },
+      ]
+    },
+    {
+      id: 'proc-new-disk', title: '10. Mount / Add a New Disk',
+      desc: 'Partition, format, and persistently mount a new disk (e.g. /dev/sdb).',
+      steps: [
+        { title: 'Identify the new disk',
+          code: 'lsblk\nfdisk -l /dev/sdb' },
+        { title: 'Create a GPT partition table and partition',
+          code: 'parted /dev/sdb mklabel gpt\nparted /dev/sdb mkpart primary ext4 0% 100%\n# Or interactively:\nfdisk /dev/sdb' },
+        { title: 'Format the partition',
+          code: 'mkfs.ext4 /dev/sdb1\n# Or for XFS:\nmkfs.xfs /dev/sdb1' },
+        { title: 'Get the UUID',
+          code: 'blkid /dev/sdb1' },
+        { title: 'Create mount point and mount',
+          code: 'mkdir -p /data\nmount /dev/sdb1 /data\ndf -h /data' },
+        { title: 'Add to /etc/fstab for persistent mount',
+          code: '# /etc/fstab entry (replace UUID with actual value from blkid):\nUUID=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx  /data  ext4  defaults,nofail  0  2\n\n# Test the fstab entry without rebooting:\numount /data\nmount -a\ndf -h /data' },
+      ]
+    },
+    {
+      id: 'proc-cron', title: '11. Set Up a Basic Cron Job',
+      desc: 'Schedule a recurring task using cron.',
+      steps: [
+        { title: 'Edit the current user crontab',
+          code: 'crontab -e' },
+        { title: 'Crontab format reference',
+          code: '# min  hour  day  month  weekday  command\n# 0    2     *    *      *        /path/to/backup.sh\n#\n# Special strings:\n# @reboot      — run once at startup\n# @hourly      — 0 * * * *\n# @daily       — 0 0 * * *\n# @weekly      — 0 0 * * 0\n# @monthly     — 0 0 1 * *' },
+        { title: 'Example: run backup every day at 2:30am',
+          code: '30 2 * * * /home/alice/backup.sh >> /var/log/backup.log 2>&1' },
+        { title: 'List current user cron jobs',
+          code: 'crontab -l' },
+        { title: 'System-wide cron alternatives', desc: '/etc/cron.d/, /etc/cron.daily/, /etc/cron.hourly/ — drop scripts here.',
+          code: '# List system cron jobs:\nls /etc/cron.{daily,hourly,weekly,monthly}/\n\n# View system crontab:\ncat /etc/crontab' },
+      ]
+    },
+    {
+      id: 'proc-docker', title: '12. Install Docker',
+      desc: 'Install Docker Engine from the official repository.',
+      steps: [
+        { title: 'Install Docker — Ubuntu',
+          code: 'apt update\napt install -y ca-certificates curl\ninstall -m 0755 -d /etc/apt/keyrings\ncurl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc\necho "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] \\\nhttps://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "$VERSION_CODENAME") stable" \\\n| tee /etc/apt/sources.list.d/docker.list\napt update\napt install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin' },
+        { title: 'Install Docker — Fedora',
+          code: 'dnf -y install dnf-plugins-core\ndnf config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo\ndnf install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin' },
+        { title: 'Install Docker — Arch',
+          code: 'pacman -S docker docker-compose' },
+        { title: 'Enable and start Docker',
+          code: 'systemctl enable --now docker\nsystemctl status docker' },
+        { title: 'Add user to docker group', desc: 'Allows running Docker without sudo (re-login required).',
+          code: 'usermod -aG docker $USER\n# Log out and back in, then verify:\ndocker run hello-world' },
+      ]
+    },
+    {
+      id: 'proc-hardening', title: '13. Basic Security Hardening Checklist',
+      desc: 'Essential hardening steps for a Linux server exposed to the internet.',
+      steps: [
+        { title: 'Keep system updated',
+          code: '# Ubuntu:\napt update && apt upgrade -y\n\n# Fedora:\ndnf upgrade -y\n\n# Arch:\npacman -Syu' },
+        { title: 'Disable root SSH login and password auth',
+          code: '# /etc/ssh/sshd_config:\nPermitRootLogin no\nPasswordAuthentication no\nMaxAuthTries 3\nsystemctl restart sshd' },
+        { title: 'Enable and configure firewall', desc: 'See Procedure 8 — only allow necessary ports.',
+          code: 'ufw enable\nufw default deny incoming\nufw allow 22/tcp   # only if SSH needed' },
+        { title: 'Install and configure fail2ban',
+          code: '# Ubuntu:\napt install -y fail2ban\ncp /etc/fail2ban/jail.conf /etc/fail2ban/jail.local\n# Edit jail.local: set bantime, maxretry\nsystemctl enable --now fail2ban' },
+        { title: 'Disable unused services',
+          code: '# List all enabled services:\nsystemctl list-units --type=service --state=active\n# Disable what you do not need:\nsystemctl disable --now <service>' },
+        { title: 'Set secure permissions on sensitive files',
+          code: 'chmod 600 /etc/ssh/ssh_host_*_key\nchmod 644 /etc/ssh/ssh_host_*_key.pub\nchmod 640 /etc/shadow\nchmod 644 /etc/passwd' },
+        { title: 'Enable automatic security updates', desc: 'Ubuntu only.',
+          code: 'apt install -y unattended-upgrades\ndpkg-reconfigure --priority=low unattended-upgrades' },
+        { title: 'Check for world-writable files',
+          code: 'find / -xdev -type f -perm -002 -ls 2>/dev/null | grep -v /proc' },
+        { title: 'Check for SUID/SGID binaries',
+          code: 'find / -xdev \( -perm -4000 -o -perm -2000 \) -type f -ls 2>/dev/null' },
+        { title: 'Audit listening services',
+          code: 'ss -tlunp\n# Disable any service with unexpected listeners' },
+      ]
+    },
+  ]
+});
+
 render();
 </script>
 </body>
