@@ -1650,6 +1650,381 @@ SECTIONS.push({
   ]
 });
 
+/* ==================== PROCESS MANAGEMENT ==================== */
+SECTIONS.push({
+  id: 'processes', title: 'PROCESS MANAGEMENT', type: 'commands',
+  subsections: [
+    {
+      id: 'proc-view', title: '1. Viewing Processes',
+      commands: [
+        { cmd:'ps', syntax:'ps [OPTIONS]', distros:['all'],
+          desc:'Report a snapshot of current processes.',
+          args:[
+            {name:'aux',type:'keyword',range:'-',req:false,def:'-',desc:'Show all processes with user, CPU, mem (BSD syntax, most common)'},
+            {name:'-ef',type:'keyword',range:'-',req:false,def:'-',desc:'Full-format listing of all processes (UNIX syntax)'},
+            {name:'--forest',type:'flag',range:'-',req:false,def:'-',desc:'ASCII tree showing parent-child relationships'},
+            {name:'-u <user>',type:'string',range:'-',req:false,def:'-',desc:'Filter processes by user'},
+            {name:'-p <pid>',type:'integer',range:'-',req:false,def:'-',desc:'Show specific PID(s)'},
+          ]},
+        { cmd:'top', syntax:'top [OPTIONS]', distros:['all'],
+          desc:'Interactive real-time process viewer. Press q=quit, k=kill, r=renice, 1=per-CPU.',
+          args:[
+            {name:'-d <sec>',type:'float',range:'-',req:false,def:'3',desc:'Refresh interval in seconds'},
+            {name:'-p <pid>',type:'integer',range:'-',req:false,def:'-',desc:'Monitor specific PID(s)'},
+            {name:'-u <user>',type:'string',range:'-',req:false,def:'-',desc:'Show only processes for user'},
+            {name:'-b -n <N>',type:'flag',range:'-',req:false,def:'-',desc:'Batch mode: N iterations (for scripting)'},
+          ]},
+        { cmd:'htop', syntax:'htop [OPTIONS]', distros:['all'],
+          desc:'Enhanced interactive process viewer with color, mouse support, and tree view. Install separately.',
+          args:[
+            {name:'-u <user>',type:'string',range:'-',req:false,def:'-',desc:'Show processes for specific user'},
+            {name:'-t',type:'flag',range:'-',req:false,def:'-',desc:'Start in tree mode'},
+          ]},
+        { cmd:'pgrep', syntax:'pgrep [OPTIONS] <pattern>', distros:['all'],
+          desc:'Search for processes by name and return their PIDs.',
+          args:[
+            {name:'-l',type:'flag',range:'-',req:false,def:'-',desc:'List process name along with PID'},
+            {name:'-u <user>',type:'string',range:'-',req:false,def:'-',desc:'Match only processes owned by user'},
+            {name:'-x',type:'flag',range:'-',req:false,def:'-',desc:'Match exact process name (no partial matches)'},
+          ]},
+        { cmd:'lsof', syntax:'lsof [OPTIONS]', distros:['all'],
+          desc:'List open files (sockets, pipes, regular files) by processes.',
+          args:[
+            {name:'-p <pid>',type:'integer',range:'-',req:false,def:'-',desc:'Show open files for specific process'},
+            {name:'-u <user>',type:'string',range:'-',req:false,def:'-',desc:'Show open files for user'},
+            {name:'-i [:<port>]',type:'string',range:'-',req:false,def:'-',desc:'List network connections (optionally filter by port)'},
+            {name:'+D <dir>',type:'path',range:'-',req:false,def:'-',desc:'Show all files open under directory'},
+          ]},
+        { cmd:'watch', syntax:'watch [OPTIONS] <command>', distros:['all'],
+          desc:'Execute a command repeatedly and display output. Default 2s interval.',
+          args:[
+            {name:'-n <sec>',type:'float',range:'-',req:false,def:'2',desc:'Update interval in seconds'},
+            {name:'-d',type:'flag',range:'-',req:false,def:'-',desc:'Highlight differences between updates'},
+          ]},
+      ]
+    },
+    {
+      id: 'proc-control', title: '2. Controlling Processes',
+      commands: [
+        { cmd:'kill', syntax:'kill [OPTIONS] <pid>', distros:['all'],
+          desc:'Send a signal to a process. Default signal is SIGTERM (15).',
+          args:[
+            {name:'-<signal>',type:'integer',range:'1–64',req:false,def:'15',desc:'Signal number or name: 9=SIGKILL, 15=SIGTERM, 1=SIGHUP'},
+            {name:'-l',type:'flag',range:'-',req:false,def:'-',desc:'List all signal names and numbers'},
+          ]},
+        { cmd:'killall', syntax:'killall [OPTIONS] <name>', distros:['all'],
+          desc:'Kill processes by name.',
+          args:[
+            {name:'-s <signal>',type:'string',range:'-',req:false,def:'SIGTERM',desc:'Signal to send (name or number)'},
+            {name:'-u <user>',type:'string',range:'-',req:false,def:'-',desc:'Kill only processes owned by user'},
+            {name:'-i',type:'flag',range:'-',req:false,def:'-',desc:'Interactive — ask before killing each process'},
+          ]},
+        { cmd:'pkill', syntax:'pkill [OPTIONS] <pattern>', distros:['all'],
+          desc:'Kill processes matching a pattern (like pgrep but sends signal).',
+          args:[
+            {name:'-<signal>',type:'integer',range:'-',req:false,def:'15',desc:'Signal to send'},
+            {name:'-u <user>',type:'string',range:'-',req:false,def:'-',desc:'Match only processes of user'},
+          ]},
+        { cmd:'nice', syntax:'nice [-n <adj>] <command>', distros:['all'],
+          desc:'Run command with adjusted scheduling priority. Range -20 (highest) to 19 (lowest).',
+          args:[{name:'-n <adj>',type:'integer',range:'-20 to 19',req:false,def:'10',desc:'Niceness adjustment (positive=lower priority)'}]},
+        { cmd:'renice', syntax:'renice [-n <adj>] [-p <pid>] [-u <user>]', distros:['all'],
+          desc:'Alter scheduling priority of a running process.',
+          args:[
+            {name:'-n <adj>',type:'integer',range:'-20 to 19',req:true,def:'-',desc:'New niceness value'},
+            {name:'-p <pid>',type:'integer',range:'-',req:false,def:'-',desc:'Target process PID'},
+            {name:'-u <user>',type:'string',range:'-',req:false,def:'-',desc:'All processes of this user'},
+          ]},
+        { cmd:'timeout', syntax:'timeout <duration> <command>', distros:['all'],
+          desc:'Run command with a time limit; kill it if it exceeds the duration.',
+          args:[
+            {name:'duration',type:'string',range:'-',req:true,def:'-',desc:'Duration with suffix: s(econds), m, h, d. E.g. 30s'},
+            {name:'-s <signal>',type:'string',range:'-',req:false,def:'SIGTERM',desc:'Signal to send on timeout'},
+          ]},
+        { cmd:'strace', syntax:'strace [OPTIONS] <command>', distros:['all'],
+          desc:'Trace system calls and signals made by a process. Invaluable for debugging.',
+          args:[
+            {name:'-p <pid>',type:'integer',range:'-',req:false,def:'-',desc:'Attach to existing process'},
+            {name:'-e <expr>',type:'string',range:'-',req:false,def:'-',desc:'Filter expression (e.g. -e trace=open,read)'},
+            {name:'-o <file>',type:'path',range:'-',req:false,def:'-',desc:'Write output to file'},
+            {name:'-f',type:'flag',range:'-',req:false,def:'-',desc:'Follow forks (trace child processes)'},
+          ]},
+        { cmd:'pmap', syntax:'pmap [OPTIONS] <pid>', distros:['all'],
+          desc:'Report memory map of a process (virtual address space).',
+          args:[{name:'-x',type:'flag',range:'-',req:false,def:'-',desc:'Extended format with RSS, dirty pages'}]},
+      ]
+    },
+    {
+      id: 'proc-bg', title: '3. Background & Job Control',
+      commands: [
+        { cmd:'jobs', syntax:'jobs [-l]', distros:['all'],
+          desc:'List active jobs in the current shell session.',
+          args:[{name:'-l',type:'flag',range:'-',req:false,def:'-',desc:'Show PID along with job number'}]},
+        { cmd:'bg', syntax:'bg [%<job>]', distros:['all'],
+          desc:'Resume a suspended job in the background.',
+          args:[{name:'%job',type:'integer',range:'-',req:false,def:'current',desc:'Job number from jobs output'}]},
+        { cmd:'fg', syntax:'fg [%<job>]', distros:['all'],
+          desc:'Bring a background or suspended job to the foreground.',
+          args:[{name:'%job',type:'integer',range:'-',req:false,def:'current',desc:'Job number from jobs output'}]},
+        { cmd:'nohup', syntax:'nohup <command> [&]', distros:['all'],
+          desc:'Run command immune to hangup signals (continues after logout). Output → nohup.out.',
+          args:[]},
+        { cmd:'disown', syntax:'disown [%<job>]', distros:['all'],
+          desc:'Remove a job from the shell job table so it survives terminal close.',
+          args:[]},
+        { cmd:'wait', syntax:'wait [<pid>|%<job>]', distros:['all'],
+          desc:'Wait for a background process to finish and return its exit status.',
+          args:[]},
+      ]
+    },
+  ]
+});
+
+/* ==================== NETWORKING ==================== */
+SECTIONS.push({
+  id: 'networking', title: 'NETWORKING', type: 'commands',
+  subsections: [
+    {
+      id: 'net-config', title: '1. Interface Configuration (ip)',
+      commands: [
+        { cmd:'ip addr show', syntax:'ip addr show [<interface>]', distros:['all'],
+          desc:'Display IP addresses and properties of network interfaces.',
+          args:[]},
+        { cmd:'ip addr add', syntax:'ip addr add <ip/prefix> dev <interface>', distros:['all'],
+          desc:'Add an IP address to an interface (not persistent across reboots).',
+          args:[
+            {name:'ip/prefix',type:'string',range:'-',req:true,def:'-',desc:'IP with CIDR prefix, e.g. 192.168.1.10/24'},
+            {name:'dev interface',type:'string',range:'-',req:true,def:'-',desc:'Network interface name (e.g. eth0, ens3)'},
+          ]},
+        { cmd:'ip addr del', syntax:'ip addr del <ip/prefix> dev <interface>', distros:['all'],
+          desc:'Remove an IP address from an interface.',
+          args:[]},
+        { cmd:'ip link show', syntax:'ip link show [<interface>]', distros:['all'],
+          desc:'Show link-layer (L2) info: state, MTU, MAC address.',
+          args:[]},
+        { cmd:'ip link set', syntax:'ip link set <interface> {up|down|mtu <n>|name <new>}', distros:['all'],
+          desc:'Bring interface up/down, change MTU, or rename it.',
+          args:[
+            {name:'up|down',type:'keyword',range:'-',req:false,def:'-',desc:'Bring interface up or down'},
+            {name:'mtu <n>',type:'integer',range:'68–9000',req:false,def:'-',desc:'Set MTU size'},
+          ]},
+        { cmd:'ip route show', syntax:'ip route show [table <table>]', distros:['all'],
+          desc:'Display the routing table.',
+          args:[]},
+        { cmd:'ip route add', syntax:'ip route add <prefix> via <gateway> [dev <interface>]', distros:['all'],
+          desc:'Add a static route.',
+          args:[
+            {name:'prefix',type:'string',range:'-',req:true,def:'-',desc:'Destination prefix e.g. 10.0.0.0/8 or default'},
+            {name:'via gateway',type:'ip',range:'-',req:false,def:'-',desc:'Next-hop gateway IP'},
+          ]},
+        { cmd:'ip route del', syntax:'ip route del <prefix>', distros:['all'],
+          desc:'Delete a route from the routing table.',
+          args:[]},
+        { cmd:'ip neigh show', syntax:'ip neigh show', distros:['all'],
+          desc:'Show ARP/NDP neighbor table (IP → MAC mappings).',
+          args:[]},
+      ]
+    },
+    {
+      id: 'net-sockets', title: '2. Sockets & Connections',
+      commands: [
+        { cmd:'ss', syntax:'ss [OPTIONS]', distros:['all'],
+          desc:'Socket statistics — faster replacement for netstat.',
+          args:[
+            {name:'-t',type:'flag',range:'-',req:false,def:'-',desc:'TCP sockets only'},
+            {name:'-u',type:'flag',range:'-',req:false,def:'-',desc:'UDP sockets only'},
+            {name:'-l',type:'flag',range:'-',req:false,def:'-',desc:'Listening sockets only'},
+            {name:'-n',type:'flag',range:'-',req:false,def:'-',desc:'Numeric: do not resolve hostnames or service names'},
+            {name:'-p',type:'flag',range:'-',req:false,def:'-',desc:'Show process name and PID'},
+            {name:'-a',type:'flag',range:'-',req:false,def:'-',desc:'All sockets (listening + non-listening)'},
+            {name:'-4 / -6',type:'flag',range:'-',req:false,def:'-',desc:'IPv4 or IPv6 only'},
+          ]},
+        { cmd:'netstat', syntax:'netstat [OPTIONS]', distros:['all'],
+          desc:'Network statistics. Deprecated in favor of ss but still widely available.',
+          args:[
+            {name:'-tulpn',type:'keyword',range:'-',req:false,def:'-',desc:'TCP+UDP listening sockets with PID/program names (most used combo)'},
+            {name:'-rn',type:'keyword',range:'-',req:false,def:'-',desc:'Routing table, numeric'},
+          ]},
+        { cmd:'nc (netcat)', syntax:'nc [OPTIONS] <host> <port>', distros:['all'],
+          desc:'Read/write TCP or UDP connections. Great for testing ports and quick file transfers.',
+          args:[
+            {name:'-l',type:'flag',range:'-',req:false,def:'-',desc:'Listen mode (server)'},
+            {name:'-v',type:'flag',range:'-',req:false,def:'-',desc:'Verbose output'},
+            {name:'-z',type:'flag',range:'-',req:false,def:'-',desc:'Zero-I/O mode: scan ports without sending data'},
+            {name:'-u',type:'flag',range:'-',req:false,def:'-',desc:'UDP mode (default is TCP)'},
+            {name:'-w <sec>',type:'integer',range:'-',req:false,def:'-',desc:'Connection timeout'},
+          ]},
+        { cmd:'ethtool', syntax:'ethtool [OPTIONS] <interface>', distros:['all'],
+          desc:'Query and control network driver and hardware settings.',
+          args:[
+            {name:'-i',type:'flag',range:'-',req:false,def:'-',desc:'Show driver information'},
+            {name:'-s <iface> speed <N>',type:'keyword',range:'-',req:false,def:'-',desc:'Set link speed'},
+            {name:'--statistics',type:'flag',range:'-',req:false,def:'-',desc:'Show NIC statistics counters'},
+          ]},
+      ]
+    },
+    {
+      id: 'net-diag', title: '3. Diagnostics & Scanning',
+      commands: [
+        { cmd:'ping', syntax:'ping [OPTIONS] <host>', distros:['all'],
+          desc:'Send ICMP ECHO_REQUEST to a host to test reachability.',
+          args:[
+            {name:'-c <n>',type:'integer',range:'-',req:false,def:'∞',desc:'Stop after sending n packets'},
+            {name:'-i <sec>',type:'float',range:'-',req:false,def:'1',desc:'Interval between packets'},
+            {name:'-s <size>',type:'integer',range:'-',req:false,def:'56',desc:'Packet payload size in bytes'},
+            {name:'-W <sec>',type:'integer',range:'-',req:false,def:'1',desc:'Timeout for each reply'},
+          ]},
+        { cmd:'traceroute', syntax:'traceroute [OPTIONS] <host>', distros:['all'],
+          desc:'Trace the path packets take to a host. Shows each hop and RTT.',
+          args:[
+            {name:'-n',type:'flag',range:'-',req:false,def:'-',desc:'Do not resolve IP addresses to hostnames'},
+            {name:'-m <hops>',type:'integer',range:'-',req:false,def:'30',desc:'Maximum number of hops'},
+            {name:'-T',type:'flag',range:'-',req:false,def:'-',desc:'Use TCP SYN (TCP traceroute, bypasses ICMP filters)'},
+          ]},
+        { cmd:'mtr', syntax:'mtr [OPTIONS] <host>', distros:['all'],
+          desc:'Combines ping and traceroute: continuous live network path monitor.',
+          args:[
+            {name:'--report',type:'flag',range:'-',req:false,def:'-',desc:'Run in report mode (non-interactive) after n cycles'},
+            {name:'-n',type:'flag',range:'-',req:false,def:'-',desc:'No DNS lookup'},
+          ]},
+        { cmd:'dig', syntax:'dig [OPTIONS] <name> [<type>]', distros:['all'],
+          desc:'DNS lookup tool. Queries DNS servers and shows full responses.',
+          args:[
+            {name:'@<server>',type:'ip',range:'-',req:false,def:'system resolver',desc:'DNS server to query (e.g. @8.8.8.8)'},
+            {name:'type',type:'keyword',range:'A|AAAA|MX|NS|TXT|SOA|CNAME|PTR',req:false,def:'A',desc:'DNS record type'},
+            {name:'+short',type:'keyword',range:'-',req:false,def:'-',desc:'Show only the answer (no headers)'},
+            {name:'-x <ip>',type:'ip',range:'-',req:false,def:'-',desc:'Reverse lookup (PTR record)'},
+          ]},
+        { cmd:'nslookup', syntax:'nslookup [<name>] [<server>]', distros:['all'],
+          desc:'Interactive or one-shot DNS query tool. Simpler than dig.',
+          args:[]},
+        { cmd:'nmap', syntax:'nmap [OPTIONS] <target>', distros:['all'],
+          desc:'Network exploration and security auditing. Port scanning, OS detection, service detection.',
+          args:[
+            {name:'-sV',type:'flag',range:'-',req:false,def:'-',desc:'Detect service versions on open ports'},
+            {name:'-O',type:'flag',range:'-',req:false,def:'-',desc:'OS detection (requires root)'},
+            {name:'-p <range>',type:'string',range:'-',req:false,def:'top 1000',desc:'Port range: 22, 80,443, 1-1024, -'},
+            {name:'-sn',type:'flag',range:'-',req:false,def:'-',desc:'Ping scan only (no port scan)'},
+            {name:'-A',type:'flag',range:'-',req:false,def:'-',desc:'Aggressive: -sV -O --traceroute + scripts'},
+            {name:'-T<0-5>',type:'keyword',range:'0–5',req:false,def:'3',desc:'Timing template: 0=paranoid, 3=normal, 5=insane'},
+          ]},
+        { cmd:'tcpdump', syntax:'tcpdump [OPTIONS] [<filter>]', distros:['all'],
+          desc:'Capture and analyze network packets. The essential packet capture tool.',
+          args:[
+            {name:'-i <iface>',type:'string',range:'-',req:false,def:'default',desc:'Interface to capture on (-i any = all)'},
+            {name:'-n',type:'flag',range:'-',req:false,def:'-',desc:'No hostname/service name resolution'},
+            {name:'-v / -vv',type:'flag',range:'-',req:false,def:'-',desc:'Increase verbosity'},
+            {name:'-w <file>',type:'path',range:'-',req:false,def:'-',desc:'Write packets to pcap file'},
+            {name:'-r <file>',type:'path',range:'-',req:false,def:'-',desc:'Read from pcap file'},
+            {name:'-c <n>',type:'integer',range:'-',req:false,def:'∞',desc:'Capture n packets then exit'},
+            {name:'filter',type:'string',range:'-',req:false,def:'-',desc:'BPF filter e.g. "host 1.2.3.4", "port 80", "tcp"'},
+          ]},
+      ]
+    },
+    {
+      id: 'net-transfer', title: '4. File Transfer & Remote',
+      commands: [
+        { cmd:'curl', syntax:'curl [OPTIONS] <url>', distros:['all'],
+          desc:'Transfer data from/to a server. Supports HTTP, HTTPS, FTP, SCP, SMTP and more.',
+          args:[
+            {name:'-o <file>',type:'path',range:'-',req:false,def:'-',desc:'Write output to file'},
+            {name:'-O',type:'flag',range:'-',req:false,def:'-',desc:'Write to file named from URL'},
+            {name:'-L',type:'flag',range:'-',req:false,def:'-',desc:'Follow HTTP redirects'},
+            {name:'-s',type:'flag',range:'-',req:false,def:'-',desc:'Silent mode (no progress)'},
+            {name:'-I',type:'flag',range:'-',req:false,def:'-',desc:'HEAD request: fetch headers only'},
+            {name:'-X <method>',type:'keyword',range:'GET|POST|PUT|DELETE',req:false,def:'GET',desc:'HTTP method'},
+            {name:'-d <data>',type:'string',range:'-',req:false,def:'-',desc:'POST data body'},
+            {name:'-H <header>',type:'string',range:'-',req:false,def:'-',desc:'Add request header'},
+            {name:'-k',type:'flag',range:'-',req:false,def:'-',desc:'Allow insecure TLS (skip cert verification)'},
+          ]},
+        { cmd:'wget', syntax:'wget [OPTIONS] <url>', distros:['all'],
+          desc:'Non-interactive network downloader. Good for mirroring and recursive downloads.',
+          args:[
+            {name:'-O <file>',type:'path',range:'-',req:false,def:'-',desc:'Write to specified file'},
+            {name:'-r',type:'flag',range:'-',req:false,def:'-',desc:'Recursive download'},
+            {name:'-q',type:'flag',range:'-',req:false,def:'-',desc:'Quiet mode'},
+            {name:'-c',type:'flag',range:'-',req:false,def:'-',desc:'Continue a partial download'},
+            {name:'--no-check-certificate',type:'flag',range:'-',req:false,def:'-',desc:'Skip TLS verification'},
+          ]},
+        { cmd:'ssh', syntax:'ssh [OPTIONS] [<user>@]<host> [<command>]', distros:['all'],
+          desc:'OpenSSH remote login client. Secure encrypted remote shell access.',
+          args:[
+            {name:'-p <port>',type:'integer',range:'1–65535',req:false,def:'22',desc:'Connect to non-default port'},
+            {name:'-i <keyfile>',type:'path',range:'-',req:false,def:'~/.ssh/id_rsa',desc:'Private key file for authentication'},
+            {name:'-L <lport>:<rhost>:<rport>',type:'string',range:'-',req:false,def:'-',desc:'Local port forwarding (tunnel)'},
+            {name:'-R <rport>:<lhost>:<lport>',type:'string',range:'-',req:false,def:'-',desc:'Remote port forwarding (reverse tunnel)'},
+            {name:'-D <port>',type:'integer',range:'-',req:false,def:'-',desc:'Dynamic port forwarding (SOCKS proxy)'},
+            {name:'-N',type:'flag',range:'-',req:false,def:'-',desc:'No remote command (used with tunnels)'},
+            {name:'-X',type:'flag',range:'-',req:false,def:'-',desc:'Enable X11 forwarding'},
+          ]},
+        { cmd:'scp', syntax:'scp [OPTIONS] <src> <dest>', distros:['all'],
+          desc:'Securely copy files between hosts over SSH.',
+          args:[
+            {name:'-r',type:'flag',range:'-',req:false,def:'-',desc:'Recursive copy (directories)'},
+            {name:'-P <port>',type:'integer',range:'-',req:false,def:'22',desc:'SSH port (capital P, unlike ssh)'},
+            {name:'-i <keyfile>',type:'path',range:'-',req:false,def:'-',desc:'Identity (private key) file'},
+          ]},
+        { cmd:'rsync', syntax:'rsync [OPTIONS] <src> <dest>', distros:['all'],
+          desc:'Fast, efficient file synchronization. Only transfers changed parts of files.',
+          args:[
+            {name:'-a',type:'flag',range:'-',req:false,def:'-',desc:'Archive mode: -rlptgoD (recursive, preserve perms, times, etc.)'},
+            {name:'-v',type:'flag',range:'-',req:false,def:'-',desc:'Verbose'},
+            {name:'-z',type:'flag',range:'-',req:false,def:'-',desc:'Compress data during transfer'},
+            {name:'-n / --dry-run',type:'flag',range:'-',req:false,def:'-',desc:'Show what would be transferred without doing it'},
+            {name:'--delete',type:'flag',range:'-',req:false,def:'-',desc:'Delete files in dest not present in src'},
+            {name:'-e ssh',type:'string',range:'-',req:false,def:'-',desc:'Use SSH as transport (default for remote)'},
+            {name:'--exclude <pattern>',type:'string',range:'-',req:false,def:'-',desc:'Exclude files matching pattern'},
+          ]},
+      ]
+    },
+    {
+      id: 'net-firewall', title: '5. Firewall',
+      commands: [
+        { cmd:'iptables', syntax:'iptables [OPTIONS] -t <table> -A <chain> <rule>', distros:['ubuntu','fedora'],
+          desc:'IPv4 packet filter rules. Persistent rules require iptables-save / netfilter-persistent.',
+          args:[
+            {name:'-t <table>',type:'keyword',range:'filter|nat|mangle|raw',req:false,def:'filter',desc:'Target table'},
+            {name:'-A <chain>',type:'keyword',range:'INPUT|OUTPUT|FORWARD',req:false,def:'-',desc:'Append rule to chain'},
+            {name:'-I <chain> [n]',type:'keyword',range:'-',req:false,def:'-',desc:'Insert rule at position n (default 1=top)'},
+            {name:'-D <chain>',type:'keyword',range:'-',req:false,def:'-',desc:'Delete matching rule from chain'},
+            {name:'-p <proto>',type:'keyword',range:'tcp|udp|icmp|all',req:false,def:'-',desc:'Protocol'},
+            {name:'--dport <port>',type:'integer',range:'1–65535',req:false,def:'-',desc:'Destination port'},
+            {name:'-s <ip>',type:'ip',range:'-',req:false,def:'-',desc:'Source IP or CIDR'},
+            {name:'-j <target>',type:'keyword',range:'ACCEPT|DROP|REJECT|LOG|MASQUERADE',req:true,def:'-',desc:'Jump target action'},
+            {name:'-L -n -v',type:'flag',range:'-',req:false,def:'-',desc:'List rules (numeric, verbose)'},
+          ]},
+        { cmd:'nft (nftables)', syntax:'nft [OPTIONS] <command>', distros:['all'],
+          desc:'Modern replacement for iptables/ip6tables/arptables. Unified framework.',
+          args:[
+            {name:'list ruleset',type:'keyword',range:'-',req:false,def:'-',desc:'Show all tables, chains, and rules'},
+            {name:'add table <family> <name>',type:'keyword',range:'-',req:false,def:'-',desc:'Create a new table'},
+            {name:'add chain <table> <chain> { type filter hook input priority 0; }',type:'keyword',range:'-',req:false,def:'-',desc:'Create a chain'},
+            {name:'add rule <table> <chain> <rule>',type:'keyword',range:'-',req:false,def:'-',desc:'Add a rule'},
+          ]},
+        { cmd:'ufw', syntax:'ufw [OPTIONS] <command>', distros:['ubuntu'],
+          desc:'Uncomplicated Firewall — friendly frontend to iptables for Ubuntu/Debian.',
+          args:[
+            {name:'enable / disable',type:'keyword',range:'-',req:false,def:'-',desc:'Enable or disable the firewall'},
+            {name:'status verbose',type:'keyword',range:'-',req:false,def:'-',desc:'Show rules and status'},
+            {name:'allow <port>[/proto]',type:'string',range:'-',req:false,def:'-',desc:'Allow traffic on port (e.g. 22/tcp, 80)'},
+            {name:'deny <port>',type:'string',range:'-',req:false,def:'-',desc:'Deny traffic on port'},
+            {name:'delete <rule>',type:'string',range:'-',req:false,def:'-',desc:'Delete a rule by number or specification'},
+          ]},
+        { cmd:'firewall-cmd', syntax:'firewall-cmd [OPTIONS]', distros:['fedora'],
+          desc:'firewalld management tool — zone-based firewall for Fedora/RHEL.',
+          args:[
+            {name:'--list-all',type:'flag',range:'-',req:false,def:'-',desc:'Show all rules in default zone'},
+            {name:'--add-service=<svc>',type:'string',range:'-',req:false,def:'-',desc:'Allow predefined service (e.g. ssh, http)'},
+            {name:'--add-port=<p/proto>',type:'string',range:'-',req:false,def:'-',desc:'Allow port (e.g. 8080/tcp)'},
+            {name:'--remove-service=<svc>',type:'string',range:'-',req:false,def:'-',desc:'Remove service rule'},
+            {name:'--permanent',type:'flag',range:'-',req:false,def:'-',desc:'Make rule persistent (requires --reload)'},
+            {name:'--reload',type:'flag',range:'-',req:false,def:'-',desc:'Apply permanent rules to runtime'},
+          ]},
+      ]
+    },
+  ]
+});
+
 render();
 </script>
 </body>
