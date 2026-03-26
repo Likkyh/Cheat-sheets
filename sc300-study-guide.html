@@ -439,7 +439,7 @@ kbd { font-size: 11px; font-weight: 600; padding: 2px 7px; border-radius: 4px; b
             <div class="weight-bar-track"><div class="weight-bar-fill" style="width:27%;background:var(--d2)"></div></div>
             <div class="weight-bar-pct" style="color:var(--d2)">25–30%</div>
           </div>
-          <div class="weight-bar-label">Domain 3 — Plan and Implement Workload Identities</div>
+          <div class="weight-bar-label">Domain 3 — Implement Access Management for Applications</div>
           <div class="weight-bar-cell">
             <div class="weight-bar-track"><div class="weight-bar-fill" style="width:22%;background:var(--d3)"></div></div>
             <div class="weight-bar-pct" style="color:var(--d3)">20–25%</div>
@@ -899,6 +899,51 @@ SECTIONS.push({
       tip: 'Dynamic group rules are evaluated by the rules engine every time a user attribute changes. Processing is async — changes are NOT immediate. Know which roles CANNOT be scoped to AUs (Global Admin, Privileged Role Admin).'
     },
 
+    /* ---- 1.2b User Lifecycle, Devices & Branding ---- */
+    {
+      id: 'd1-lifecycle',
+      title: 'Manage User Lifecycle, Devices, and Company Branding',
+      concepts: ['Bulk Operations', 'Group Lifecycle', 'Group-Based Licensing', 'Company Branding', 'Device Join Types', 'Custom Attributes'],
+      body: `
+        <h4>Bulk Operations</h4>
+        <p>Entra Admin → Users → Bulk operations. Use CSV templates for mass user management:</p>
+        <ul>
+          <li><strong>Bulk create</strong> — upload CSV with UPN, DisplayName, Password; creates cloud users in batch</li>
+          <li><strong>Bulk invite</strong> — send B2B invitations to many external users</li>
+          <li><strong>Bulk delete</strong> — remove multiple users by UPN or ObjectId</li>
+          <li><strong>Download users</strong> — export tenant user list to CSV</li>
+        </ul>
+        <h4>Group Lifecycle Policies</h4>
+        <ul>
+          <li><strong>Group expiration</strong> — M365 Groups auto-expire after N days (30, 90, 180, or custom up to 730). Owners notified before expiry; if not renewed, the group is soft-deleted (30-day recovery). Requires P1/P2.</li>
+          <li><strong>Naming policies</strong> — enforce prefix/suffix naming conventions (e.g., "GRP_[GroupName]_[Department]") and block custom words. Applies to M365 Groups.</li>
+          <li><strong>Group-based licensing</strong> — assign licenses to a group; all members automatically get the license. Conflicts and errors reported on the group's licensing page.</li>
+        </ul>
+        <h4>Custom and Extension Attributes</h4>
+        <ul>
+          <li><strong>Extension attributes 1-15</strong> — on-prem AD attributes synced via Entra Connect; fixed schema</li>
+          <li><strong>Directory extensions</strong> — created via app registration or Graph API; custom attributes beyond the fixed schema</li>
+          <li><strong>Custom security attributes</strong> — business-specific attributes (e.g., "ProjectClearance") that can be used in CA policies and access rules. Require Attribute Assignment Admin role.</li>
+        </ul>
+        <h4>Company Branding</h4>
+        <p>Entra Admin → User experiences → Company branding. Customize the sign-in page:</p>
+        <ul>
+          <li>Banner logo (small), Sign-in page background image, Page background color</li>
+          <li>Sign-in page text (below the sign-in form)</li>
+          <li>Localized branding — different branding per browser language</li>
+          <li>Username hint, self-service password reset link, custom CSS (P2)</li>
+        </ul>
+        <h4>Device Identity Types</h4>
+        <table>
+          <tr><th>Type</th><th>Join method</th><th>Managed by</th><th>Use case</th></tr>
+          <tr><td><strong>Entra Registered</strong></td><td>Settings → Add work account</td><td>User (BYOD)</td><td>Personal devices accessing org resources</td></tr>
+          <tr><td><strong>Entra Joined</strong></td><td>OOBE or Settings → Connect to work</td><td>Org (MDM/Intune)</td><td>Cloud-only orgs; replaces on-prem domain join</td></tr>
+          <tr><td><strong>Hybrid Entra Joined</strong></td><td>GPO/Entra Connect device sync</td><td>Org (GPO + MDM)</td><td>Orgs with on-prem AD; devices joined to BOTH</td></tr>
+        </table>
+        <p><strong>Device compliance</strong> — Intune evaluates device state (encryption, OS version, PIN). Conditional Access can require "Require device to be marked as compliant" or "Require Hybrid Entra joined device" as a grant control.</p>`,
+      tip: 'Group-based licensing is the recommended way to assign licenses at scale — avoid per-user assignment. Know the three device join types and when to use each. Hybrid Entra Join requires Entra Connect device sync. Custom security attributes can be used in Conditional Access — a newer exam topic.'
+    },
+
     /* ---- 1.3 External Identities ---- */
     {
       id: 'd1-external',
@@ -1086,9 +1131,28 @@ SECTIONS.push({
           <tr><td>Session</td><td>App enforced restrictions | Conditional Access App Control (MCAS proxy) | Sign-in frequency | Persistent browser session | Token protection</td></tr>
         </table>
         <h4>Named Locations</h4>
+        <table>
+          <tr><th>Type</th><th>Configuration</th><th>Use in CA</th></tr>
+          <tr><td><strong>IP ranges</strong></td><td>CIDR blocks (IPv4/IPv6); mark as "trusted"</td><td>Exclude trusted IPs from MFA; block non-corporate IPs</td></tr>
+          <tr><td><strong>Countries/regions</strong></td><td>Select countries; "Include unknown" option</td><td>Block sign-ins from countries where org has no presence</td></tr>
+          <tr><td><strong>Compliant network</strong></td><td>Global Secure Access integration</td><td>Require traffic through GSA for sensitive apps</td></tr>
+        </table>
+        <p><strong>Trusted location</strong> = marked as trusted → can be used to SKIP MFA when sign-in comes from that location. Marking a location as trusted does NOT automatically bypass MFA; you must create a CA policy that excludes trusted locations.</p>
+        <h4>Blocking Legacy Authentication</h4>
+        <p>Legacy auth protocols do NOT support MFA and are a common attack vector. Block via CA:</p>
         <ul>
-          <li><strong>IP ranges location</strong> — define trusted corporate IP ranges; mark as "trusted location" to exclude from MFA</li>
-          <li><strong>Countries/regions location</strong> — block or require extra auth from specific countries</li>
+          <li>Legacy protocols: <strong>SMTP AUTH, POP3, IMAP4, MAPI over HTTP, Exchange ActiveSync (EAS), Exchange Web Services (EWS), Autodiscover, Remote PowerShell</strong></li>
+          <li>In CA: Conditions → Client apps → check "Exchange ActiveSync clients" AND "Other clients"</li>
+          <li>Grant → Block access</li>
+          <li>Before blocking: check Sign-in logs with filter "Client app = Other clients" to audit legacy usage</li>
+        </ul>
+        <h4>Session Controls — Deep Dive</h4>
+        <ul>
+          <li><strong>Sign-in frequency</strong> — force re-authentication every N hours/days (default: rolling 90-day window for managed devices; 1 day for unmanaged)</li>
+          <li><strong>Persistent browser session</strong> — allow or disallow "Stay signed in?" (KMSI). Override the tenant-level setting per policy.</li>
+          <li><strong>App-enforced restrictions</strong> — SharePoint/Exchange Online limit access based on device state (e.g., web-only access on unmanaged devices)</li>
+          <li><strong>Conditional Access App Control</strong> — route sessions through Microsoft Defender for Cloud Apps for real-time monitoring</li>
+          <li><strong>Token protection</strong> — bind tokens to the device; stolen tokens are useless on a different device (preview)</li>
         </ul>
         <h4>Key CA Scenarios</h4>
         <ul>
@@ -1149,12 +1213,24 @@ SECTIONS.push({
       concepts: ['Risk Detection', 'User Risk', 'Sign-in Risk', 'Risky Users', 'Risk Remediation', 'MFA Registration Policy'],
       body: `
         <p>Entra ID Protection uses machine learning to detect suspicious activities and assign <strong>risk scores</strong>. Requires Entra ID <strong>P2</strong>.</p>
-        <h4>Sign-in Risk Detections</h4>
-        <ul>
-          <li><strong>High:</strong> Anonymous IP, Malware-linked IP, Known attacker IP, Token issuer anomaly</li>
-          <li><strong>Medium:</strong> Impossible travel, Unfamiliar sign-in properties, Suspicious inbox manipulation rule</li>
-          <li><strong>Low:</strong> Additional risk detected</li>
-        </ul>
+        <h4>Sign-in Risk Detections (Complete List)</h4>
+        <table>
+          <tr><th>Risk Level</th><th>Detection</th><th>Source</th></tr>
+          <tr><td><strong>High</strong></td><td>Anonymous IP address</td><td>Real-time</td></tr>
+          <tr><td><strong>High</strong></td><td>Malware-linked IP</td><td>Offline</td></tr>
+          <tr><td><strong>High</strong></td><td>Verified threat actor IP</td><td>Real-time</td></tr>
+          <tr><td><strong>High</strong></td><td>Token issuer anomaly</td><td>Real-time</td></tr>
+          <tr><td><strong>High</strong></td><td>Anomalous token</td><td>Real-time</td></tr>
+          <tr><td><strong>Medium</strong></td><td>Impossible travel</td><td>Offline</td></tr>
+          <tr><td><strong>Medium</strong></td><td>Atypical travel</td><td>Offline</td></tr>
+          <tr><td><strong>Medium</strong></td><td>Unfamiliar sign-in properties</td><td>Real-time</td></tr>
+          <tr><td><strong>Medium</strong></td><td>Password spray</td><td>Offline</td></tr>
+          <tr><td><strong>Medium</strong></td><td>Suspicious inbox manipulation</td><td>Offline</td></tr>
+          <tr><td><strong>Medium</strong></td><td>Suspicious browser</td><td>Offline</td></tr>
+          <tr><td><strong>Low</strong></td><td>Mass access to sensitive files</td><td>Offline</td></tr>
+          <tr><td><strong>Low</strong></td><td>Additional risk detected</td><td>Real-time/Offline</td></tr>
+        </table>
+        <p><strong>Real-time</strong> detections are evaluated at sign-in and can trigger CA immediately. <strong>Offline</strong> detections are processed post-sign-in (hours later) and update user/sign-in risk retroactively.</p>
         <h4>User Risk Detections</h4>
         <ul>
           <li><strong>Leaked credentials</strong> — found in public breach databases (<em>requires PHS</em>)</li>
@@ -1200,6 +1276,58 @@ SECTIONS.push({
         <h4>Universal Conditional Access for Private Access</h4>
         <p>CA policies can apply to <em>private network resources</em> (even non-web TCP/UDP apps). Require MFA + compliant device to access an internal SSH server — without VPN.</p>`,
       tip: 'GSA is a newer exam topic. Key distinction: Entra Private Access = Zero Trust VPN replacement. Entra Internet Access = Secure Web Gateway. Universal Conditional Access = CA policies can now apply to ANY private resource, not just cloud apps.'
+    },
+
+    /* ---- 2.5 Azure RBAC ---- */
+    {
+      id: 'd2-rbac',
+      title: 'Implement Access Management for Azure Resources',
+      concepts: ['Azure RBAC', 'Role Assignment', 'Scope', 'Built-in Roles', 'Custom Roles', 'Deny Assignments', 'Classic Administrators'],
+      body: `
+        <p>Azure RBAC (Role-Based Access Control) manages who has access to Azure resources, what they can do, and at what scope. <strong>This is separate from Entra ID directory roles</strong> (which control Entra-level operations).</p>
+        <h4>RBAC Model — Three Components</h4>
+        <table>
+          <tr><th>Component</th><th>Description</th><th>Example</th></tr>
+          <tr><td><strong>Security principal</strong></td><td>Who — user, group, service principal, or managed identity</td><td>user@contoso.com</td></tr>
+          <tr><td><strong>Role definition</strong></td><td>What — collection of permissions (actions + data actions)</td><td>Contributor, Reader</td></tr>
+          <tr><td><strong>Scope</strong></td><td>Where — the level at which the role applies</td><td>/subscriptions/{id}/resourceGroups/{name}</td></tr>
+        </table>
+        <h4>Scope Hierarchy (inheritance flows down)</h4>
+        <p><strong>Management Group → Subscription → Resource Group → Resource</strong></p>
+        <p>A role assigned at a parent scope is inherited by all child scopes. A Contributor at subscription level has Contributor on every resource group and resource within that subscription.</p>
+        <h4>Key Built-in Roles</h4>
+        <table>
+          <tr><th>Role</th><th>Permissions</th><th>Key limitation</th></tr>
+          <tr><td><strong>Owner</strong></td><td>Full access + can assign roles to others</td><td>—</td></tr>
+          <tr><td><strong>Contributor</strong></td><td>Create & manage all resources</td><td>CANNOT assign roles or manage access (no Microsoft.Authorization/*)</td></tr>
+          <tr><td><strong>Reader</strong></td><td>View all resources</td><td>Read-only; cannot modify anything</td></tr>
+          <tr><td><strong>User Access Administrator</strong></td><td>Manage user access to resources</td><td>Can assign roles; cannot manage resources themselves</td></tr>
+        </table>
+        <h4>Custom Roles</h4>
+        <p>Create custom role definitions when built-in roles don't match your needs. Defined in JSON with <code>Actions</code>, <code>NotActions</code>, <code>DataActions</code>, <code>NotDataActions</code>, and <code>AssignableScopes</code>.</p>
+        <ul>
+          <li><strong>Actions/NotActions</strong> — control plane operations (e.g., <code>Microsoft.Compute/virtualMachines/start/action</code>)</li>
+          <li><strong>DataActions/NotDataActions</strong> — data plane operations (e.g., <code>Microsoft.Storage/storageAccounts/blobServices/containers/blobs/read</code>)</li>
+          <li><strong>AssignableScopes</strong> — where the role can be assigned (subscriptions, RGs, or management groups)</li>
+        </ul>
+        <h4>Classic Administrators (Legacy)</h4>
+        <table>
+          <tr><th>Role</th><th>Equivalent RBAC</th><th>Notes</th></tr>
+          <tr><td><strong>Account Administrator</strong></td><td>Billing + Owner of subscription</td><td>One per Azure account; manages billing</td></tr>
+          <tr><td><strong>Service Administrator</strong></td><td>Owner at subscription scope</td><td>One per subscription; can manage services + assign roles</td></tr>
+          <tr><td><strong>Co-Administrator</strong></td><td>Owner at subscription scope</td><td>Up to 200 per subscription; legacy — migrate to RBAC</td></tr>
+        </table>
+        <h4>Deny Assignments</h4>
+        <p>Block specific actions even if a role assignment grants them. Created by Azure Blueprints and managed apps — cannot be created directly by users. Deny takes precedence over allow.</p>
+        <h4>Azure RBAC vs Entra Directory Roles</h4>
+        <table>
+          <tr><th>Aspect</th><th>Azure RBAC</th><th>Entra Directory Roles</th></tr>
+          <tr><td><strong>Scope</strong></td><td>Azure resources (subscriptions, RGs)</td><td>Entra tenant (users, groups, apps)</td></tr>
+          <tr><td><strong>Example roles</strong></td><td>Owner, Contributor, Reader</td><td>Global Admin, User Admin, Groups Admin</td></tr>
+          <tr><td><strong>Managed in</strong></td><td>Azure portal → IAM blade</td><td>Entra Admin → Roles and administrators</td></tr>
+          <tr><td><strong>PIM</strong></td><td>PIM for Azure Resources</td><td>PIM for Entra Roles</td></tr>
+        </table>`,
+      tip: 'Owner vs Contributor is a TOP exam question: Contributor can do everything EXCEPT assign roles. Only Owner and User Access Administrator can assign roles. Azure RBAC is ADDITIVE — the effective permissions are the UNION of all role assignments. Deny assignments are the exception and override allows. Classic admin roles should be migrated to RBAC.'
     }
   ]
 });
@@ -1209,13 +1337,52 @@ SECTIONS.push({
 <script>
 SECTIONS.push({
   id: 'domain-3',
-  title: 'Plan and Implement Workload Identities',
+  title: 'Implement Access Management for Applications',
   weight: '20–25%',
   type: 'domain',
   domainNum: 3,
   subsections: [
 
-    /* ---- 3.1 App & Workload Identities ---- */
+    /* ---- 3.1 Enterprise App Management ---- */
+    {
+      id: 'd3-app-mgmt',
+      title: 'Manage Enterprise Applications in Microsoft Entra',
+      concepts: ['Gallery Apps', 'Custom Apps', 'My Apps Portal', 'App Assignment', 'App Collections', 'User/Group Assignment', 'Self-Service App Access'],
+      body: `
+        <p>Enterprise applications in Entra ID represent every app your org uses — SaaS gallery apps, custom-built apps, and on-prem apps via App Proxy. Manage them at: Entra Admin → Applications → Enterprise applications.</p>
+        <h4>Adding Applications</h4>
+        <table>
+          <tr><th>Method</th><th>Use when</th><th>Result</th></tr>
+          <tr><td><strong>Gallery app</strong></td><td>Using a well-known SaaS app (Salesforce, ServiceNow, etc.)</td><td>Pre-integrated SSO + provisioning templates; guided setup wizard</td></tr>
+          <tr><td><strong>Non-gallery app</strong></td><td>Custom/internal SaaS app not in gallery</td><td>Manual SAML/OIDC/password-based SSO config required</td></tr>
+          <tr><td><strong>App registration</strong></td><td>Developing your own app</td><td>Creates both the app registration + service principal (enterprise app)</td></tr>
+          <tr><td><strong>App Proxy</strong></td><td>On-prem web apps</td><td>Publishes internal URL externally via connector</td></tr>
+        </table>
+        <h4>User and Group Assignment</h4>
+        <p>By default all users can access an enterprise app. To restrict: set <em>"Assignment required?"</em> to <strong>Yes</strong> on the app's Properties page, then assign specific users/groups. Unassigned users get an "access denied" error.</p>
+        <ul>
+          <li>Assign individual users or security groups</li>
+          <li>Assign <strong>App roles</strong> — if the app defines roles, you assign users to specific roles (e.g., Admin, Viewer)</li>
+          <li>Self-service app access — users can request access; requires approval workflow</li>
+        </ul>
+        <h4>My Apps Portal (myapps.microsoft.com)</h4>
+        <p>End-user portal listing all apps a user is assigned to. Configurable by admins:</p>
+        <ul>
+          <li><strong>Collections</strong> — group apps into named tabs (e.g., "Finance", "HR", "IT Tools")</li>
+          <li><strong>Self-service</strong> — users can request access to apps with approval workflows</li>
+          <li><strong>Company branding</strong> — custom logo and colors on the My Apps page</li>
+          <li><strong>Linked apps</strong> — add links to external apps or internal URLs</li>
+        </ul>
+        <h4>Disabling and Deleting Apps</h4>
+        <ul>
+          <li><strong>Disable sign-in</strong> — "Enabled for users to sign-in?" → No. App stays but users cannot authenticate.</li>
+          <li><strong>Hide from My Apps</strong> — "Visible to users?" → No. App still works but not shown in portal.</li>
+          <li><strong>Delete</strong> — removes the service principal from your tenant. Does NOT delete the app registration (which lives in the developer's tenant).</li>
+        </ul>`,
+      tip: 'Setting "Assignment required?" to Yes is a CRITICAL security control — without it, ALL users in the tenant can access the app. Know the difference between disabling sign-in (blocks auth) and hiding (cosmetic). Gallery apps come with pre-built SSO + provisioning templates that save significant configuration time.'
+    },
+
+    /* ---- 3.2 App & Workload Identities ---- */
     {
       id: 'd3-workload-ids',
       title: 'Plan and Implement Identities for Applications and Azure Workloads',
@@ -1267,16 +1434,35 @@ SECTIONS.push({
           <li><strong>Manual</strong> — admin manually creates accounts in the app</li>
           <li><strong>On-premises provisioning</strong> — ECMA2 host agent for apps that support SCIM but are on-prem</li>
         </ul>
+        <h4>SCIM Provisioning — Deep Dive</h4>
+        <ul>
+          <li><strong>Scoping filters</strong> — control which users are in-scope for provisioning (e.g., only users in "Sales" department)</li>
+          <li><strong>Attribute mappings</strong> — map Entra attributes to app attributes; supports expressions (e.g., <code>Join(" ", [givenName], [surname])</code>)</li>
+          <li><strong>Matching attributes</strong> — used to find existing users in the target (usually email or UPN)</li>
+          <li><strong>Deprovisioning</strong> — when user goes out of scope: disable account (recommended) or delete account</li>
+          <li><strong>Quarantine</strong> — provisioning enters quarantine if errors exceed threshold; retries with reduced frequency; check provisioning logs to diagnose</li>
+          <li><strong>On-demand provisioning</strong> — test provisioning for a single user before enabling full sync</li>
+        </ul>
         <h4>Microsoft Entra Application Proxy</h4>
         <p>Publishes on-premises web applications externally without opening firewall ports. A connector (lightweight agent on a Windows server on-prem) establishes an outbound connection to Entra. Remote users access the app through the Entra-provided URL; the connector forwards the request internally.</p>
+        <table>
+          <tr><th>Component</th><th>Detail</th></tr>
+          <tr><td><strong>Connector groups</strong></td><td>Group connectors by network segment; assign apps to specific connector groups for traffic isolation</td></tr>
+          <tr><td><strong>Pre-authentication</strong></td><td>Entra (users authenticate with Entra first) or Passthrough (no pre-auth, app handles it)</td></tr>
+          <tr><td><strong>KCD (Kerberos)</strong></td><td>Kerberos Constrained Delegation — connector obtains Kerberos ticket on behalf of user for on-prem apps using Windows Integrated Auth</td></tr>
+          <tr><td><strong>Custom domains</strong></td><td>Use your own domain (e.g., app.contoso.com) instead of msappproxy.net; requires wildcard or specific certificate</td></tr>
+          <tr><td><strong>CA integration</strong></td><td>Apply Conditional Access policies to App Proxy apps (require MFA, compliant device, etc.)</td></tr>
+        </table>
         <h4>Consent Framework</h4>
         <ul>
           <li><strong>User consent</strong> — user can consent to permissions for apps that request low-privilege delegated permissions</li>
           <li><strong>Admin consent</strong> — required for application permissions or when user consent is disabled; admin consents on behalf of the whole org</li>
-          <li><strong>Tenant-wide admin consent</strong> — grant an app access to the entire tenant's data</li>
-          <li><strong>App consent policies</strong> — configure what users are allowed to consent to</li>
+          <li><strong>Admin consent workflow</strong> — users can REQUEST admin consent; admins receive email notification and approve/deny in Entra portal</li>
+          <li><strong>App consent policies</strong> — control what users can consent to: "Do not allow user consent", "Allow for verified publishers only", "Allow for selected permissions", "Allow all"</li>
+          <li><strong>Risk-based consent</strong> — Entra automatically blocks consent requests from risky or unverified publishers; step-up consent for suspicious requests</li>
+          <li><strong>Incremental consent</strong> — OIDC apps can request additional permissions at runtime rather than all at initial sign-in</li>
         </ul>`,
-      tip: 'App Proxy requires NO inbound firewall ports — the connector makes an outbound connection. SAML is the most common SSO method for older enterprise apps. OIDC is for modern apps. Know that provisioning and SSO are separate configurations — you can have SSO without provisioning.'
+      tip: 'App Proxy requires NO inbound firewall ports — the connector makes an outbound connection. SAML is the most common SSO method for older enterprise apps. OIDC is for modern apps. Provisioning and SSO are separate configurations. On-demand provisioning lets you test a single user before full sync. For provisioning quarantine, check the provisioning logs for the root cause.'
     },
 
     /* ---- 3.3 App Registrations ---- */
@@ -1551,6 +1737,39 @@ SECTIONS.push({
           <tr><td>Risky sign-ins (last 7d)</td><td><code>AADRiskyUsers | where RiskLastUpdatedDateTime > ago(7d)</code></td></tr>
         </table>`,
       tip: 'Default retention in Entra is only 7 days for all logs. To retain longer, you MUST configure Diagnostic Settings to export to Log Analytics or Storage Account. Know that Sign-in logs have FOUR subtypes: interactive, non-interactive, service principal, and managed identity — each has its own tab in the portal.'
+    },
+
+    /* ---- 4.5 Lifecycle Workflows ---- */
+    {
+      id: 'd4-lifecycle',
+      title: 'Plan and Implement Lifecycle Workflows',
+      concepts: ['Joiner', 'Mover', 'Leaver', 'Workflow Templates', 'HR Provisioning', 'Custom Task Extensions', 'Trigger Conditions'],
+      body: `
+        <p>Lifecycle Workflows automate the joiner-mover-leaver (JML) process in Microsoft Entra. Requires <strong>Entra ID Governance</strong> license.</p>
+        <h4>Workflow Categories</h4>
+        <table>
+          <tr><th>Category</th><th>Trigger</th><th>Typical Tasks</th></tr>
+          <tr><td><strong>Joiner</strong></td><td>New employee account created / employeeHireDate reached</td><td>Generate TAP, send welcome email, add to groups, assign licenses, enable account</td></tr>
+          <tr><td><strong>Mover</strong></td><td>User attribute changes (department, job title)</td><td>Add/remove group memberships, trigger access review, update manager</td></tr>
+          <tr><td><strong>Leaver</strong></td><td>employeeLeaveDateTime reached / account disabled</td><td>Remove from groups, revoke access, disable account, delete account (after retention period)</td></tr>
+        </table>
+        <h4>Trigger Conditions</h4>
+        <ul>
+          <li><strong>Time-based</strong> — trigger N days before/after a date attribute (e.g., 7 days before employeeLeaveDateTime)</li>
+          <li><strong>Attribute-based</strong> — trigger when a user attribute changes (e.g., department changes)</li>
+          <li><strong>On-demand</strong> — manually trigger for a specific user</li>
+        </ul>
+        <h4>HR-Driven Provisioning</h4>
+        <p>Inbound provisioning from HR systems creates/updates user accounts in Entra ID automatically:</p>
+        <ul>
+          <li><strong>Workday → Entra ID</strong> — cloud HR provisioning connector; maps Workday worker data to Entra user attributes</li>
+          <li><strong>SAP SuccessFactors → Entra ID</strong> — same concept, different HR system</li>
+          <li><strong>API-driven provisioning</strong> — inbound provisioning via /bulkUpload API for any HR system; uses SCIM schema</li>
+          <li>HR provisioning can also target on-prem AD (via provisioning agent) before syncing to Entra</li>
+        </ul>
+        <h4>Custom Task Extensions</h4>
+        <p>When built-in tasks are not enough, call out to an Azure Logic App to run custom logic (e.g., create a ticket in ServiceNow, provision mailbox, send Teams notification).</p>`,
+      tip: 'Lifecycle Workflows require the Entra ID Governance license (separate from P2). The employeeHireDate and employeeLeaveDateTime attributes must be populated (by HR provisioning or manually) for time-based triggers to work. Know the three categories and their typical tasks — the exam tests scenario-based questions about which workflow type to use.'
     }
 
   ]
