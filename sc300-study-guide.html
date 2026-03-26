@@ -133,6 +133,7 @@ code {
   position: sticky; top: var(--topbar-h);
   height: calc(100vh - var(--topbar-h));
   overflow-y: auto; overflow-x: hidden;
+  background: var(--bg);
   border-right: 1px solid var(--border);
   padding: 16px 0 32px;
   scrollbar-width: thin; scrollbar-color: var(--border) transparent;
@@ -342,7 +343,7 @@ kbd { font-size: 11px; font-weight: 600; padding: 2px 7px; border-radius: 4px; b
 @media (max-width: 768px) {
   :root { --sidebar-w: 0px; }
   #sidebar { display: none; }
-  body.sidebar-open #sidebar { display: block; position: fixed; top: var(--topbar-h); bottom: 0; left: 0; z-index: 150; width: 260px; }
+  body:not(.sidebar-collapsed) #sidebar { display: block; position: fixed; top: var(--topbar-h); bottom: 0; left: 0; z-index: 150; width: 260px; background: var(--bg); }
   .exam-overview, .domain-header, .domain-body { padding-left: 16px; padding-right: 16px; }
 }
 </style>
@@ -357,7 +358,7 @@ kbd { font-size: 11px; font-weight: 600; padding: 2px 7px; border-radius: 4px; b
   <a href="index.html" id="home-link">← Home</a>
   <span class="topbar-sep">/</span>
   <div class="topbar-title">
-    <span class="exam-code">SC-300</span>Identity and Access Administrator
+    <span class="exam-code">SC-300</span> Identity and Access Administrator
   </div>
   <div class="topbar-actions">
     <button class="icon-btn" id="search-btn" title="Search (/)">⌕ Search</button>
