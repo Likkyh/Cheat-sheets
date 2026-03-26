@@ -2296,6 +2296,247 @@ SECTIONS.push({
   ]
 });
 
+/* ==================== SYSTEM INFO ==================== */
+SECTIONS.push({
+  id: 'sysinfo', title: 'SYSTEM INFO', type: 'commands',
+  subsections: [
+    {
+      id: 'sys-identity', title: '1. System Identity & Uptime',
+      commands: [
+        { cmd:'uname', syntax:'uname [OPTIONS]', distros:['all'],
+          desc:'Print system information.',
+          args:[
+            {name:'-a',type:'flag',range:'-',req:false,def:'-',desc:'All info: kernel name, hostname, release, version, machine, OS'},
+            {name:'-r',type:'flag',range:'-',req:false,def:'-',desc:'Kernel release (e.g. 6.1.0-18-amd64)'},
+            {name:'-m',type:'flag',range:'-',req:false,def:'-',desc:'Machine hardware name (e.g. x86_64)'},
+          ]},
+        { cmd:'hostname', syntax:'hostname [OPTIONS] [<name>]', distros:['all'],
+          desc:'Get or set the system hostname.',
+          args:[
+            {name:'-I',type:'flag',range:'-',req:false,def:'-',desc:'Display all IP addresses of the host'},
+            {name:'-f',type:'flag',range:'-',req:false,def:'-',desc:'Display FQDN (fully qualified domain name)'},
+          ]},
+        { cmd:'hostnamectl', syntax:'hostnamectl [OPTIONS] [<command>]', distros:['all'],
+          desc:'Control the system hostname via systemd-hostnamed.',
+          args:[
+            {name:'status',type:'keyword',range:'-',req:false,def:'-',desc:'Show current hostname and related info'},
+            {name:'set-hostname <name>',type:'keyword',range:'-',req:false,def:'-',desc:'Persistently set hostname'},
+          ]},
+        { cmd:'uptime', syntax:'uptime [-p]', distros:['all'],
+          desc:'Show how long the system has been running, plus load averages.',
+          args:[{name:'-p',type:'flag',range:'-',req:false,def:'-',desc:'Show uptime in pretty human-readable format'}]},
+        { cmd:'date', syntax:'date [OPTIONS] [+<format>]', distros:['all'],
+          desc:'Print or set the system date and time.',
+          args:[
+            {name:'+%Y-%m-%d %H:%M:%S',type:'string',range:'-',req:false,def:'-',desc:'Custom format string'},
+            {name:'-u',type:'flag',range:'-',req:false,def:'-',desc:'Display UTC time'},
+            {name:'-s <string>',type:'string',range:'-',req:false,def:'-',desc:'Set the date/time (root only)'},
+          ]},
+        { cmd:'timedatectl', syntax:'timedatectl [OPTIONS] [<command>]', distros:['all'],
+          desc:'Control system time, date, timezone, and NTP via systemd-timesyncd.',
+          args:[
+            {name:'status',type:'keyword',range:'-',req:false,def:'-',desc:'Show current time settings and NTP sync status'},
+            {name:'set-timezone <tz>',type:'keyword',range:'-',req:false,def:'-',desc:'Set timezone (e.g. Europe/Paris)'},
+            {name:'list-timezones',type:'keyword',range:'-',req:false,def:'-',desc:'List available timezone names'},
+            {name:'set-ntp {true|false}',type:'keyword',range:'-',req:false,def:'-',desc:'Enable or disable NTP synchronization'},
+          ]},
+      ]
+    },
+    {
+      id: 'sys-resources', title: '2. CPU, Memory & Performance',
+      commands: [
+        { cmd:'lscpu', syntax:'lscpu', distros:['all'],
+          desc:'Display CPU architecture information: model, sockets, cores, threads, cache, flags.',
+          args:[]},
+        { cmd:'free', syntax:'free [OPTIONS]', distros:['all'],
+          desc:'Display amount of free and used memory.',
+          args:[
+            {name:'-h',type:'flag',range:'-',req:false,def:'-',desc:'Human-readable (K, M, G)'},
+            {name:'-s <sec>',type:'float',range:'-',req:false,def:'-',desc:'Continuously display, refreshing every N seconds'},
+          ]},
+        { cmd:'vmstat', syntax:'vmstat [OPTIONS] [<delay> [<count>]]', distros:['all'],
+          desc:'Report virtual memory, CPU, I/O, and block device statistics.',
+          args:[
+            {name:'delay',type:'integer',range:'-',req:false,def:'-',desc:'Seconds between updates (e.g. vmstat 1 10)'},
+            {name:'-s',type:'flag',range:'-',req:false,def:'-',desc:'Show memory and event statistics table'},
+          ]},
+        { cmd:'iostat', syntax:'iostat [OPTIONS] [<delay> [<count>]]', distros:['all'],
+          desc:'Report CPU statistics and I/O statistics for block devices. Part of sysstat.',
+          args:[
+            {name:'-x',type:'flag',range:'-',req:false,def:'-',desc:'Extended statistics (utilization, await, queue)'},
+            {name:'-h',type:'flag',range:'-',req:false,def:'-',desc:'Human-readable'},
+          ]},
+        { cmd:'sar', syntax:'sar [OPTIONS] [<interval> [<count>]]', distros:['all'],
+          desc:'Collect and report system activity. Part of sysstat. Historical data in /var/log/sysstat/.',
+          args:[
+            {name:'-u',type:'flag',range:'-',req:false,def:'-',desc:'CPU utilization'},
+            {name:'-r',type:'flag',range:'-',req:false,def:'-',desc:'Memory usage'},
+            {name:'-n DEV',type:'keyword',range:'-',req:false,def:'-',desc:'Network interface statistics'},
+          ]},
+        { cmd:'env', syntax:'env [NAME=VALUE...] [<command>]', distros:['all'],
+          desc:'Print environment variables or run command with modified environment.',
+          args:[]},
+        { cmd:'printenv', syntax:'printenv [<variable>]', distros:['all'],
+          desc:'Print values of environment variables.',
+          args:[]},
+        { cmd:'ulimit', syntax:'ulimit [OPTIONS] [<value>]', distros:['all'],
+          desc:'Get or set resource limits for the current shell session and its children.',
+          args:[
+            {name:'-a',type:'flag',range:'-',req:false,def:'-',desc:'Show all current limits'},
+            {name:'-n <N>',type:'integer',range:'-',req:false,def:'-',desc:'Max open file descriptors'},
+            {name:'-u <N>',type:'integer',range:'-',req:false,def:'-',desc:'Max user processes'},
+            {name:'-s <N>',type:'integer',range:'-',req:false,def:'-',desc:'Stack size in KB'},
+          ]},
+        { cmd:'sysctl', syntax:'sysctl [OPTIONS] [<key>[=<val>]]', distros:['all'],
+          desc:'Read and write kernel parameters at runtime (/proc/sys/).',
+          args:[
+            {name:'-a',type:'flag',range:'-',req:false,def:'-',desc:'Display all variables'},
+            {name:'-w <key=val>',type:'string',range:'-',req:false,def:'-',desc:'Set a kernel parameter (temporary)'},
+            {name:'-p [<file>]',type:'path',range:'-',req:false,def:'/etc/sysctl.conf',desc:'Load settings from file (persistent)'},
+          ]},
+      ]
+    },
+    {
+      id: 'sys-hardware', title: '3. Hardware Information',
+      commands: [
+        { cmd:'lshw', syntax:'lshw [OPTIONS]', distros:['all'],
+          desc:'List hardware: CPU, memory, disks, network, PCI. Requires root for complete info.',
+          args:[
+            {name:'-short',type:'flag',range:'-',req:false,def:'-',desc:'Short summary format'},
+            {name:'-class <type>',type:'string',range:'-',req:false,def:'-',desc:'Filter by class: network, disk, memory, cpu…'},
+          ]},
+        { cmd:'lspci', syntax:'lspci [OPTIONS]', distros:['all'],
+          desc:'List PCI devices (GPU, NIC, storage controllers, etc.).',
+          args:[
+            {name:'-v',type:'flag',range:'-',req:false,def:'-',desc:'Verbose (driver info, IRQ, I/O)'},
+            {name:'-k',type:'flag',range:'-',req:false,def:'-',desc:'Show kernel driver in use for each device'},
+            {name:'-nn',type:'flag',range:'-',req:false,def:'-',desc:'Show vendor/device IDs alongside names'},
+          ]},
+        { cmd:'lsusb', syntax:'lsusb [OPTIONS]', distros:['all'],
+          desc:'List USB devices.',
+          args:[
+            {name:'-v',type:'flag',range:'-',req:false,def:'-',desc:'Verbose output'},
+            {name:'-t',type:'flag',range:'-',req:false,def:'-',desc:'Show USB topology tree'},
+          ]},
+        { cmd:'dmesg', syntax:'dmesg [OPTIONS]', distros:['all'],
+          desc:'Print or control the kernel ring buffer. Useful for hardware events and boot messages.',
+          args:[
+            {name:'-T',type:'flag',range:'-',req:false,def:'-',desc:'Human-readable timestamps'},
+            {name:'-l err,warn',type:'string',range:'-',req:false,def:'-',desc:'Filter by log level'},
+            {name:'--follow',type:'flag',range:'-',req:false,def:'-',desc:'Wait for new messages (like tail -f)'},
+          ]},
+      ]
+    },
+  ]
+});
+
+/* ==================== SYSTEMD ==================== */
+SECTIONS.push({
+  id: 'systemd', title: 'SYSTEMD', type: 'commands',
+  subsections: [
+    {
+      id: 'sysd-units', title: '1. Service Management (systemctl)',
+      commands: [
+        { cmd:'systemctl start', syntax:'systemctl start <unit>', distros:['all'],
+          desc:'Start (activate) a unit immediately.',
+          args:[{name:'unit',type:'string',range:'-',req:true,def:'-',desc:'Unit name, e.g. nginx.service (or just nginx)'}]},
+        { cmd:'systemctl stop', syntax:'systemctl stop <unit>', distros:['all'],
+          desc:'Stop (deactivate) a unit immediately.',
+          args:[]},
+        { cmd:'systemctl restart', syntax:'systemctl restart <unit>', distros:['all'],
+          desc:'Stop then start a unit. Use reload instead when possible to avoid downtime.',
+          args:[]},
+        { cmd:'systemctl reload', syntax:'systemctl reload <unit>', distros:['all'],
+          desc:'Ask the service to reload its configuration without full restart.',
+          args:[]},
+        { cmd:'systemctl status', syntax:'systemctl status [<unit>]', distros:['all'],
+          desc:'Show runtime status of a unit (active/inactive, recent log lines, PID).',
+          args:[]},
+        { cmd:'systemctl enable', syntax:'systemctl enable [--now] <unit>', distros:['all'],
+          desc:'Enable unit to start at boot (creates symlinks in /etc/systemd/system).',
+          args:[{name:'--now',type:'flag',range:'-',req:false,def:'-',desc:'Also start the unit immediately'}]},
+        { cmd:'systemctl disable', syntax:'systemctl disable [--now] <unit>', distros:['all'],
+          desc:'Disable unit from starting at boot.',
+          args:[{name:'--now',type:'flag',range:'-',req:false,def:'-',desc:'Also stop the unit immediately'}]},
+        { cmd:'systemctl mask', syntax:'systemctl mask <unit>', distros:['all'],
+          desc:'Mask a unit: link it to /dev/null so it cannot be started (even manually or as dependency).',
+          args:[]},
+        { cmd:'systemctl unmask', syntax:'systemctl unmask <unit>', distros:['all'],
+          desc:'Unmask a previously masked unit.',
+          args:[]},
+        { cmd:'systemctl daemon-reload', syntax:'systemctl daemon-reload', distros:['all'],
+          desc:'Reload systemd manager configuration. Required after editing unit files.',
+          args:[]},
+        { cmd:'systemctl list-units', syntax:'systemctl list-units [OPTIONS] [<pattern>]', distros:['all'],
+          desc:'List loaded units and their status.',
+          args:[
+            {name:'--type=service',type:'keyword',range:'service|socket|timer|target|mount|…',req:false,def:'-',desc:'Filter by unit type'},
+            {name:'--state=failed',type:'keyword',range:'active|inactive|failed|…',req:false,def:'-',desc:'Filter by active state'},
+            {name:'--all',type:'flag',range:'-',req:false,def:'-',desc:'Show all units, including inactive'},
+          ]},
+        { cmd:'systemctl list-timers', syntax:'systemctl list-timers [--all]', distros:['all'],
+          desc:'List systemd timer units with next/last trigger time.',
+          args:[]},
+        { cmd:'systemctl cat', syntax:'systemctl cat <unit>', distros:['all'],
+          desc:'Show the unit file content as on disk (including drop-in files).',
+          args:[]},
+        { cmd:'systemctl edit', syntax:'systemctl edit <unit>', distros:['all'],
+          desc:'Edit a drop-in override for a unit file (creates /etc/systemd/system/<unit>.d/override.conf).',
+          args:[{name:'--full',type:'flag',range:'-',req:false,def:'-',desc:'Edit the full unit file rather than a drop-in'}]},
+      ]
+    },
+    {
+      id: 'sysd-journal', title: '2. Logging (journalctl)',
+      commands: [
+        { cmd:'journalctl', syntax:'journalctl [OPTIONS]', distros:['all'],
+          desc:'Query the systemd journal. Default shows all logs since last boot.',
+          args:[
+            {name:'-u <unit>',type:'string',range:'-',req:false,def:'-',desc:'Filter by unit (e.g. -u nginx)'},
+            {name:'-f',type:'flag',range:'-',req:false,def:'-',desc:'Follow: stream new log entries in real time'},
+            {name:'-n <N>',type:'integer',range:'-',req:false,def:'10',desc:'Show last N lines'},
+            {name:'-b [<n>]',type:'integer',range:'-',req:false,def:'0',desc:'Show logs from boot n (0=current, -1=previous)'},
+            {name:'-p <priority>',type:'string',range:'emerg|alert|crit|err|warning|notice|info|debug',req:false,def:'-',desc:'Filter by priority level'},
+            {name:'--since <time>',type:'string',range:'-',req:false,def:'-',desc:'Show entries since time (e.g. "1 hour ago", "2024-01-01")'},
+            {name:'--until <time>',type:'string',range:'-',req:false,def:'-',desc:'Show entries until time'},
+            {name:'-x',type:'flag',range:'-',req:false,def:'-',desc:'Add explanatory text from message catalog'},
+            {name:'--no-pager',type:'flag',range:'-',req:false,def:'-',desc:'Do not pipe to pager (useful in scripts)'},
+            {name:'--disk-usage',type:'flag',range:'-',req:false,def:'-',desc:'Show disk space used by journal'},
+            {name:'--vacuum-size=<n>',type:'string',range:'-',req:false,def:'-',desc:'Reduce journal to at most N (e.g. 500M)'},
+          ]},
+      ]
+    },
+    {
+      id: 'sysd-analyze', title: '3. Boot Analysis & Targets',
+      commands: [
+        { cmd:'systemd-analyze', syntax:'systemd-analyze [<command>]', distros:['all'],
+          desc:'Analyze system boot-up performance.',
+          args:[
+            {name:'time',type:'keyword',range:'-',req:false,def:'-',desc:'Show time spent in each boot phase'},
+            {name:'blame',type:'keyword',range:'-',req:false,def:'-',desc:'List units ordered by initialization time'},
+            {name:'critical-chain',type:'keyword',range:'-',req:false,def:'-',desc:'Show the critical chain of units on the startup path'},
+            {name:'plot > boot.svg',type:'keyword',range:'-',req:false,def:'-',desc:'Generate SVG of boot sequence timeline'},
+          ]},
+        { cmd:'systemctl get-default', syntax:'systemctl get-default', distros:['all'],
+          desc:'Show the default boot target (equivalent to old runlevel).',
+          args:[]},
+        { cmd:'systemctl set-default', syntax:'systemctl set-default <target>', distros:['all'],
+          desc:'Set the default boot target.',
+          args:[{name:'target',type:'keyword',range:'multi-user.target|graphical.target|rescue.target',req:true,def:'-',desc:'Target unit to boot into by default'}]},
+        { cmd:'systemctl isolate', syntax:'systemctl isolate <target>', distros:['all'],
+          desc:'Switch to a different target immediately (stops all units not in the target).',
+          args:[]},
+        { cmd:'loginctl', syntax:'loginctl [<command>] [<session>]', distros:['all'],
+          desc:'Control the systemd login manager: list sessions, users, seats.',
+          args:[
+            {name:'list-sessions',type:'keyword',range:'-',req:false,def:'-',desc:'Show active login sessions'},
+            {name:'list-users',type:'keyword',range:'-',req:false,def:'-',desc:'Show logged-in users'},
+            {name:'terminate-session <id>',type:'keyword',range:'-',req:false,def:'-',desc:'Kill a specific login session'},
+          ]},
+      ]
+    },
+  ]
+});
+
 render();
 </script>
 </body>
