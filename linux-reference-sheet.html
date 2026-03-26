@@ -1355,6 +1355,301 @@ SECTIONS.push({
   ]
 });
 
+/* ==================== FILE MANAGEMENT ==================== */
+SECTIONS.push({
+  id: 'files', title: 'FILE MANAGEMENT', type: 'commands',
+  subsections: [
+    {
+      id: 'fm-navigate', title: '1. Navigation & Listing',
+      commands: [
+        { cmd:'ls', syntax:'ls [OPTIONS] [<path>]', distros:['all'],
+          desc:'List directory contents.',
+          args:[
+            {name:'-l',type:'flag',range:'-',req:false,def:'-',desc:'Long format: permissions, owner, size, date'},
+            {name:'-a',type:'flag',range:'-',req:false,def:'-',desc:'Show hidden files (dotfiles)'},
+            {name:'-h',type:'flag',range:'-',req:false,def:'-',desc:'Human-readable sizes (use with -l)'},
+            {name:'-R',type:'flag',range:'-',req:false,def:'-',desc:'Recursive listing'},
+            {name:'-t',type:'flag',range:'-',req:false,def:'-',desc:'Sort by modification time (newest first)'},
+            {name:'--color',type:'flag',range:'-',req:false,def:'-',desc:'Colorize output by file type'},
+          ]},
+        { cmd:'cd', syntax:'cd [<directory>]', distros:['all'],
+          desc:'Change the current working directory. No arg = go to $HOME.',
+          args:[{name:'directory',type:'path',range:'-',req:false,def:'$HOME',desc:'Target directory; - goes to previous directory'}]},
+        { cmd:'pwd', syntax:'pwd [-L|-P]', distros:['all'],
+          desc:'Print the current working directory path.',
+          args:[
+            {name:'-L',type:'flag',range:'-',req:false,def:'-',desc:'Logical path (follow symlinks as-is) — default'},
+            {name:'-P',type:'flag',range:'-',req:false,def:'-',desc:'Physical path (resolve all symlinks)'},
+          ]},
+        { cmd:'tree', syntax:'tree [OPTIONS] [<path>]', distros:['all'],
+          desc:'Display directory tree. Install: apt/dnf/pacman install tree.',
+          args:[
+            {name:'-L <n>',type:'integer',range:'1–∞',req:false,def:'-',desc:'Limit depth to n levels'},
+            {name:'-a',type:'flag',range:'-',req:false,def:'-',desc:'Show hidden files'},
+            {name:'-d',type:'flag',range:'-',req:false,def:'-',desc:'Directories only'},
+          ]},
+        { cmd:'stat', syntax:'stat <file>', distros:['all'],
+          desc:'Display detailed file/filesystem status: inode, permissions, timestamps, size.',
+          args:[]},
+        { cmd:'file', syntax:'file <file>', distros:['all'],
+          desc:'Determine file type by magic bytes (not extension).',
+          args:[]},
+      ]
+    },
+    {
+      id: 'fm-ops', title: '2. File Operations',
+      commands: [
+        { cmd:'cp', syntax:'cp [OPTIONS] <src> <dest>', distros:['all'],
+          desc:'Copy files or directories.',
+          args:[
+            {name:'-r / -R',type:'flag',range:'-',req:false,def:'-',desc:'Recursive (required for directories)'},
+            {name:'-p',type:'flag',range:'-',req:false,def:'-',desc:'Preserve mode, ownership, timestamps'},
+            {name:'-a',type:'flag',range:'-',req:false,def:'-',desc:'Archive mode: -dR --preserve=all'},
+            {name:'-u',type:'flag',range:'-',req:false,def:'-',desc:'Copy only when src is newer than dest'},
+            {name:'-v',type:'flag',range:'-',req:false,def:'-',desc:'Verbose output'},
+          ]},
+        { cmd:'mv', syntax:'mv [OPTIONS] <src> <dest>', distros:['all'],
+          desc:'Move or rename files and directories.',
+          args:[
+            {name:'-f',type:'flag',range:'-',req:false,def:'-',desc:'Force — do not prompt before overwriting'},
+            {name:'-n',type:'flag',range:'-',req:false,def:'-',desc:'No-clobber — do not overwrite existing files'},
+            {name:'-v',type:'flag',range:'-',req:false,def:'-',desc:'Verbose output'},
+          ]},
+        { cmd:'rm', syntax:'rm [OPTIONS] <file>', distros:['all'],
+          desc:'Remove files or directories. WARNING: no trash bin by default.',
+          args:[
+            {name:'-r / -R',type:'flag',range:'-',req:false,def:'-',desc:'Recursive removal (required for directories)'},
+            {name:'-f',type:'flag',range:'-',req:false,def:'-',desc:'Force — ignore nonexistent files, no prompts'},
+            {name:'-i',type:'flag',range:'-',req:false,def:'-',desc:'Interactive — prompt before each removal'},
+            {name:'-v',type:'flag',range:'-',req:false,def:'-',desc:'Verbose'},
+          ]},
+        { cmd:'mkdir', syntax:'mkdir [OPTIONS] <dir>', distros:['all'],
+          desc:'Create one or more directories.',
+          args:[
+            {name:'-p',type:'flag',range:'-',req:false,def:'-',desc:'Create parent directories as needed; no error if exists'},
+            {name:'-m <mode>',type:'octal',range:'000–777',req:false,def:'-',desc:'Set file mode bits (e.g. 755)'},
+          ]},
+        { cmd:'rmdir', syntax:'rmdir <dir>', distros:['all'],
+          desc:'Remove empty directories only. Use rm -rf for non-empty.',
+          args:[]},
+        { cmd:'touch', syntax:'touch [OPTIONS] <file>', distros:['all'],
+          desc:'Create empty file or update access/modification timestamps.',
+          args:[
+            {name:'-a',type:'flag',range:'-',req:false,def:'-',desc:'Change only access time'},
+            {name:'-m',type:'flag',range:'-',req:false,def:'-',desc:'Change only modification time'},
+            {name:'-t <timestamp>',type:'string',range:'[[CC]YY]MMDDhhmm[.ss]',req:false,def:'-',desc:'Use specified time instead of now'},
+          ]},
+        { cmd:'ln', syntax:'ln [OPTIONS] <target> <link_name>', distros:['all'],
+          desc:'Create hard or symbolic links.',
+          args:[
+            {name:'-s',type:'flag',range:'-',req:false,def:'-',desc:'Create a symbolic (soft) link'},
+            {name:'-f',type:'flag',range:'-',req:false,def:'-',desc:'Remove existing destination file'},
+            {name:'-v',type:'flag',range:'-',req:false,def:'-',desc:'Verbose'},
+          ]},
+        { cmd:'realpath', syntax:'realpath <path>', distros:['all'],
+          desc:'Print the resolved absolute path (follow all symlinks).',
+          args:[]},
+        { cmd:'basename', syntax:'basename <path> [<suffix>]', distros:['all'],
+          desc:'Strip directory and optional suffix from a path. E.g. basename /etc/hosts → hosts.',
+          args:[]},
+        { cmd:'dirname', syntax:'dirname <path>', distros:['all'],
+          desc:'Strip the last component from a path. E.g. dirname /etc/hosts → /etc.',
+          args:[]},
+      ]
+    },
+    {
+      id: 'fm-find', title: '3. Finding Files',
+      commands: [
+        { cmd:'find', syntax:'find <path> [OPTIONS] [<expression>]', distros:['all'],
+          desc:'Search for files in a directory tree. Very powerful with -exec.',
+          args:[
+            {name:'-name <pattern>',type:'string',range:'-',req:false,def:'-',desc:'Match filename pattern (e.g. "*.log")'},
+            {name:'-type {f|d|l}',type:'keyword',range:'f|d|l|b|c|p|s',req:false,def:'-',desc:'f=file, d=directory, l=symlink'},
+            {name:'-size [+|-]<n>c|k|M|G',type:'string',range:'-',req:false,def:'-',desc:'Match by size (+n=larger, -n=smaller)'},
+            {name:'-mtime [+|-]<n>',type:'integer',range:'-',req:false,def:'-',desc:'Modified n days ago (+n=older, -n=newer)'},
+            {name:'-user <name>',type:'string',range:'-',req:false,def:'-',desc:'Owned by user'},
+            {name:'-perm <mode>',type:'octal',range:'-',req:false,def:'-',desc:'Match file permissions'},
+            {name:'-exec <cmd> {} \\;',type:'string',range:'-',req:false,def:'-',desc:'Execute command on each result ({} = filename)'},
+            {name:'-delete',type:'flag',range:'-',req:false,def:'-',desc:'Delete matching files'},
+            {name:'-maxdepth <n>',type:'integer',range:'0–∞',req:false,def:'-',desc:'Limit search depth'},
+          ]},
+        { cmd:'locate', syntax:'locate [OPTIONS] <pattern>', distros:['all'],
+          desc:'Find files using a pre-built database (much faster than find). May be outdated.',
+          args:[
+            {name:'-i',type:'flag',range:'-',req:false,def:'-',desc:'Case-insensitive match'},
+            {name:'-c',type:'flag',range:'-',req:false,def:'-',desc:'Print count of matching entries'},
+          ]},
+        { cmd:'updatedb', syntax:'updatedb', distros:['all'],
+          desc:'Update the mlocate database used by locate. Usually run by cron nightly.',
+          args:[]},
+        { cmd:'which', syntax:'which <command>', distros:['all'],
+          desc:'Locate the executable of a command by searching PATH.',
+          args:[]},
+        { cmd:'whereis', syntax:'whereis <command>', distros:['all'],
+          desc:'Locate the binary, source, and man page for a command.',
+          args:[]},
+        { cmd:'du', syntax:'du [OPTIONS] [<path>]', distros:['all'],
+          desc:'Estimate disk usage of files and directories.',
+          args:[
+            {name:'-h',type:'flag',range:'-',req:false,def:'-',desc:'Human-readable sizes (K, M, G)'},
+            {name:'-s',type:'flag',range:'-',req:false,def:'-',desc:'Summary total only (no breakdown)'},
+            {name:'-d <n>',type:'integer',range:'0–∞',req:false,def:'-',desc:'Limit to depth n (GNU) — or --max-depth'},
+            {name:'--apparent-size',type:'flag',range:'-',req:false,def:'-',desc:'Show apparent size, not disk usage'},
+          ]},
+      ]
+    },
+  ]
+});
+
+/* ==================== TEXT PROCESSING ==================== */
+SECTIONS.push({
+  id: 'text', title: 'TEXT PROCESSING', type: 'commands',
+  subsections: [
+    {
+      id: 'txt-view', title: '1. Viewing & Reading',
+      commands: [
+        { cmd:'cat', syntax:'cat [OPTIONS] [<file>]', distros:['all'],
+          desc:'Concatenate and print files to stdout.',
+          args:[
+            {name:'-n',type:'flag',range:'-',req:false,def:'-',desc:'Number all output lines'},
+            {name:'-A',type:'flag',range:'-',req:false,def:'-',desc:'Show non-printing chars: tabs as ^I, newlines as $'},
+          ]},
+        { cmd:'less', syntax:'less [OPTIONS] <file>', distros:['all'],
+          desc:'Page through file content interactively. q=quit, /=search, n=next match, G=end.',
+          args:[
+            {name:'-N',type:'flag',range:'-',req:false,def:'-',desc:'Show line numbers'},
+            {name:'-S',type:'flag',range:'-',req:false,def:'-',desc:'Chop long lines (no wrap)'},
+            {name:'-R',type:'flag',range:'-',req:false,def:'-',desc:'Raw ANSI color codes (for colored output)'},
+          ]},
+        { cmd:'head', syntax:'head [OPTIONS] [<file>]', distros:['all'],
+          desc:'Print first N lines of a file (default 10).',
+          args:[{name:'-n <N>',type:'integer',range:'-',req:false,def:'10',desc:'Number of lines to print'}]},
+        { cmd:'tail', syntax:'tail [OPTIONS] [<file>]', distros:['all'],
+          desc:'Print last N lines of a file. -f follows appended data in real time.',
+          args:[
+            {name:'-n <N>',type:'integer',range:'-',req:false,def:'10',desc:'Number of lines to print'},
+            {name:'-f',type:'flag',range:'-',req:false,def:'-',desc:'Follow: output appended data as file grows'},
+            {name:'-F',type:'flag',range:'-',req:false,def:'-',desc:'Like -f but retry if file is renamed/recreated (log rotation)'},
+          ]},
+        { cmd:'wc', syntax:'wc [OPTIONS] [<file>]', distros:['all'],
+          desc:'Count lines, words, and bytes in files.',
+          args:[
+            {name:'-l',type:'flag',range:'-',req:false,def:'-',desc:'Count lines only'},
+            {name:'-w',type:'flag',range:'-',req:false,def:'-',desc:'Count words only'},
+            {name:'-c',type:'flag',range:'-',req:false,def:'-',desc:'Count bytes only'},
+          ]},
+        { cmd:'column', syntax:'column [OPTIONS] [<file>]', distros:['all'],
+          desc:'Format input into aligned columns.',
+          args:[
+            {name:'-t',type:'flag',range:'-',req:false,def:'-',desc:'Determine column widths from input; create a table'},
+            {name:'-s <sep>',type:'string',range:'-',req:false,def:'whitespace',desc:'Column delimiter (e.g. -s: for colon-separated)'},
+          ]},
+      ]
+    },
+    {
+      id: 'txt-filter', title: '2. Filtering & Searching',
+      commands: [
+        { cmd:'grep', syntax:'grep [OPTIONS] <pattern> [<file>]', distros:['all'],
+          desc:'Search for lines matching a pattern. Supports BRE by default, ERE with -E.',
+          args:[
+            {name:'-i',type:'flag',range:'-',req:false,def:'-',desc:'Case-insensitive match'},
+            {name:'-v',type:'flag',range:'-',req:false,def:'-',desc:'Invert match (print non-matching lines)'},
+            {name:'-r / -R',type:'flag',range:'-',req:false,def:'-',desc:'Recursive search through directories'},
+            {name:'-n',type:'flag',range:'-',req:false,def:'-',desc:'Show line numbers'},
+            {name:'-l',type:'flag',range:'-',req:false,def:'-',desc:'Print only filenames with matches'},
+            {name:'-c',type:'flag',range:'-',req:false,def:'-',desc:'Print match count per file'},
+            {name:'-E',type:'flag',range:'-',req:false,def:'-',desc:'Extended regex (same as egrep)'},
+            {name:'-A/-B/-C <n>',type:'integer',range:'-',req:false,def:'-',desc:'Context lines: After/Before/Both'},
+            {name:'-o',type:'flag',range:'-',req:false,def:'-',desc:'Print only the matching part of each line'},
+            {name:'--include=<glob>',type:'string',range:'-',req:false,def:'-',desc:'Search only files matching glob (e.g. "*.py")'},
+          ]},
+        { cmd:'sort', syntax:'sort [OPTIONS] [<file>]', distros:['all'],
+          desc:'Sort lines of text. By default sorts lexicographically.',
+          args:[
+            {name:'-n',type:'flag',range:'-',req:false,def:'-',desc:'Numeric sort'},
+            {name:'-r',type:'flag',range:'-',req:false,def:'-',desc:'Reverse order'},
+            {name:'-k <n>',type:'integer',range:'-',req:false,def:'-',desc:'Sort by field/column n'},
+            {name:'-t <sep>',type:'string',range:'-',req:false,def:'whitespace',desc:'Field separator'},
+            {name:'-u',type:'flag',range:'-',req:false,def:'-',desc:'Remove duplicate lines (unique)'},
+            {name:'-h',type:'flag',range:'-',req:false,def:'-',desc:'Human-readable number sort (1K, 2M, 3G…)'},
+          ]},
+        { cmd:'uniq', syntax:'uniq [OPTIONS] [<file>]', distros:['all'],
+          desc:'Report or omit repeated adjacent lines. Usually piped after sort.',
+          args:[
+            {name:'-c',type:'flag',range:'-',req:false,def:'-',desc:'Prefix each line with count of occurrences'},
+            {name:'-d',type:'flag',range:'-',req:false,def:'-',desc:'Print only duplicate lines'},
+            {name:'-u',type:'flag',range:'-',req:false,def:'-',desc:'Print only unique (non-duplicated) lines'},
+          ]},
+        { cmd:'cut', syntax:'cut [OPTIONS] [<file>]', distros:['all'],
+          desc:'Remove sections from lines (by character or field).',
+          args:[
+            {name:'-f <list>',type:'string',range:'-',req:false,def:'-',desc:'Select fields (e.g. -f1,3 or -f2-5)'},
+            {name:'-d <delim>',type:'string',range:'-',req:false,def:'Tab',desc:'Field delimiter (e.g. -d:)'},
+            {name:'-c <list>',type:'string',range:'-',req:false,def:'-',desc:'Select characters by position'},
+          ]},
+        { cmd:'tr', syntax:'tr [OPTIONS] <set1> [<set2>]', distros:['all'],
+          desc:'Translate or delete characters in stdin.',
+          args:[
+            {name:'-d',type:'flag',range:'-',req:false,def:'-',desc:'Delete characters in set1'},
+            {name:'-s',type:'flag',range:'-',req:false,def:'-',desc:'Squeeze repeated characters into one'},
+          ]},
+      ]
+    },
+    {
+      id: 'txt-transform', title: '3. Transforming Text',
+      commands: [
+        { cmd:'sed', syntax:'sed [OPTIONS] <script> [<file>]', distros:['all'],
+          desc:'Stream editor: substitute, delete, insert lines. Most common: s/old/new/g.',
+          args:[
+            {name:'-i[suffix]',type:'string',range:'-',req:false,def:'-',desc:'Edit file in-place (optional backup suffix)'},
+            {name:'-e <script>',type:'string',range:'-',req:false,def:'-',desc:'Add a script expression'},
+            {name:'-n',type:'flag',range:'-',req:false,def:'-',desc:'Suppress auto-print; use p flag to print'},
+          ]},
+        { cmd:'awk', syntax:"awk [OPTIONS] '<program>' [<file>]", distros:['all'],
+          desc:'Pattern scanning and text processing. Powerful for field manipulation.',
+          args:[
+            {name:'-F <sep>',type:'string',range:'-',req:false,def:'whitespace',desc:'Input field separator (e.g. -F:)'},
+            {name:'-v <var=val>',type:'string',range:'-',req:false,def:'-',desc:'Set variable before execution'},
+          ]},
+        { cmd:'diff', syntax:'diff [OPTIONS] <file1> <file2>', distros:['all'],
+          desc:'Compare files line by line and show differences.',
+          args:[
+            {name:'-u',type:'flag',range:'-',req:false,def:'-',desc:'Unified format (most readable; used for patches)'},
+            {name:'-r',type:'flag',range:'-',req:false,def:'-',desc:'Recursive directory comparison'},
+            {name:'-i',type:'flag',range:'-',req:false,def:'-',desc:'Ignore case differences'},
+            {name:'--color',type:'flag',range:'-',req:false,def:'-',desc:'Colorize output'},
+          ]},
+        { cmd:'patch', syntax:'patch [OPTIONS] [<file>] < <patchfile>', distros:['all'],
+          desc:'Apply a diff patch file to a file or directory.',
+          args:[
+            {name:'-p <n>',type:'integer',range:'0–∞',req:false,def:'-',desc:'Strip n leading path components from filenames in patch'},
+            {name:'-R',type:'flag',range:'-',req:false,def:'-',desc:'Reverse the patch (undo it)'},
+          ]},
+        { cmd:'tee', syntax:'tee [OPTIONS] [<file>]', distros:['all'],
+          desc:'Read stdin and write to both stdout and file(s) simultaneously.',
+          args:[{name:'-a',type:'flag',range:'-',req:false,def:'-',desc:'Append to file instead of overwriting'}]},
+        { cmd:'xargs', syntax:'xargs [OPTIONS] [<command>]', distros:['all'],
+          desc:'Build and execute commands from stdin. Pairs with find and grep.',
+          args:[
+            {name:'-I <replace>',type:'string',range:'-',req:false,def:'{}',desc:'Replace string in command (e.g. -I{})'},
+            {name:'-n <max>',type:'integer',range:'-',req:false,def:'-',desc:'Max arguments per command invocation'},
+            {name:'-P <n>',type:'integer',range:'-',req:false,def:'1',desc:'Number of parallel processes'},
+            {name:'-0',type:'flag',range:'-',req:false,def:'-',desc:'Input items separated by null (pair with find -print0)'},
+          ]},
+        { cmd:'strings', syntax:'strings [OPTIONS] <file>', distros:['all'],
+          desc:'Extract printable character sequences from binary files.',
+          args:[{name:'-n <len>',type:'integer',range:'-',req:false,def:'4',desc:'Minimum string length to display'}]},
+        { cmd:'hexdump', syntax:'hexdump [OPTIONS] <file>', distros:['all'],
+          desc:'Display file content in hexadecimal.',
+          args:[
+            {name:'-C',type:'flag',range:'-',req:false,def:'-',desc:'Canonical hex+ASCII output (most readable)'},
+            {name:'-n <len>',type:'integer',range:'-',req:false,def:'-',desc:'Interpret only len bytes of input'},
+          ]},
+      ]
+    },
+  ]
+});
+
 render();
 </script>
 </body>
