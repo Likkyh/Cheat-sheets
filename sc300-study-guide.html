@@ -427,8 +427,8 @@ kbd { font-size: 11px; font-weight: 600; padding: 2px 7px; border-radius: 4px; b
         <div class="weight-chart-title">Domain Weight Distribution</div>
         <div class="weight-bar-row">
           <div class="weight-bar-label">Domain 1 — Implement and Manage User Identities</div>
-          <div class="weight-bar-track"><div class="weight-bar-fill" style="width:27%;background:var(--d1)"></div></div>
-          <div class="weight-bar-pct" style="color:var(--d1)">25–30%</div>
+          <div class="weight-bar-track"><div class="weight-bar-fill" style="width:22%;background:var(--d1)"></div></div>
+          <div class="weight-bar-pct" style="color:var(--d1)">20–25%</div>
         </div>
         <div class="weight-bar-row">
           <div class="weight-bar-label">Domain 2 — Implement Authentication and Access Management</div>
@@ -436,12 +436,12 @@ kbd { font-size: 11px; font-weight: 600; padding: 2px 7px; border-radius: 4px; b
           <div class="weight-bar-pct" style="color:var(--d2)">25–30%</div>
         </div>
         <div class="weight-bar-row">
-          <div class="weight-bar-label">Domain 3 — Implement Access Management for Applications</div>
-          <div class="weight-bar-track"><div class="weight-bar-fill" style="width:17%;background:var(--d3)"></div></div>
-          <div class="weight-bar-pct" style="color:var(--d3)">15–20%</div>
+          <div class="weight-bar-label">Domain 3 — Plan and Implement Workload Identities</div>
+          <div class="weight-bar-track"><div class="weight-bar-fill" style="width:22%;background:var(--d3)"></div></div>
+          <div class="weight-bar-pct" style="color:var(--d3)">20–25%</div>
         </div>
         <div class="weight-bar-row">
-          <div class="weight-bar-label">Domain 4 — Plan and Implement Identity Governance</div>
+          <div class="weight-bar-label">Domain 4 — Plan and Automate Identity Governance</div>
           <div class="weight-bar-track"><div class="weight-bar-fill" style="width:22%;background:var(--d4)"></div></div>
           <div class="weight-bar-pct" style="color:var(--d4)">20–25%</div>
         </div>
@@ -809,14 +809,748 @@ document.addEventListener('keydown', e => {
 const SECTIONS = [];
 </script>
 
-<!-- Content batches will be added as SECTIONS.push({...}) calls below -->
-<!-- BATCH 2: Domain 1 -->
-<!-- BATCH 3: Domain 1 continued -->
-<!-- BATCH 4: Domain 2 -->
-<!-- BATCH 5: Domain 2 continued -->
-<!-- BATCH 6: Domain 3 -->
-<!-- BATCH 7: Domain 4 -->
-<!-- BATCH 8: Domain 4 continued -->
+<!-- ==================== DOMAIN 1 ==================== -->
+<script>
+SECTIONS.push({
+  id: 'domain-1',
+  title: 'Implement and Manage User Identities',
+  weight: '20–25%',
+  type: 'domain',
+  domainNum: 1,
+  subsections: [
+
+    /* ---- 1.1 Entra Tenant ---- */
+    {
+      id: 'd1-tenant',
+      title: 'Configure and Manage a Microsoft Entra Tenant',
+      concepts: ['Tenant', 'Directory', 'Entra ID Free/P1/P2', 'Custom Domain', 'Tenant Restrictions', 'Multi-Tenant Organization'],
+      body: `
+        <p>A <strong>Microsoft Entra tenant</strong> is a dedicated, trusted instance of Microsoft Entra ID automatically created when your organization signs up for a Microsoft cloud service. It represents your organization and is the container for users, groups, devices, and applications.</p>
+        <h4>Entra ID Editions</h4>
+        <table>
+          <tr><th>Feature</th><th>Free</th><th>P1</th><th>P2</th></tr>
+          <tr><td>User/Group management</td><td>✓</td><td>✓</td><td>✓</td></tr>
+          <tr><td>SSO (10 apps)</td><td>✓</td><td>✓</td><td>✓</td></tr>
+          <tr><td>Conditional Access</td><td>✗</td><td>✓</td><td>✓</td></tr>
+          <tr><td>Self-service group mgmt</td><td>✗</td><td>✓</td><td>✓</td></tr>
+          <tr><td>Dynamic groups</td><td>✗</td><td>✓</td><td>✓</td></tr>
+          <tr><td>Identity Protection</td><td>✗</td><td>✗</td><td>✓</td></tr>
+          <tr><td>PIM</td><td>✗</td><td>✗</td><td>✓</td></tr>
+          <tr><td>Access Reviews</td><td>✗</td><td>✗</td><td>✓</td></tr>
+        </table>
+        <h4>Custom Domains</h4>
+        <ul>
+          <li>Add a custom domain: Entra Admin Center → <em>Custom domain names</em> → Add domain</li>
+          <li>Verify by adding a <strong>TXT or MX DNS record</strong> at your DNS registrar</li>
+          <li>Set as <strong>primary domain</strong> so new users get UPN <code>user@contoso.com</code> instead of <code>user@contoso.onmicrosoft.com</code></li>
+          <li>Cannot delete <code>*.onmicrosoft.com</code> — it's the initial fallback domain</li>
+        </ul>
+        <h4>Tenant-wide Settings</h4>
+        <ul>
+          <li><strong>External collaboration settings</strong> — control who can invite guests, guest access permissions</li>
+          <li><strong>Tenant restrictions</strong> — prevent users from signing into other tenants on corporate network (uses proxy headers)</li>
+          <li><strong>User settings</strong> — control App registrations, LinkedIn accounts, Administration portal access</li>
+          <li><strong>Multi-Tenant Organization (MTO)</strong> — link multiple tenants; enables cross-tenant sync, unified Teams experience</li>
+        </ul>`,
+      tip: 'Know the difference between Entra ID Free, P1, and P2 feature sets — especially which features require P2 (Identity Protection, PIM, Access Reviews). You MUST have P2 for risk-based CA policies.'
+    },
+
+    /* ---- 1.2 Entra Identities (Users & Groups) ---- */
+    {
+      id: 'd1-identities',
+      title: 'Create, Configure, and Manage Microsoft Entra Identities',
+      concepts: ['Cloud User', 'Synced User', 'UPN', 'Security Group', 'Microsoft 365 Group', 'Dynamic Group', 'Administrative Unit'],
+      body: `
+        <h4>User Accounts</h4>
+        <p>Three types of user accounts exist in Entra ID:</p>
+        <ul>
+          <li><strong>Cloud identity</strong> — defined only in Entra ID; authentication happens in the cloud</li>
+          <li><strong>Directory-synced identity</strong> — originates in on-premises AD; synced via Entra Connect; source of authority is on-prem</li>
+          <li><strong>Guest user (B2B)</strong> — external user invited to collaborate; represented by a user object with <code>UserType = Guest</code></li>
+        </ul>
+        <p>Key user properties: <code>UserPrincipalName</code> (sign-in name), <code>DisplayName</code>, <code>Mail</code>, <code>ProxyAddresses</code>, <code>UsageLocation</code> (required to assign licenses), <code>JobTitle</code>, <code>Department</code>.</p>
+        <h4>Groups</h4>
+        <table>
+          <tr><th>Type</th><th>Use Case</th><th>Supports Dynamic?</th></tr>
+          <tr><td>Security Group</td><td>Access control to resources</td><td>Yes</td></tr>
+          <tr><td>Microsoft 365 Group</td><td>Collaboration: mailbox, Teams, SharePoint</td><td>Yes</td></tr>
+        </table>
+        <p><strong>Dynamic groups</strong> automatically manage membership using rules based on user/device attributes. Requires Entra ID P1 or P2. Example rule: <code>(user.department -eq "Sales")</code>.</p>
+        <p><strong>Assigned groups</strong> — membership managed manually. <strong>Dynamic groups</strong> — membership managed by rule. A group cannot be both.</p>
+        <h4>Administrative Units (AUs)</h4>
+        <p>AUs let you scope admin roles to a <em>subset</em> of users, groups, or devices. Example: assign a Helpdesk Admin scoped only to the "New York" AU. Requires Entra ID P1 or P2 for scoped admin delegation.</p>
+        <ul>
+          <li>AUs can be populated statically (manually) or dynamically (rule-based, P2)</li>
+          <li>Roles that can be scoped to an AU: User Administrator, Password Administrator, Helpdesk Administrator, Groups Administrator, License Administrator</li>
+          <li>Global Administrator and Privileged Role Administrator are <em>tenant-wide only</em> — cannot be scoped to an AU</li>
+        </ul>`,
+      commands: [
+        { cmd: 'New-MgUser', syntax: 'New-MgUser -DisplayName <name> -UserPrincipalName <upn> -PasswordProfile <profile> -AccountEnabled', desc: 'Create a new cloud user', args: [] },
+        { cmd: 'Get-MgUser', syntax: 'Get-MgUser [-UserId <id>] [-Filter <odata>] [-All]', desc: 'Retrieve one or all users', args: [] },
+        { cmd: 'Update-MgUser', syntax: 'Update-MgUser -UserId <id> -Department <dept> -JobTitle <title>', desc: 'Update user properties', args: [] },
+        { cmd: 'New-MgGroup', syntax: 'New-MgGroup -DisplayName <name> -MailEnabled:$false -SecurityEnabled:$true -MailNickname <nick>', desc: 'Create a security group', args: [] },
+        { cmd: 'New-MgAdministrativeUnit', syntax: 'New-MgAdministrativeUnit -DisplayName <name> -Description <desc>', desc: 'Create an Administrative Unit', args: [] },
+      ],
+      tip: 'Dynamic group rules are evaluated by the rules engine every time a user attribute changes. Processing is async — changes are NOT immediate. Know which roles CANNOT be scoped to AUs (Global Admin, Privileged Role Admin).'
+    },
+
+    /* ---- 1.3 External Identities ---- */
+    {
+      id: 'd1-external',
+      title: 'Implement and Manage Identities for External Users and Tenants',
+      concepts: ['B2B Collaboration', 'B2B Direct Connect', 'Guest User', 'Cross-Tenant Access', 'External ID for Customers', 'Cross-Tenant Sync'],
+      body: `
+        <h4>B2B Collaboration (Guest Users)</h4>
+        <p>B2B collaboration lets you invite external users (from any identity provider — Microsoft account, Google, Facebook, email OTP) to access your resources. The external user gets a <strong>guest account</strong> in your tenant (<code>UserType = Guest</code>).</p>
+        <ul>
+          <li>Invitation methods: Admin sends email invite, direct link, or programmatic (Graph API)</li>
+          <li>Guest redemption: user accepts invite → linked to their home identity</li>
+          <li>Guest user permissions are reduced by default (cannot enumerate directory), configurable via <em>External collaboration settings</em></li>
+          <li>One-time passcode (OTP) authentication for users without Microsoft/Google accounts</li>
+        </ul>
+        <h4>Cross-Tenant Access Settings (XTAS)</h4>
+        <p>Fine-grained control over B2B inbound/outbound access between Entra tenants:</p>
+        <ul>
+          <li><strong>Inbound settings</strong> — which external users/groups from other tenants can access your tenant</li>
+          <li><strong>Outbound settings</strong> — which of your users can access other tenants as guests</li>
+          <li><strong>Trust settings</strong> — whether to trust MFA claims, compliant device claims, Hybrid Azure AD joined device claims from other tenants</li>
+          <li><strong>Tenant-specific settings</strong> override the default settings for particular partner tenants</li>
+        </ul>
+        <h4>B2B Direct Connect</h4>
+        <p>Unlike B2B collaboration (which creates a guest account), B2B direct connect allows external users to access your resources <em>without creating a guest account</em> in your directory. Currently supported for Microsoft Teams shared channels. Both tenants must configure cross-tenant access to allow direct connect.</p>
+        <h4>Cross-Tenant Synchronization</h4>
+        <p>Automates creation of B2B collaboration users across tenants in a multi-tenant organization. Source tenant pushes user objects to target tenant via provisioning. Target tenant users appear as internal members (not guests) if configured.</p>
+        <h4>Microsoft Entra External ID for Customers (CIAM)</h4>
+        <p>Customer Identity and Access Management (CIAM) — for consumer-facing apps. Uses separate <strong>external tenant</strong> (not your workforce tenant). Supports social identities (Google, Facebook), custom user flows, branded sign-in pages. Not the same as B2B.</p>`,
+      tip: 'Know the difference: B2B Collaboration creates a guest object in your tenant. B2B Direct Connect does NOT create a guest object. Cross-tenant sync creates internal member accounts. For consumer apps, use External ID for Customers (external tenant).'
+    },
+
+    /* ---- 1.4 Hybrid Identity ---- */
+    {
+      id: 'd1-hybrid',
+      title: 'Implement and Manage Hybrid Identity',
+      concepts: ['Entra Connect', 'Password Hash Sync', 'Pass-Through Auth', 'Federation', 'Entra Cloud Sync', 'Seamless SSO', 'Password Writeback'],
+      body: `
+        <p>Hybrid identity bridges on-premises Active Directory (AD DS) with Microsoft Entra ID. Users can use one identity for both on-premises and cloud resources.</p>
+        <h4>Entra Connect Authentication Methods</h4>
+        <table>
+          <tr><th>Method</th><th>How it works</th><th>Requires on-prem infra?</th></tr>
+          <tr><td><strong>Password Hash Sync (PHS)</strong></td><td>Hash of password hash is synced to Entra ID; auth happens in cloud</td><td>No (after initial sync)</td></tr>
+          <tr><td><strong>Pass-Through Auth (PTA)</strong></td><td>Auth forwarded to on-prem AD via lightweight agent; password never leaves network</td><td>Yes (PTA agent)</td></tr>
+          <tr><td><strong>Federation (AD FS)</strong></td><td>Auth redirected to federated IdP (AD FS, Ping, etc.)</td><td>Yes (AD FS servers)</td></tr>
+        </table>
+        <p><strong>PHS is the recommended default</strong> and enables cloud-only features (Identity Protection leaked credentials, Entra Connect Health password change reports). PHS is required for Identity Protection.</p>
+        <h4>Seamless SSO</h4>
+        <p>Works with PHS or PTA. Uses a computer account (<code>AZUREADSSOACC</code>) in AD to silently sign in domain-joined users via Kerberos ticket. User gets SSO to cloud apps without entering credentials again.</p>
+        <h4>Password Writeback</h4>
+        <p>Allows users who reset their password in the cloud (via SSPR) to have the new password written back to on-premises AD immediately. Requires P1/P2 license. Without writeback, a cloud password reset wouldn't sync to on-prem.</p>
+        <h4>Microsoft Entra Cloud Sync</h4>
+        <p>Newer, lighter alternative to Entra Connect. Uses a provisioning agent (not a full sync server). Key advantages: supports multiple disconnected AD forests, highly available by design, managed from cloud. Limitations: doesn't support all Entra Connect features (no device writeback, limited custom sync rules).</p>
+        <h4>Hybrid Device Join Options</h4>
+        <ul>
+          <li><strong>Azure AD Registered</strong> — BYOD; personal device registered; no domain join required; gives access to org resources</li>
+          <li><strong>Azure AD Joined</strong> — cloud-only join; replaces on-prem domain join; Windows 10/11; managed via Intune/MDM</li>
+          <li><strong>Hybrid Azure AD Joined</strong> — joined to both on-prem AD and Entra ID; requires Entra Connect device writeback or Entra Cloud Sync device sync</li>
+        </ul>`,
+      diagram: `<svg viewBox="0 0 680 200" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12">
+  <!-- On-premises -->
+  <rect x="10" y="20" width="160" height="160" rx="8" fill="#161b22" stroke="#30363d" stroke-width="1.5"/>
+  <text x="90" y="42" text-anchor="middle" fill="#8b949e" font-size="10" font-weight="600" letter-spacing="1">ON-PREMISES</text>
+  <rect x="30" y="55" width="120" height="40" rx="5" fill="#1c2128" stroke="#30363d"/>
+  <text x="90" y="72" text-anchor="middle" fill="#e6edf3" font-weight="600">Active Directory</text>
+  <text x="90" y="87" text-anchor="middle" fill="#8b949e" font-size="10">AD DS</text>
+  <rect x="30" y="110" width="120" height="40" rx="5" fill="#1c2128" stroke="#30363d"/>
+  <text x="90" y="127" text-anchor="middle" fill="#e6edf3" font-weight="600">Entra Connect</text>
+  <text x="90" y="142" text-anchor="middle" fill="#8b949e" font-size="10">or Cloud Sync Agent</text>
+  <!-- Arrows from AD to Connect -->
+  <line x1="90" y1="95" x2="90" y2="110" stroke="#30363d" stroke-width="1.5" marker-end="url(#arr)"/>
+  <!-- Three sync methods -->
+  <rect x="220" y="35" width="140" height="35" rx="5" fill="rgba(121,192,255,0.1)" stroke="rgba(121,192,255,0.4)"/>
+  <text x="290" y="55" text-anchor="middle" fill="#79c0ff" font-weight="600">Password Hash Sync</text>
+  <text x="290" y="67" text-anchor="middle" fill="#79c0ff" font-size="10">(recommended)</text>
+  <rect x="220" y="83" width="140" height="35" rx="5" fill="rgba(63,185,80,0.1)" stroke="rgba(63,185,80,0.4)"/>
+  <text x="290" y="104" text-anchor="middle" fill="#3fb950" font-weight="600">Pass-Through Auth</text>
+  <rect x="220" y="131" width="140" height="35" rx="5" fill="rgba(210,168,255,0.1)" stroke="rgba(210,168,255,0.4)"/>
+  <text x="290" y="152" text-anchor="middle" fill="#d2a8ff" font-weight="600">Federation (AD FS)</text>
+  <!-- Arrows from Connect to methods -->
+  <line x1="150" y1="130" x2="220" y2="52" stroke="#30363d" stroke-width="1" stroke-dasharray="4"/>
+  <line x1="150" y1="130" x2="220" y2="100" stroke="#30363d" stroke-width="1" stroke-dasharray="4"/>
+  <line x1="150" y1="130" x2="220" y2="148" stroke="#30363d" stroke-width="1" stroke-dasharray="4"/>
+  <!-- Entra ID cloud -->
+  <rect x="410" y="20" width="260" height="160" rx="8" fill="#161b22" stroke="#30363d" stroke-width="1.5"/>
+  <text x="540" y="42" text-anchor="middle" fill="#8b949e" font-size="10" font-weight="600" letter-spacing="1">MICROSOFT ENTRA ID</text>
+  <rect x="430" y="55" width="220" height="50" rx="5" fill="#1c2128" stroke="#30363d"/>
+  <text x="540" y="78" text-anchor="middle" fill="#e6edf3" font-weight="600">Synced User Objects</text>
+  <text x="540" y="95" text-anchor="middle" fill="#8b949e" font-size="10">UPN • Attributes • Group memberships</text>
+  <rect x="430" y="120" width="100" height="40" rx="5" fill="#1c2128" stroke="#30363d"/>
+  <text x="480" y="142" text-anchor="middle" fill="#f78166" font-size="11">Identity Protection</text>
+  <rect x="540" y="120" width="110" height="40" rx="5" fill="#1c2128" stroke="#30363d"/>
+  <text x="595" y="142" text-anchor="middle" fill="#d2a8ff" font-size="11">Conditional Access</text>
+  <!-- Arrows from methods to Entra -->
+  <line x1="360" y1="52" x2="410" y2="80" stroke="#79c0ff" stroke-width="1.5"/>
+  <line x1="360" y1="100" x2="410" y2="80" stroke="#3fb950" stroke-width="1.5"/>
+  <line x1="360" y1="148" x2="410" y2="80" stroke="#d2a8ff" stroke-width="1.5"/>
+  <defs><marker id="arr" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#8b949e"/></marker></defs>
+</svg>`,
+      tip: 'PHS is the ONLY method that enables Entra ID Protection\'s leaked credentials detection. Know that with PTA and Federation, if the on-prem infrastructure is down, users cannot sign in to the cloud. PHS provides cloud resilience.'
+    }
+
+  ]
+});
+</script>
+
+<!-- ==================== DOMAIN 2 ==================== -->
+<script>
+SECTIONS.push({
+  id: 'domain-2',
+  title: 'Implement Authentication and Access Management',
+  weight: '25–30%',
+  type: 'domain',
+  domainNum: 2,
+  subsections: [
+
+    /* ---- 2.1 Authentication Methods ---- */
+    {
+      id: 'd2-authmethods',
+      title: 'Plan, Implement, and Manage Entra User Authentication',
+      concepts: ['MFA', 'SSPR', 'FIDO2', 'Passwordless', 'Authentication Strengths', 'Password Protection', 'Certificate-Based Auth'],
+      body: `
+        <h4>Authentication Methods (by strength)</h4>
+        <table>
+          <tr><th>Method</th><th>Type</th><th>Phishing Resistant</th><th>Requires</th></tr>
+          <tr><td>FIDO2 Security Key</td><td>Passwordless</td><td>✓ Yes</td><td>P2 license</td></tr>
+          <tr><td>Windows Hello for Business</td><td>Passwordless</td><td>✓ Yes</td><td>P1/P2 + WHfB setup</td></tr>
+          <tr><td>Certificate-Based Auth (CBA)</td><td>Passwordless / MFA</td><td>✓ Yes</td><td>PKI infrastructure</td></tr>
+          <tr><td>Microsoft Authenticator (push/number match)</td><td>MFA</td><td>Partial</td><td>Authenticator app</td></tr>
+          <tr><td>OATH TOTP (hardware tokens, authenticator)</td><td>MFA</td><td>No</td><td>Authenticator or hardware token</td></tr>
+          <tr><td>Temporary Access Pass (TAP)</td><td>Onboarding / recovery</td><td>No</td><td>P1/P2</td></tr>
+          <tr><td>SMS / Voice</td><td>MFA (legacy)</td><td>No</td><td>Phone number</td></tr>
+          <tr><td>Password</td><td>Primary auth</td><td>No</td><td>—</td></tr>
+        </table>
+        <h4>Authentication Methods Policy vs Legacy Policies</h4>
+        <p>There are THREE places where authentication methods are configured — understand the migration path:</p>
+        <ul>
+          <li><strong>Authentication methods policy</strong> (Entra Admin → Protection → Authentication methods) — the <em>new, unified</em> policy per method, supports targeting specific users/groups</li>
+          <li><strong>Legacy MFA policy</strong> (per-user MFA portal) — being deprecated; controls SMS, voice, Authenticator, OATH for all users</li>
+          <li><strong>Legacy SSPR policy</strong> — controls which methods SSPR uses</li>
+        </ul>
+        <p>Microsoft recommends migrating to the Authentication methods policy and disabling the legacy policies via the "Manage migration" toggle.</p>
+        <h4>Authentication Strengths</h4>
+        <p>Authentication strengths are sets of authentication method combinations that can be required by Conditional Access. Three built-in strengths:</p>
+        <ul>
+          <li><strong>Multifactor authentication</strong> — any combination of password + MFA (e.g., password + SMS)</li>
+          <li><strong>Passwordless MFA</strong> — FIDO2, WHfB, Authenticator passwordless phone sign-in, or CBA</li>
+          <li><strong>Phishing-resistant MFA</strong> — FIDO2, WHfB, or CBA only</li>
+        </ul>
+        <h4>Self-Service Password Reset (SSPR)</h4>
+        <p>SSPR lets users reset their own passwords without IT intervention. Configuration:</p>
+        <ul>
+          <li>Enable for: None / Selected (group) / All</li>
+          <li>Authentication methods: how many required (1 or 2) + which methods (email, phone, app code, security questions, etc.)</li>
+          <li>Registration: require at next sign-in, days before re-confirm</li>
+          <li><strong>Password writeback</strong> required to reset on-prem AD passwords via SSPR</li>
+        </ul>
+        <h4>Entra Password Protection</h4>
+        <p>Blocks weak passwords globally and for your org:</p>
+        <ul>
+          <li><strong>Global banned password list</strong> — maintained by Microsoft; automatically applied to all tenants</li>
+          <li><strong>Custom banned password list</strong> — you add org-specific terms (company name, product names)</li>
+          <li><strong>On-premises password protection</strong> — DC agent enforces the same policy for on-prem AD password changes</li>
+          <li><strong>Smart lockout</strong> — locks account after failed attempts; configurable thresholds</li>
+        </ul>`,
+      tip: 'Number matching in Authenticator app push notifications is now the default (MFA fatigue protection). Know the three phishing-resistant methods: FIDO2, Windows Hello for Business, and Certificate-Based Auth. These are the ONLY methods that satisfy "Phishing-resistant MFA" strength.'
+    },
+
+    /* ---- 2.2 Conditional Access ---- */
+    {
+      id: 'd2-ca',
+      title: 'Plan, Implement, and Manage Microsoft Entra Conditional Access',
+      concepts: ['CA Policy', 'Named Location', 'Grant Control', 'Session Control', 'Sign-in Risk', 'Token Protection', 'Authentication Context', 'CAE'],
+      body: `
+        <p>Conditional Access is the <strong>Zero Trust policy engine</strong> of Microsoft Entra ID. It evaluates signals and enforces access controls at the time of authentication.</p>
+        <h4>Policy Structure</h4>
+        <table>
+          <tr><th>Assignments</th><th>Options</th></tr>
+          <tr><td>Users / Groups</td><td>Include / Exclude specific users, groups, roles, guest types, workload identities</td></tr>
+          <tr><td>Target resources</td><td>Cloud apps, actions (register device, register security info), authentication context</td></tr>
+          <tr><td>Conditions</td><td>Sign-in risk, User risk, Device platform, Location, Client apps, Device state, Service dependencies</td></tr>
+        </table>
+        <table>
+          <tr><th>Access Controls</th><th>Options</th></tr>
+          <tr><td>Grant</td><td>Block access | Require MFA | Require compliant device | Require Hybrid AD joined device | Require approved app | Require app protection policy | Require password change | Require auth strength | Require terms of use</td></tr>
+          <tr><td>Session</td><td>App enforced restrictions | Conditional Access App Control (MCAS proxy) | Sign-in frequency | Persistent browser session | Token protection</td></tr>
+        </table>
+        <h4>Named Locations</h4>
+        <ul>
+          <li><strong>IP ranges location</strong> — define trusted corporate IP ranges; mark as "trusted location" to exclude from MFA</li>
+          <li><strong>Countries/regions location</strong> — block or require extra auth from specific countries</li>
+        </ul>
+        <h4>Key CA Scenarios</h4>
+        <ul>
+          <li>Require MFA for all admins</li>
+          <li>Block legacy authentication (Client apps condition: "Exchange ActiveSync clients" + "Other clients")</li>
+          <li>Require compliant device for sensitive apps</li>
+          <li>Require phishing-resistant MFA for high-risk sign-ins</li>
+          <li>Block countries not used by your org</li>
+        </ul>
+        <h4>What-If Tool</h4>
+        <p>Simulates which CA policies would apply to a given sign-in scenario. Entra Admin → Protection → Conditional Access → What If.</p>
+        <h4>Continuous Access Evaluation (CAE)</h4>
+        <p>Near-real-time enforcement of policy changes. Normally access tokens are valid for 1 hour even if a user is disabled. With CAE, supported apps (Teams, Exchange, SharePoint) re-evaluate token validity in near-real-time when critical events occur (user disabled, password changed, IP change). CAE tokens can be up to 24 hours but are continuously evaluated.</p>
+        <h4>Token Protection</h4>
+        <p>A CA session control that requires tokens to be bound to the device they were issued to. Prevents token theft/replay attacks from a different device.</p>`,
+      diagram: `<svg viewBox="0 0 700 230" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12">
+  <text x="350" y="18" text-anchor="middle" fill="#8b949e" font-size="10" font-weight="600" letter-spacing="1">CONDITIONAL ACCESS — POLICY EVALUATION FLOW</text>
+  <rect x="10" y="35" width="110" height="45" rx="6" fill="#1c2128" stroke="#30363d"/>
+  <text x="65" y="56" text-anchor="middle" fill="#e6edf3" font-weight="600">User Sign-in</text>
+  <text x="65" y="72" text-anchor="middle" fill="#8b949e" font-size="10">Attempt</text>
+  <rect x="145" y="35" width="120" height="45" rx="6" fill="#1c2128" stroke="#79c0ff" stroke-width="1.5"/>
+  <text x="205" y="55" text-anchor="middle" fill="#79c0ff" font-weight="600">Signal Collection</text>
+  <text x="205" y="70" text-anchor="middle" fill="#8b949e" font-size="10">User • App • Location</text>
+  <text x="205" y="82" text-anchor="middle" fill="#8b949e" font-size="10">Device • Risk Score</text>
+  <rect x="290" y="35" width="130" height="45" rx="6" fill="#1c2128" stroke="#d2a8ff" stroke-width="1.5"/>
+  <text x="355" y="55" text-anchor="middle" fill="#d2a8ff" font-weight="600">Policy Matching</text>
+  <text x="355" y="70" text-anchor="middle" fill="#8b949e" font-size="10">All matching policies</text>
+  <text x="355" y="82" text-anchor="middle" fill="#8b949e" font-size="10">evaluated (most restrictive)</text>
+  <polygon points="515,57 558,80 515,103 472,80" fill="#1c2128" stroke="#f78166" stroke-width="1.5"/>
+  <text x="515" y="77" text-anchor="middle" fill="#f78166" font-weight="600" font-size="11">Block?</text>
+  <text x="515" y="91" text-anchor="middle" fill="#f78166" font-size="10">Any policy</text>
+  <rect x="595" y="55" width="95" height="40" rx="6" fill="rgba(247,129,102,.15)" stroke="rgba(247,129,102,.4)"/>
+  <text x="642" y="78" text-anchor="middle" fill="#f78166" font-weight="700">BLOCKED</text>
+  <rect x="400" y="150" width="160" height="50" rx="6" fill="rgba(63,185,80,.1)" stroke="rgba(63,185,80,.4)"/>
+  <text x="480" y="170" text-anchor="middle" fill="#3fb950" font-weight="600">Grant Controls</text>
+  <text x="480" y="185" text-anchor="middle" fill="#8b949e" font-size="10">MFA / Compliant device</text>
+  <text x="480" y="197" text-anchor="middle" fill="#8b949e" font-size="10">Auth strength / ToU</text>
+  <rect x="220" y="160" width="150" height="35" rx="6" fill="rgba(121,192,255,.1)" stroke="rgba(121,192,255,.4)"/>
+  <text x="295" y="182" text-anchor="middle" fill="#79c0ff" font-weight="700">ACCESS GRANTED</text>
+  <line x1="120" y1="57" x2="145" y2="57" stroke="#30363d" stroke-width="1.5" marker-end="url(#a3)"/>
+  <line x1="265" y1="57" x2="290" y2="57" stroke="#30363d" stroke-width="1.5" marker-end="url(#a3)"/>
+  <line x1="420" y1="57" x2="472" y2="80" stroke="#30363d" stroke-width="1.5" marker-end="url(#a3)"/>
+  <line x1="558" y1="80" x2="595" y2="75" stroke="#f78166" stroke-width="1.5" marker-end="url(#a3)"/>
+  <text x="564" y="72" fill="#f78166" font-size="10">Yes</text>
+  <line x1="515" y1="103" x2="480" y2="150" stroke="#3fb950" stroke-width="1.5" marker-end="url(#a3)"/>
+  <text x="490" y="135" fill="#3fb950" font-size="10">No → Controls</text>
+  <line x1="400" y1="175" x2="370" y2="178" stroke="#30363d" stroke-width="1.5" marker-end="url(#a3)"/>
+  <text x="373" y="170" fill="#8b949e" font-size="10">Satisfied</text>
+  <defs><marker id="a3" markerWidth="7" markerHeight="7" refX="4" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#8b949e"/></marker></defs>
+</svg>`,
+      tip: 'Report-only mode logs what WOULD happen but does NOT enforce the policy. To block legacy authentication, target BOTH "Other clients" AND "Exchange ActiveSync clients". Always exclude break-glass accounts from all CA policies.'
+    },
+
+    /* ---- 2.3 Identity Protection ---- */
+    {
+      id: 'd2-idprotection',
+      title: 'Manage Risk Using Microsoft Entra ID Protection',
+      concepts: ['Risk Detection', 'User Risk', 'Sign-in Risk', 'Risky Users', 'Risk Remediation', 'MFA Registration Policy'],
+      body: `
+        <p>Entra ID Protection uses machine learning to detect suspicious activities and assign <strong>risk scores</strong>. Requires Entra ID <strong>P2</strong>.</p>
+        <h4>Sign-in Risk Detections</h4>
+        <ul>
+          <li><strong>High:</strong> Anonymous IP, Malware-linked IP, Known attacker IP, Token issuer anomaly</li>
+          <li><strong>Medium:</strong> Impossible travel, Unfamiliar sign-in properties, Suspicious inbox manipulation rule</li>
+          <li><strong>Low:</strong> Additional risk detected</li>
+        </ul>
+        <h4>User Risk Detections</h4>
+        <ul>
+          <li><strong>Leaked credentials</strong> — found in public breach databases (<em>requires PHS</em>)</li>
+          <li><strong>Anomalous user activity</strong> — behavioral anomaly</li>
+          <li><strong>Possible PRT compromise</strong> — attack on device token</li>
+        </ul>
+        <h4>Three Risk Policies</h4>
+        <ul>
+          <li><strong>User risk policy</strong> — threshold reached → require password change or block</li>
+          <li><strong>Sign-in risk policy</strong> — threshold reached → require MFA or block</li>
+          <li><strong>MFA registration policy</strong> — require users to register MFA before a risk event occurs so self-remediation is possible</li>
+        </ul>
+        <p><strong>Best practice:</strong> configure risk policies via Conditional Access (User risk / Sign-in risk conditions) rather than legacy Identity Protection policies — more granular control and better reporting.</p>
+        <h4>Risk Remediation</h4>
+        <ul>
+          <li><strong>Self-remediation</strong> — user performs MFA (clears sign-in risk) or changes password (clears user risk)</li>
+          <li><strong>Admin remediation</strong> — admin dismisses user risk or confirms compromise in Risky Users report</li>
+        </ul>`,
+      tip: 'Leaked credentials detection ONLY works with Password Hash Sync. Without PHS, this detection is unavailable. Know the three risk policies. The recommended approach is to use CA conditions (sign-in risk / user risk) rather than the built-in Identity Protection policies.'
+    },
+
+    /* ---- 2.4 Global Secure Access ---- */
+    {
+      id: 'd2-gsa',
+      title: 'Implement Global Secure Access',
+      concepts: ['Microsoft Entra Private Access', 'Microsoft Entra Internet Access', 'Traffic Forwarding', 'GSA Client', 'Universal Conditional Access', 'SSE'],
+      body: `
+        <p>Global Secure Access (GSA) is Microsoft's <strong>Security Service Edge (SSE)</strong> solution. It converges network and identity security, replacing traditional VPN with Zero Trust network access.</p>
+        <h4>Two Core Products</h4>
+        <table>
+          <tr><th>Product</th><th>Purpose</th><th>Replaces</th></tr>
+          <tr><td><strong>Microsoft Entra Private Access</strong></td><td>Zero Trust access to private/on-prem apps without VPN</td><td>VPN / ZTNA</td></tr>
+          <tr><td><strong>Microsoft Entra Internet Access</strong></td><td>Secure web gateway for internet and M365 traffic</td><td>SWG / Proxy</td></tr>
+        </table>
+        <h4>Traffic Forwarding Profiles</h4>
+        <ul>
+          <li><strong>Microsoft 365 profile</strong> — routes M365 traffic for source IP preservation and CAE</li>
+          <li><strong>Private access profile</strong> — routes traffic to private/on-prem apps</li>
+          <li><strong>Internet access profile</strong> — routes all internet traffic through Microsoft's Secure Web Gateway</li>
+        </ul>
+        <h4>GSA Client</h4>
+        <p>Lightweight agent on end-user devices (Windows, macOS, Android, iOS) that tunnels traffic to the nearest GSA PoP. Requires Entra-joined or registered device.</p>
+        <h4>Universal Conditional Access for Private Access</h4>
+        <p>CA policies can apply to <em>private network resources</em> (even non-web TCP/UDP apps). Require MFA + compliant device to access an internal SSH server — without VPN.</p>`,
+      tip: 'GSA is a newer exam topic. Key distinction: Entra Private Access = Zero Trust VPN replacement. Entra Internet Access = Secure Web Gateway. Universal Conditional Access = CA policies can now apply to ANY private resource, not just cloud apps.'
+    }
+  ]
+});
+</script>
+
+<!-- ==================== DOMAIN 3 ==================== -->
+<script>
+SECTIONS.push({
+  id: 'domain-3',
+  title: 'Plan and Implement Workload Identities',
+  weight: '20–25%',
+  type: 'domain',
+  domainNum: 3,
+  subsections: [
+
+    /* ---- 3.1 App & Workload Identities ---- */
+    {
+      id: 'd3-workload-ids',
+      title: 'Plan and Implement Identities for Applications and Azure Workloads',
+      concepts: ['Service Principal', 'Managed Identity', 'System-Assigned', 'User-Assigned', 'Workload Identity Federation', 'App Registration', 'Enterprise Application'],
+      body: `
+        <p>Workload identities are identities used by software — apps, services, scripts, containers — as opposed to human users.</p>
+        <h4>App Registration vs Enterprise Application (Service Principal)</h4>
+        <table>
+          <tr><th>Object</th><th>Where</th><th>Purpose</th></tr>
+          <tr><td><strong>App Registration</strong></td><td>Home tenant (where developer registers)</td><td>Defines the application — its permissions, redirect URIs, secrets, certificates. The "blueprint."</td></tr>
+          <tr><td><strong>Enterprise Application (Service Principal)</strong></td><td>Every tenant where the app is used</td><td>The local instance of the app. Controls access, SSO, and provisioning. Created automatically when an app registration is made or when a gallery app is added.</td></tr>
+        </table>
+        <p>A <strong>multi-tenant app</strong> has one app registration (in the developer's tenant) but a service principal in every tenant that has consented to use it.</p>
+        <h4>Managed Identities</h4>
+        <p>A managed identity is an identity in Entra ID automatically managed by Azure. Eliminates the need for credentials in code (no secrets, no certificates to rotate).</p>
+        <table>
+          <tr><th>Type</th><th>Lifecycle</th><th>Sharing</th><th>Use when</th></tr>
+          <tr><td><strong>System-Assigned</strong></td><td>Tied to the resource; deleted when resource is deleted</td><td>Cannot be shared</td><td>One resource needs identity; simple setup</td></tr>
+          <tr><td><strong>User-Assigned</strong></td><td>Independent resource; persists when assigned resource is deleted</td><td>Can be shared across multiple resources</td><td>Multiple resources need same identity; pre-provisioning</td></tr>
+        </table>
+        <h4>Workload Identity Federation</h4>
+        <p>Allows external workloads (GitHub Actions, Kubernetes pods, etc.) to obtain Entra tokens <em>without storing any secrets</em>. The workload presents a token from its own IdP (GitHub, K8s), and Entra ID exchanges it for an Entra token via a federation trust relationship. No client secret or certificate needed.</p>`,
+      commands: [
+        { cmd: 'New-AzUserAssignedIdentity', syntax: 'New-AzUserAssignedIdentity -ResourceGroupName <rg> -Name <name> -Location <loc>', desc: 'Create a user-assigned managed identity', args: [] },
+        { cmd: 'Get-AzADServicePrincipal', syntax: 'Get-AzADServicePrincipal [-DisplayName <name>] [-ApplicationId <appId>]', desc: 'Retrieve service principals', args: [] },
+      ],
+      tip: 'A single app registration can have MULTIPLE service principals (one per tenant). One service principal per tenant per app registration. Managed identities can ONLY be assigned Azure RBAC roles on Azure resources — not Entra ID directory roles.'
+    },
+
+    /* ---- 3.2 Enterprise App Integration ---- */
+    {
+      id: 'd3-enterprise-apps',
+      title: 'Plan, Implement, and Monitor Enterprise Application Integration',
+      concepts: ['SSO', 'SAML', 'OIDC', 'SCIM Provisioning', 'App Proxy', 'Consent Framework', 'App Governance'],
+      body: `
+        <h4>SSO Methods</h4>
+        <table>
+          <tr><th>Method</th><th>Protocol</th><th>How it works</th></tr>
+          <tr><td><strong>Federated SSO (SAML)</strong></td><td>SAML 2.0</td><td>Entra ID acts as IdP; app is SP; user is redirected to Entra to authenticate then sent SAML assertion</td></tr>
+          <tr><td><strong>OIDC/OAuth 2.0</strong></td><td>OIDC</td><td>Modern protocol; Entra ID issues ID token + access token to app</td></tr>
+          <tr><td><strong>Password-based SSO</strong></td><td>Form fill</td><td>Entra stores app credentials; extension fills them in; not true SSO but enables single sign-on experience</td></tr>
+          <tr><td><strong>Header-based SSO</strong></td><td>HTTP headers</td><td>Used with App Proxy + PingAccess; sends user attributes as HTTP headers to app</td></tr>
+          <tr><td><strong>Linked SSO</strong></td><td>Link</td><td>Just adds a link to an existing SSO-enabled app; no auth configuration</td></tr>
+        </table>
+        <h4>User Provisioning (SCIM)</h4>
+        <p>Automatic creation/deletion/update of user accounts in SaaS apps. Entra ID acts as the SCIM client, the app as SCIM server. Provisioning modes:</p>
+        <ul>
+          <li><strong>Automatic (SCIM)</strong> — Entra pushes user data to app via SCIM protocol</li>
+          <li><strong>Manual</strong> — admin manually creates accounts in the app</li>
+          <li><strong>On-premises provisioning</strong> — ECMA2 host agent for apps that support SCIM but are on-prem</li>
+        </ul>
+        <h4>Microsoft Entra Application Proxy</h4>
+        <p>Publishes on-premises web applications externally without opening firewall ports. A connector (lightweight agent on a Windows server on-prem) establishes an outbound connection to Entra. Remote users access the app through the Entra-provided URL; the connector forwards the request internally.</p>
+        <h4>Consent Framework</h4>
+        <ul>
+          <li><strong>User consent</strong> — user can consent to permissions for apps that request low-privilege delegated permissions</li>
+          <li><strong>Admin consent</strong> — required for application permissions or when user consent is disabled; admin consents on behalf of the whole org</li>
+          <li><strong>Tenant-wide admin consent</strong> — grant an app access to the entire tenant's data</li>
+          <li><strong>App consent policies</strong> — configure what users are allowed to consent to</li>
+        </ul>`,
+      tip: 'App Proxy requires NO inbound firewall ports — the connector makes an outbound connection. SAML is the most common SSO method for older enterprise apps. OIDC is for modern apps. Know that provisioning and SSO are separate configurations — you can have SSO without provisioning.'
+    },
+
+    /* ---- 3.3 App Registrations ---- */
+    {
+      id: 'd3-app-reg',
+      title: 'Plan and Implement App Registrations',
+      concepts: ['App Registration', 'Redirect URI', 'Client Secret', 'Certificate', 'API Permissions', 'Delegated Permissions', 'Application Permissions', 'App Roles', 'Scopes'],
+      body: `
+        <h4>App Registration Components</h4>
+        <ul>
+          <li><strong>Application (client) ID</strong> — unique identifier for the app; used in auth requests</li>
+          <li><strong>Directory (tenant) ID</strong> — identifies the tenant; or "common" for multi-tenant</li>
+          <li><strong>Redirect URIs</strong> — where Entra sends the auth response after sign-in</li>
+          <li><strong>Certificates &amp; secrets</strong> — app credentials; certificates preferred over secrets (secrets expire, cannot audit usage; certificates are more secure)</li>
+        </ul>
+        <h4>API Permissions</h4>
+        <table>
+          <tr><th>Type</th><th>Description</th><th>Requires</th></tr>
+          <tr><td><strong>Delegated permissions</strong></td><td>App acts on behalf of the signed-in user; user's permissions are the upper bound</td><td>User must be signed in</td></tr>
+          <tr><td><strong>Application permissions</strong></td><td>App acts as itself (no user); daemon/service scenarios</td><td>Admin consent always required</td></tr>
+        </table>
+        <h4>Expose an API (Scopes)</h4>
+        <p>When your app IS an API, you define scopes (permissions) that other apps can request. You set an Application ID URI, then define scopes like <code>Files.Read</code>, <code>Files.Write</code>.</p>
+        <h4>App Roles</h4>
+        <p>Custom roles defined in your app registration that can be assigned to users, groups, or other service principals. Appear as role claims in the token. Used for application-level access control.</p>
+        <h4>Token Configuration</h4>
+        <ul>
+          <li><strong>Optional claims</strong> — add additional claims to tokens (e.g., <code>email</code>, <code>preferred_username</code>, <code>upn</code>)</li>
+          <li><strong>Groups claims</strong> — include group memberships in tokens (security groups, all groups, or directory roles)</li>
+        </ul>
+        <h4>Publisher Verification</h4>
+        <p>Links an app to a verified Microsoft Partner Network (MPN) account. Shows a "verified publisher" badge in the consent prompt, increasing user trust.</p>`,
+      commands: [
+        { cmd: 'New-MgApplication', syntax: 'New-MgApplication -DisplayName <name> -SignInAudience <audience>', desc: 'Create a new app registration', args: [] },
+        { cmd: 'New-MgApplicationPassword', syntax: 'New-MgApplicationPassword -ApplicationId <id> -PasswordCredential <cred>', desc: 'Add a client secret to an app', args: [] },
+        { cmd: 'Add-MgApplicationPassword', syntax: 'Add-MgApplicationPassword -ApplicationId <appId>', desc: 'Alias for adding credentials', args: [] },
+      ],
+      tip: 'Delegated permissions = app acts on behalf of a user (user must sign in). Application permissions = app acts as itself (no user, admin consent always required). For daemon services that run without user interaction, you MUST use application permissions with admin consent.'
+    },
+
+    /* ---- 3.4 Defender for Cloud Apps ---- */
+    {
+      id: 'd3-mdca',
+      title: 'Manage and Monitor App Access via Microsoft Defender for Cloud Apps',
+      concepts: ['Cloud App Discovery', 'Shadow IT', 'Cloud App Catalog', 'CAAC', 'Session Policy', 'Access Policy', 'App Governance'],
+      body: `
+        <p>Microsoft Defender for Cloud Apps (MDCA, formerly MCAS) is a Cloud Access Security Broker (CASB) that provides visibility into cloud app usage and controls.</p>
+        <h4>Cloud App Discovery</h4>
+        <p>Analyzes network logs (firewall, proxy) or uses the MDCA agent to discover all cloud apps used in your org ("shadow IT"). Apps are scored against the Cloud App Catalog (31,000+ apps, 90+ risk factors).</p>
+        <ul>
+          <li>Sanctioned apps — org-approved; users can use</li>
+          <li>Unsanctioned apps — blocked or flagged; users warned or blocked</li>
+        </ul>
+        <h4>Conditional Access App Control (CAAC)</h4>
+        <p>Proxies user sessions through MDCA for real-time monitoring and control. Enabled via a CA policy (Session control: "Use Conditional Access App Control"). Allows:</p>
+        <ul>
+          <li><strong>Monitor sessions</strong> — log all activity in a cloud app</li>
+          <li><strong>Block downloads</strong> — prevent downloading sensitive files from unmanaged devices</li>
+          <li><strong>Protect on upload</strong> — apply sensitivity labels or block upload of sensitive content</li>
+          <li><strong>Block copy/paste</strong> — prevent data exfiltration in browser</li>
+        </ul>
+        <h4>App Governance</h4>
+        <p>Provides visibility and control over OAuth apps consented by users in your tenant. Detect apps with excessive permissions, unused apps, or anomalous OAuth consent grants (OAuth app attacks). Part of MDCA add-on.</p>`,
+      tip: 'CAAC works by acting as a REVERSE PROXY between the user and the cloud app. The session goes through MDCA, not directly to the app. This is set up via a Conditional Access session control. Know the difference between Cloud Discovery (visibility) and CAAC (real-time session control).'
+    }
+
+  ]
+});
+</script>
+
+<!-- ==================== DOMAIN 4 ==================== -->
+<script>
+SECTIONS.push({
+  id: 'domain-4',
+  title: 'Plan and Automate Identity Governance',
+  weight: '20–25%',
+  type: 'domain',
+  domainNum: 4,
+  subsections: [
+
+    /* ---- 4.1 Entitlement Management ---- */
+    {
+      id: 'd4-entitlement',
+      title: 'Plan and Implement Entitlement Management in Microsoft Entra',
+      concepts: ['Access Package', 'Catalog', 'Policy', 'Connected Organization', 'Access Request', 'Lifecycle Management'],
+      body: `
+        <p>Entitlement management automates access request, approval, assignment, and lifecycle for resources. Users can self-request access; it gets approved and auto-revoked when expired. Requires Entra ID <strong>P2</strong>.</p>
+        <h4>Core Concepts</h4>
+        <table>
+          <tr><th>Concept</th><th>Description</th></tr>
+          <tr><td><strong>Catalog</strong></td><td>Container for resources and access packages. "General" catalog exists by default.</td></tr>
+          <tr><td><strong>Resource</strong></td><td>What you're granting access to: groups, Teams, apps, SharePoint sites, Azure roles</td></tr>
+          <tr><td><strong>Access Package</strong></td><td>Bundle of resources + policies; users request the package to get access to all included resources</td></tr>
+          <tr><td><strong>Policy</strong></td><td>Who can request, approval process, lifecycle (expiration, access reviews within the package)</td></tr>
+          <tr><td><strong>Connected Organization</strong></td><td>An external tenant or domain that can request access to your packages (for B2B scenarios)</td></tr>
+        </table>
+        <h4>Access Package Lifecycle</h4>
+        <ol>
+          <li>Admin creates catalog → adds resources to catalog → creates access package → defines policy (requestors, approvers, expiration)</li>
+          <li>User navigates to <em>myaccess.microsoft.com</em> and requests an access package</li>
+          <li>Approver receives email → approves/denies in myaccess portal</li>
+          <li>User is assigned → gets access to all resources in the package</li>
+          <li>Assignment expires (if configured) → access automatically removed</li>
+          <li>Access review (if configured within policy) → reviewer confirms or denies continued access</li>
+        </ol>
+        <h4>Separation of Duties</h4>
+        <p>Configure two access packages as incompatible — a user assigned to Package A cannot request Package B. Enforces separation of duties at the access management level.</p>`,
+      tip: 'myaccess.microsoft.com is the self-service portal for users to request access packages. Know that the approval workflow, expiration, and access reviews can all be configured WITHIN an access package policy. Connected organizations allow EXTERNAL users from other tenants to request access.'
+    },
+
+    /* ---- 4.2 Access Reviews ---- */
+    {
+      id: 'd4-reviews',
+      title: 'Plan, Implement, and Manage Access Reviews',
+      concepts: ['Access Review', 'Reviewer Types', 'Auto-Apply', 'Recurring Review', 'Review Scope', 'Inactive Users'],
+      body: `
+        <p>Access reviews let you periodically verify that users still need access to resources. Automatically remove access for those who no longer need it. Requires Entra ID <strong>P2</strong>.</p>
+        <h4>What Can Be Reviewed</h4>
+        <ul>
+          <li>Group memberships (security groups, Microsoft 365 groups)</li>
+          <li>App assignments (enterprise applications)</li>
+          <li>Azure resource roles</li>
+          <li>Microsoft Entra ID (directory) roles</li>
+          <li>Access packages (within entitlement management)</li>
+        </ul>
+        <h4>Reviewer Types</h4>
+        <table>
+          <tr><th>Reviewer</th><th>Description</th></tr>
+          <tr><td>Selected user(s) or group</td><td>Specific designated reviewers</td></tr>
+          <tr><td>Group owner(s)</td><td>Current owners of the group being reviewed</td></tr>
+          <tr><td>Members (self-review)</td><td>Users review their own access</td></tr>
+          <tr><td>Managers</td><td>Each user's manager reviews their direct reports' access</td></tr>
+        </table>
+        <h4>Review Settings</h4>
+        <ul>
+          <li><strong>Duration</strong> — how long reviewers have to complete the review</li>
+          <li><strong>Recurrence</strong> — one-time, weekly, monthly, quarterly, semi-annually, annually</li>
+          <li><strong>Auto-apply results</strong> — automatically apply decisions when review ends (remove denied users, approve unchanged)</li>
+          <li><strong>If reviewer doesn't respond</strong> — options: No change / Remove access / Approve access / Accept system recommendations</li>
+          <li><strong>Inactive user threshold</strong> — review scope can target only users inactive for N days</li>
+        </ul>
+        <h4>Recommendations</h4>
+        <p>Entra ID can provide <em>AI-driven recommendations</em> based on sign-in activity. If a user hasn't signed in for 30 days, Entra recommends denying their access. Reviewers can accept recommendations with one click.</p>`,
+      tip: 'Access reviews for PRIVILEGED ROLES (Entra ID roles and Azure roles) in PIM can be configured directly in PIM. Know that "auto-apply" must be explicitly enabled — by default, results are NOT applied automatically. If no reviewer responds and the setting is "Remove access," users lose access even without an active decision.'
+    },
+
+    /* ---- 4.3 Privileged Identity Management ---- */
+    {
+      id: 'd4-pim',
+      title: 'Plan and Implement Privileged Access (PIM)',
+      concepts: ['Eligible Assignment', 'Active Assignment', 'JIT Access', 'Activation', 'PIM for Groups', 'Azure Roles', 'Entra Roles', 'PIM Alerts'],
+      body: `
+        <p>Privileged Identity Management (PIM) provides Just-In-Time (JIT) access to privileged roles. Users are <em>eligible</em> for a role but must explicitly activate it, reducing standing privileged access. Requires Entra ID <strong>P2</strong>.</p>
+        <h4>Assignment Types</h4>
+        <table>
+          <tr><th>Type</th><th>Description</th><th>Duration</th></tr>
+          <tr><td><strong>Eligible</strong></td><td>User can activate the role when needed; not privileged until activation</td><td>Configurable expiry (or permanent eligible)</td></tr>
+          <tr><td><strong>Active</strong></td><td>User has the role assigned permanently or for a set time period; no activation required</td><td>Time-bound or permanent active</td></tr>
+        </table>
+        <h4>Activation Process</h4>
+        <ol>
+          <li>User navigates to PIM (entra.microsoft.com → Identity Governance → PIM)</li>
+          <li>Selects the eligible role → clicks "Activate"</li>
+          <li>Provides activation duration (up to max set by admin), justification (if required)</li>
+          <li>Completes MFA challenge (if required by role settings)</li>
+          <li>If approval required: sends request to approvers; role activates when approved</li>
+          <li>Role is active for the specified duration; then automatically de-activates</li>
+        </ol>
+        <h4>Role Settings (per role in PIM)</h4>
+        <ul>
+          <li><strong>Activation maximum duration</strong> — max hours a user can activate the role for</li>
+          <li><strong>Require MFA on activation</strong> — toggle</li>
+          <li><strong>Require justification</strong> — user must provide reason</li>
+          <li><strong>Require approval</strong> — designate approvers; user waits until approved</li>
+          <li><strong>Assignment: Allow permanent eligible</strong> — or force expiry after N days</li>
+          <li><strong>Assignment: Allow permanent active</strong> — or force expiry</li>
+          <li><strong>Notifications</strong> — send email when role is activated</li>
+        </ul>
+        <h4>PIM for Groups</h4>
+        <p>Extends PIM to group membership. Make a group "PIM-enabled" (the group must be role-assignable). Users can be eligible/active members or owners of the group. Activation works the same as for Entra roles. This enables PIM-style JIT access for non-Entra scenarios (e.g., JIT membership in a security group that grants access to an app).</p>
+        <h4>PIM Alerts</h4>
+        <p>Automatic alerts for risky PIM configurations:</p>
+        <ul>
+          <li>Roles are being activated too frequently</li>
+          <li>Roles don't require MFA</li>
+          <li>There are too many Global Administrators</li>
+          <li>Global Administrator role is used too frequently</li>
+          <li>Roles are being assigned outside PIM</li>
+        </ul>`,
+      diagram: `<svg viewBox="0 0 660 200" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12">
+  <text x="330" y="18" text-anchor="middle" fill="#8b949e" font-size="10" font-weight="600" letter-spacing="1">PIM ROLE ACTIVATION FLOW</text>
+  <rect x="10" y="35" width="100" height="45" rx="6" fill="rgba(121,192,255,.1)" stroke="rgba(121,192,255,.4)"/>
+  <text x="60" y="55" text-anchor="middle" fill="#79c0ff" font-weight="600">User</text>
+  <text x="60" y="70" text-anchor="middle" fill="#79c0ff" font-size="10">Eligible member</text>
+  <rect x="140" y="35" width="120" height="45" rx="6" fill="#1c2128" stroke="#30363d"/>
+  <text x="200" y="55" text-anchor="middle" fill="#e6edf3" font-weight="600">Request Activation</text>
+  <text x="200" y="70" text-anchor="middle" fill="#8b949e" font-size="10">Duration + Justification</text>
+  <!-- MFA diamond -->
+  <polygon points="320,57 360,80 320,103 280,80" fill="#1c2128" stroke="#f78166" stroke-width="1.5"/>
+  <text x="320" y="77" text-anchor="middle" fill="#f78166" font-weight="600" font-size="11">MFA?</text>
+  <text x="320" y="91" text-anchor="middle" fill="#f78166" font-size="10">Required</text>
+  <!-- MFA step -->
+  <rect x="375" y="55" width="90" height="45" rx="6" fill="#1c2128" stroke="#f78166"/>
+  <text x="420" y="75" text-anchor="middle" fill="#f78166" font-weight="600">MFA</text>
+  <text x="420" y="90" text-anchor="middle" fill="#f78166" font-size="10">Challenge</text>
+  <!-- Approval diamond -->
+  <polygon points="540,57 580,80 540,103 500,80" fill="#1c2128" stroke="#d2a8ff" stroke-width="1.5"/>
+  <text x="540" y="77" text-anchor="middle" fill="#d2a8ff" font-weight="600" font-size="11">Approval</text>
+  <text x="540" y="91" text-anchor="middle" fill="#d2a8ff" font-size="10">Required?</text>
+  <!-- Active role -->
+  <rect x="230" y="148" width="140" height="40" rx="6" fill="rgba(63,185,80,.1)" stroke="rgba(63,185,80,.4)"/>
+  <text x="300" y="165" text-anchor="middle" fill="#3fb950" font-weight="600">Role Active</text>
+  <text x="300" y="180" text-anchor="middle" fill="#3fb949" font-size="10">Time-limited (JIT)</text>
+  <!-- Approver wait -->
+  <rect x="590" y="55" width="65" height="45" rx="6" fill="rgba(210,168,255,.1)" stroke="rgba(210,168,255,.3)"/>
+  <text x="622" y="74" text-anchor="middle" fill="#d2a8ff" font-size="11">Awaits</text>
+  <text x="622" y="88" text-anchor="middle" fill="#d2a8ff" font-size="11">Approver</text>
+  <!-- Arrows -->
+  <line x1="110" y1="57" x2="140" y2="57" stroke="#30363d" stroke-width="1.5" marker-end="url(#a4)"/>
+  <line x1="260" y1="57" x2="280" y2="80" stroke="#30363d" stroke-width="1.5" marker-end="url(#a4)"/>
+  <line x1="360" y1="80" x2="375" y2="80" stroke="#f78166" stroke-width="1.5" marker-end="url(#a4)"/>
+  <text x="364" y="75" fill="#f78166" font-size="10">Yes</text>
+  <line x1="465" y1="80" x2="500" y2="80" stroke="#30363d" stroke-width="1.5" marker-end="url(#a4)"/>
+  <line x1="580" y1="80" x2="590" y2="78" stroke="#d2a8ff" stroke-width="1.5" marker-end="url(#a4)"/>
+  <text x="583" y="74" fill="#d2a8ff" font-size="10">Yes</text>
+  <line x1="540" y1="103" x2="370" y2="155" stroke="#3fb950" stroke-width="1.5" marker-end="url(#a4)"/>
+  <text x="440" y="140" fill="#3fb950" font-size="10">No → Active</text>
+  <line x1="320" y1="103" x2="300" y2="148" stroke="#3fb950" stroke-width="1.5" marker-end="url(#a4)"/>
+  <text x="285" y="138" fill="#3fb950" font-size="10">No MFA</text>
+  <defs><marker id="a4" markerWidth="7" markerHeight="7" refX="4" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#8b949e"/></marker></defs>
+</svg>`,
+      tip: 'Eligible ≠ Active. An eligible user has NO privilege until they activate. Know that PIM requires Entra ID P2. Global Administrators can always access PIM even without P2 — but for users requiring PIM features, P2 is required. Maximum of 10 approvers per role.'
+    },
+
+    /* ---- 4.4 Monitoring and Reporting ---- */
+    {
+      id: 'd4-monitoring',
+      title: 'Monitor Identity Activity Using Logs, Workbooks, and Reports',
+      concepts: ['Sign-in Logs', 'Audit Logs', 'Diagnostic Settings', 'Log Analytics', 'Microsoft Sentinel', 'Identity Secure Score', 'Workbooks'],
+      body: `
+        <h4>Entra ID Log Types</h4>
+        <table>
+          <tr><th>Log</th><th>What it captures</th><th>Retention (free)</th></tr>
+          <tr><td><strong>Sign-in logs</strong></td><td>Interactive user sign-ins, non-interactive (token refresh), service principal sign-ins, managed identity sign-ins</td><td>7 days (P1/P2: 30 days)</td></tr>
+          <tr><td><strong>Audit logs</strong></td><td>Directory changes: user created, group membership changed, app consent granted, policy modified</td><td>7 days (P1/P2: 30 days)</td></tr>
+          <tr><td><strong>Provisioning logs</strong></td><td>User provisioning/deprovisioning events between Entra ID and SaaS apps</td><td>7 days (P1/P2: 30 days)</td></tr>
+          <tr><td><strong>Risky sign-ins / Risky users</strong></td><td>Sign-ins and users flagged by Identity Protection</td><td>30 days (requires P2)</td></tr>
+        </table>
+        <h4>Sending Logs to External Systems</h4>
+        <p>Use <strong>Diagnostic Settings</strong> to export logs:</p>
+        <ul>
+          <li><strong>Log Analytics Workspace</strong> — query with KQL; build workbooks; alerting; integrate with Microsoft Sentinel</li>
+          <li><strong>Storage Account</strong> — long-term archival</li>
+          <li><strong>Event Hub</strong> — stream to SIEM (Splunk, QRadar, etc.)</li>
+          <li><strong>Partner solution</strong> — direct integration with partner SIEMs</li>
+        </ul>
+        <h4>Entra Workbooks</h4>
+        <p>Pre-built Azure Workbook templates for identity scenarios:</p>
+        <ul>
+          <li><strong>Authentication prompts analysis</strong> — who is being prompted for MFA and why</li>
+          <li><strong>Conditional Access gap analyzer</strong> — sign-ins not covered by any CA policy</li>
+          <li><strong>Risky sign-ins</strong> — risky sign-in trends</li>
+          <li><strong>SSPR usage</strong> — password reset activity</li>
+        </ul>
+        <h4>Identity Secure Score</h4>
+        <p>A percentage score (0–100%) measuring how well your tenant's identity configuration aligns with Microsoft security best practices. Similar to Microsoft Secure Score. Shows improvement actions with point values. Requires regular review — goal is continuous improvement, not a one-time fix.</p>
+        <h4>Key KQL Queries</h4>
+        <table>
+          <tr><td>Sign-ins by app</td><td><code>SigninLogs | summarize count() by AppDisplayName</code></td></tr>
+          <tr><td>Failed sign-ins</td><td><code>SigninLogs | where ResultType != "0" | project UserPrincipalName, ResultDescription</code></td></tr>
+          <tr><td>Audit log for user creation</td><td><code>AuditLogs | where OperationName == "Add user"</code></td></tr>
+          <tr><td>Risky sign-ins (last 7d)</td><td><code>AADRiskyUsers | where RiskLastUpdatedDateTime > ago(7d)</code></td></tr>
+        </table>`,
+      tip: 'Default retention in Entra is only 7 days for all logs. To retain longer, you MUST configure Diagnostic Settings to export to Log Analytics or Storage Account. Know that Sign-in logs have FOUR subtypes: interactive, non-interactive, service principal, and managed identity — each has its own tab in the portal.'
+    }
+
+  ]
+});
+</script>
 
 <script>
 // Final render + search index build — must be after all SECTIONS.push() calls
