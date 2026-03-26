@@ -128,6 +128,13 @@ code, pre, .mono {
   flex-shrink: 0;
 }
 #help-btn:hover { background: var(--card-bg); color: var(--text); }
+#sidebar-toggle {
+  padding: 5px 8px; border-radius: var(--radius); border: 1px solid var(--border);
+  background: transparent; color: var(--muted); cursor: pointer; font-size: 15px;
+  flex-shrink: 0; line-height: 1;
+  transition: background .15s, color .15s;
+}
+#sidebar-toggle:hover { background: var(--card-bg); color: var(--text); }
 
 /* ===== LAYOUT ===== */
 #layout {
@@ -146,6 +153,16 @@ code, pre, .mono {
   height: calc(100vh - var(--topbar-h));
   overflow-y: auto; overflow-x: hidden;
   padding: 12px 0 24px;
+  transition: width .2s ease, padding .2s ease, border-color .2s ease;
+}
+body.sidebar-collapsed #sidebar {
+  width: 0;
+  padding: 0;
+  border-right-color: transparent;
+  overflow: hidden;
+}
+body.sidebar-collapsed #main {
+  max-width: 100vw;
 }
 #sidebar::-webkit-scrollbar { width: 4px; }
 #sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
@@ -172,6 +189,7 @@ code, pre, .mono {
   flex: 1; padding: 24px 24px 64px;
   min-width: 0;
   max-width: calc(100vw - var(--sidebar-w));
+  transition: max-width .2s ease;
 }
 
 /* ===== LEGEND ===== */
@@ -480,6 +498,7 @@ mark { background: #e3b34133; color: var(--param-color); border-radius: 2px; pad
 
 <!-- TOP BAR -->
 <div id="topbar">
+  <button id="sidebar-toggle" title="Toggle sidebar (B)">☰</button>
   <a href="index.html" id="home-link" title="Back to home">⌂ Home</a>
   <div class="brand">Cisco IOS <span>Reference</span></div>
   <div id="search-wrap">
@@ -546,6 +565,7 @@ mark { background: #e3b34133; color: var(--param-color); border-radius: 2px; pad
     <div class="shortcut-row"><span>Toggle theme</span><span class="shortcut-key">T</span></div>
     <div class="shortcut-row"><span>Expand all sections</span><span class="shortcut-key">E</span></div>
     <div class="shortcut-row"><span>Collapse all sections</span><span class="shortcut-key">C</span></div>
+    <div class="shortcut-row"><span>Toggle sidebar</span><span class="shortcut-key">B</span></div>
     <div class="shortcut-row"><span>Show shortcuts</span><span class="shortcut-key">?</span></div>
     <div class="shortcut-row"><span>Navigate search results</span><span class="shortcut-key">↑ / ↓</span></div>
     <div class="shortcut-row"><span>Select search result</span><span class="shortcut-key">Enter</span></div>
@@ -1980,11 +2000,17 @@ document.addEventListener('keydown', e => {
     }
     if (e.key === 'e' || e.key === 'E') expandAll();
     if (e.key === 'c' || e.key === 'C') collapseAll();
+    if (e.key === 'b' || e.key === 'B') toggleSidebar();
     if (e.key === '?') {
       document.getElementById('shortcuts-modal').classList.toggle('visible');
     }
   }
 });
+
+function toggleSidebar() {
+  document.body.classList.toggle('sidebar-collapsed');
+}
+document.getElementById('sidebar-toggle').addEventListener('click', toggleSidebar);
 
 document.getElementById('help-btn').addEventListener('click', () => {
   document.getElementById('shortcuts-modal').classList.toggle('visible');
