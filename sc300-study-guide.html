@@ -956,22 +956,22 @@ SECTIONS.push({
           <li><strong>Azure AD Joined</strong> — cloud-only join; replaces on-prem domain join; Windows 10/11; managed via Intune/MDM</li>
           <li><strong>Hybrid Azure AD Joined</strong> — joined to both on-prem AD and Entra ID; requires Entra Connect device writeback or Entra Cloud Sync device sync</li>
         </ul>`,
-      diagram: `<svg viewBox="0 0 680 200" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12">
+      diagram: `<svg viewBox="0 0 680 200" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="10">
   <!-- On-premises -->
   <rect x="10" y="20" width="160" height="160" rx="8" fill="#161b22" stroke="#30363d" stroke-width="1.5"/>
-  <text x="90" y="42" text-anchor="middle" fill="#8b949e" font-size="10" font-weight="600" letter-spacing="1">ON-PREMISES</text>
+  <text x="90" y="42" text-anchor="middle" fill="#8b949e" font-size="9" font-weight="600" letter-spacing="1">ON-PREMISES</text>
   <rect x="30" y="55" width="120" height="40" rx="5" fill="#1c2128" stroke="#30363d"/>
   <text x="90" y="72" text-anchor="middle" fill="#e6edf3" font-weight="600">Active Directory</text>
-  <text x="90" y="87" text-anchor="middle" fill="#8b949e" font-size="10">AD DS</text>
+  <text x="90" y="85" text-anchor="middle" fill="#8b949e" font-size="9">AD DS</text>
   <rect x="30" y="110" width="120" height="40" rx="5" fill="#1c2128" stroke="#30363d"/>
   <text x="90" y="127" text-anchor="middle" fill="#e6edf3" font-weight="600">Entra Connect</text>
-  <text x="90" y="142" text-anchor="middle" fill="#8b949e" font-size="10">or Cloud Sync Agent</text>
+  <text x="90" y="140" text-anchor="middle" fill="#8b949e" font-size="9">or Cloud Sync Agent</text>
   <!-- Arrows from AD to Connect -->
   <line x1="90" y1="95" x2="90" y2="110" stroke="#30363d" stroke-width="1.5" marker-end="url(#arr)"/>
   <!-- Three sync methods -->
   <rect x="220" y="35" width="140" height="35" rx="5" fill="rgba(121,192,255,0.1)" stroke="rgba(121,192,255,0.4)"/>
-  <text x="290" y="55" text-anchor="middle" fill="#79c0ff" font-weight="600">Password Hash Sync</text>
-  <text x="290" y="67" text-anchor="middle" fill="#79c0ff" font-size="10">(recommended)</text>
+  <text x="290" y="54" text-anchor="middle" fill="#79c0ff" font-weight="600">Password Hash Sync</text>
+  <text x="290" y="65" text-anchor="middle" fill="#79c0ff" font-size="9">(recommended)</text>
   <rect x="220" y="83" width="140" height="35" rx="5" fill="rgba(63,185,80,0.1)" stroke="rgba(63,185,80,0.4)"/>
   <text x="290" y="104" text-anchor="middle" fill="#3fb950" font-weight="600">Pass-Through Auth</text>
   <rect x="220" y="131" width="140" height="35" rx="5" fill="rgba(210,168,255,0.1)" stroke="rgba(210,168,255,0.4)"/>
@@ -982,14 +982,14 @@ SECTIONS.push({
   <line x1="150" y1="130" x2="220" y2="148" stroke="#30363d" stroke-width="1" stroke-dasharray="4"/>
   <!-- Entra ID cloud -->
   <rect x="410" y="20" width="260" height="160" rx="8" fill="#161b22" stroke="#30363d" stroke-width="1.5"/>
-  <text x="540" y="42" text-anchor="middle" fill="#8b949e" font-size="10" font-weight="600" letter-spacing="1">MICROSOFT ENTRA ID</text>
+  <text x="540" y="42" text-anchor="middle" fill="#8b949e" font-size="9" font-weight="600" letter-spacing="1">MICROSOFT ENTRA ID</text>
   <rect x="430" y="55" width="220" height="50" rx="5" fill="#1c2128" stroke="#30363d"/>
-  <text x="540" y="78" text-anchor="middle" fill="#e6edf3" font-weight="600">Synced User Objects</text>
-  <text x="540" y="95" text-anchor="middle" fill="#8b949e" font-size="10">UPN • Attributes • Group memberships</text>
+  <text x="540" y="76" text-anchor="middle" fill="#e6edf3" font-weight="600">Synced User Objects</text>
+  <text x="540" y="90" text-anchor="middle" fill="#8b949e" font-size="9">UPN • Attributes • Group memberships</text>
   <rect x="430" y="120" width="100" height="40" rx="5" fill="#1c2128" stroke="#30363d"/>
-  <text x="480" y="142" text-anchor="middle" fill="#f78166" font-size="11">Identity Protection</text>
+  <text x="480" y="142" text-anchor="middle" fill="#f78166">Identity Protection</text>
   <rect x="540" y="120" width="110" height="40" rx="5" fill="#1c2128" stroke="#30363d"/>
-  <text x="595" y="142" text-anchor="middle" fill="#d2a8ff" font-size="11">Conditional Access</text>
+  <text x="595" y="142" text-anchor="middle" fill="#d2a8ff">Conditional Access</text>
   <!-- Arrows from methods to Entra -->
   <line x1="360" y1="52" x2="410" y2="80" stroke="#79c0ff" stroke-width="1.5"/>
   <line x1="360" y1="100" x2="410" y2="80" stroke="#3fb950" stroke-width="1.5"/>
@@ -1103,39 +1103,39 @@ SECTIONS.push({
         <p>Near-real-time enforcement of policy changes. Normally access tokens are valid for 1 hour even if a user is disabled. With CAE, supported apps (Teams, Exchange, SharePoint) re-evaluate token validity in near-real-time when critical events occur (user disabled, password changed, IP change). CAE tokens can be up to 24 hours but are continuously evaluated.</p>
         <h4>Token Protection</h4>
         <p>A CA session control that requires tokens to be bound to the device they were issued to. Prevents token theft/replay attacks from a different device.</p>`,
-      diagram: `<svg viewBox="0 0 700 230" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12">
-  <text x="350" y="18" text-anchor="middle" fill="#8b949e" font-size="10" font-weight="600" letter-spacing="1">CONDITIONAL ACCESS — POLICY EVALUATION FLOW</text>
+      diagram: `<svg viewBox="0 0 700 230" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="10">
+  <text x="350" y="18" text-anchor="middle" fill="#8b949e" font-size="9" font-weight="600" letter-spacing="1">CONDITIONAL ACCESS — POLICY EVALUATION FLOW</text>
   <rect x="10" y="35" width="110" height="45" rx="6" fill="#1c2128" stroke="#30363d"/>
-  <text x="65" y="56" text-anchor="middle" fill="#e6edf3" font-weight="600">User Sign-in</text>
-  <text x="65" y="72" text-anchor="middle" fill="#8b949e" font-size="10">Attempt</text>
+  <text x="65" y="55" text-anchor="middle" fill="#e6edf3" font-weight="600">User Sign-in</text>
+  <text x="65" y="68" text-anchor="middle" fill="#8b949e" font-size="9">Attempt</text>
   <rect x="145" y="35" width="120" height="58" rx="6" fill="#1c2128" stroke="#79c0ff" stroke-width="1.5"/>
-  <text x="205" y="55" text-anchor="middle" fill="#79c0ff" font-weight="600">Signal Collection</text>
-  <text x="205" y="70" text-anchor="middle" fill="#8b949e" font-size="10">User • App • Location</text>
-  <text x="205" y="83" text-anchor="middle" fill="#8b949e" font-size="10">Device • Risk Score</text>
+  <text x="205" y="53" text-anchor="middle" fill="#79c0ff" font-weight="600">Signal Collection</text>
+  <text x="205" y="66" text-anchor="middle" fill="#8b949e" font-size="9">User • App • Location</text>
+  <text x="205" y="78" text-anchor="middle" fill="#8b949e" font-size="9">Device • Risk Score</text>
   <rect x="290" y="35" width="130" height="58" rx="6" fill="#1c2128" stroke="#d2a8ff" stroke-width="1.5"/>
-  <text x="355" y="55" text-anchor="middle" fill="#d2a8ff" font-weight="600">Policy Matching</text>
-  <text x="355" y="70" text-anchor="middle" fill="#8b949e" font-size="10">All matching policies</text>
-  <text x="355" y="83" text-anchor="middle" fill="#8b949e" font-size="10">(most restrictive wins)</text>
+  <text x="355" y="53" text-anchor="middle" fill="#d2a8ff" font-weight="600">Policy Matching</text>
+  <text x="355" y="66" text-anchor="middle" fill="#8b949e" font-size="9">All matching policies</text>
+  <text x="355" y="78" text-anchor="middle" fill="#8b949e" font-size="9">(most restrictive wins)</text>
   <polygon points="515,57 558,80 515,103 472,80" fill="#1c2128" stroke="#f78166" stroke-width="1.5"/>
-  <text x="515" y="77" text-anchor="middle" fill="#f78166" font-weight="600" font-size="11">Block?</text>
-  <text x="515" y="91" text-anchor="middle" fill="#f78166" font-size="10">Any policy</text>
+  <text x="515" y="77" text-anchor="middle" fill="#f78166" font-weight="600">Block?</text>
+  <text x="515" y="89" text-anchor="middle" fill="#f78166" font-size="9">Any policy</text>
   <rect x="595" y="55" width="95" height="40" rx="6" fill="rgba(247,129,102,.15)" stroke="rgba(247,129,102,.4)"/>
   <text x="642" y="78" text-anchor="middle" fill="#f78166" font-weight="700">BLOCKED</text>
   <rect x="400" y="150" width="160" height="50" rx="6" fill="rgba(63,185,80,.1)" stroke="rgba(63,185,80,.4)"/>
-  <text x="480" y="170" text-anchor="middle" fill="#3fb950" font-weight="600">Grant Controls</text>
-  <text x="480" y="185" text-anchor="middle" fill="#8b949e" font-size="10">MFA / Compliant device</text>
-  <text x="480" y="197" text-anchor="middle" fill="#8b949e" font-size="10">Auth strength / ToU</text>
+  <text x="480" y="168" text-anchor="middle" fill="#3fb950" font-weight="600">Grant Controls</text>
+  <text x="480" y="181" text-anchor="middle" fill="#8b949e" font-size="9">MFA / Compliant device</text>
+  <text x="480" y="192" text-anchor="middle" fill="#8b949e" font-size="9">Auth strength / ToU</text>
   <rect x="220" y="160" width="150" height="35" rx="6" fill="rgba(121,192,255,.1)" stroke="rgba(121,192,255,.4)"/>
-  <text x="295" y="182" text-anchor="middle" fill="#79c0ff" font-weight="700">ACCESS GRANTED</text>
+  <text x="295" y="181" text-anchor="middle" fill="#79c0ff" font-weight="700">ACCESS GRANTED</text>
   <line x1="120" y1="57" x2="145" y2="57" stroke="#30363d" stroke-width="1.5" marker-end="url(#a3)"/>
   <line x1="265" y1="57" x2="290" y2="57" stroke="#30363d" stroke-width="1.5" marker-end="url(#a3)"/>
   <line x1="420" y1="57" x2="472" y2="80" stroke="#30363d" stroke-width="1.5" marker-end="url(#a3)"/>
   <line x1="558" y1="80" x2="595" y2="75" stroke="#f78166" stroke-width="1.5" marker-end="url(#a3)"/>
-  <text x="564" y="72" fill="#f78166" font-size="10">Yes</text>
+  <text x="564" y="72" fill="#f78166" font-size="9">Yes</text>
   <line x1="515" y1="103" x2="480" y2="150" stroke="#3fb950" stroke-width="1.5" marker-end="url(#a3)"/>
-  <text x="490" y="135" fill="#3fb950" font-size="10">No → Controls</text>
+  <text x="490" y="135" fill="#3fb950" font-size="9">No → Controls</text>
   <line x1="400" y1="175" x2="370" y2="178" stroke="#30363d" stroke-width="1.5" marker-end="url(#a3)"/>
-  <text x="373" y="170" fill="#8b949e" font-size="10">Satisfied</text>
+  <text x="373" y="170" fill="#8b949e" font-size="9">Satisfied</text>
   <defs><marker id="a3" markerWidth="7" markerHeight="7" refX="4" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#8b949e"/></marker></defs>
 </svg>`,
       tip: 'Report-only mode logs what WOULD happen but does NOT enforce the policy. To block legacy authentication, target BOTH "Other clients" AND "Exchange ActiveSync clients". Always exclude break-glass accounts from all CA policies.'
@@ -1465,34 +1465,34 @@ SECTIONS.push({
           <li>Global Administrator role is used too frequently</li>
           <li>Roles are being assigned outside PIM</li>
         </ul>`,
-      diagram: `<svg viewBox="0 0 660 200" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12">
-  <text x="330" y="18" text-anchor="middle" fill="#8b949e" font-size="10" font-weight="600" letter-spacing="1">PIM ROLE ACTIVATION FLOW</text>
+      diagram: `<svg viewBox="0 0 660 200" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="10">
+  <text x="330" y="18" text-anchor="middle" fill="#8b949e" font-size="9" font-weight="600" letter-spacing="1">PIM ROLE ACTIVATION FLOW</text>
   <rect x="10" y="35" width="100" height="45" rx="6" fill="rgba(121,192,255,.1)" stroke="rgba(121,192,255,.4)"/>
-  <text x="60" y="55" text-anchor="middle" fill="#79c0ff" font-weight="600">User</text>
-  <text x="60" y="70" text-anchor="middle" fill="#79c0ff" font-size="10">Eligible member</text>
+  <text x="60" y="54" text-anchor="middle" fill="#79c0ff" font-weight="600">User</text>
+  <text x="60" y="67" text-anchor="middle" fill="#79c0ff" font-size="9">Eligible member</text>
   <rect x="140" y="35" width="120" height="45" rx="6" fill="#1c2128" stroke="#30363d"/>
-  <text x="200" y="54" text-anchor="middle" fill="#e6edf3" font-weight="600" font-size="11">Request Activation</text>
-  <text x="200" y="70" text-anchor="middle" fill="#8b949e" font-size="9">Duration + Justification</text>
+  <text x="200" y="54" text-anchor="middle" fill="#e6edf3" font-weight="600">Request Activation</text>
+  <text x="200" y="67" text-anchor="middle" fill="#8b949e" font-size="9">Duration + Justification</text>
   <!-- MFA diamond -->
   <polygon points="320,57 360,80 320,103 280,80" fill="#1c2128" stroke="#f78166" stroke-width="1.5"/>
-  <text x="320" y="77" text-anchor="middle" fill="#f78166" font-weight="600" font-size="11">MFA?</text>
-  <text x="320" y="91" text-anchor="middle" fill="#f78166" font-size="10">Required</text>
+  <text x="320" y="76" text-anchor="middle" fill="#f78166" font-weight="600">MFA?</text>
+  <text x="320" y="88" text-anchor="middle" fill="#f78166" font-size="9">Required</text>
   <!-- MFA step -->
   <rect x="375" y="55" width="90" height="45" rx="6" fill="#1c2128" stroke="#f78166"/>
-  <text x="420" y="75" text-anchor="middle" fill="#f78166" font-weight="600">MFA</text>
-  <text x="420" y="90" text-anchor="middle" fill="#f78166" font-size="10">Challenge</text>
+  <text x="420" y="74" text-anchor="middle" fill="#f78166" font-weight="600">MFA</text>
+  <text x="420" y="87" text-anchor="middle" fill="#f78166" font-size="9">Challenge</text>
   <!-- Approval diamond -->
   <polygon points="540,57 580,80 540,103 500,80" fill="#1c2128" stroke="#d2a8ff" stroke-width="1.5"/>
-  <text x="540" y="77" text-anchor="middle" fill="#d2a8ff" font-weight="600" font-size="11">Approval</text>
-  <text x="540" y="91" text-anchor="middle" fill="#d2a8ff" font-size="10">Required?</text>
+  <text x="540" y="76" text-anchor="middle" fill="#d2a8ff" font-weight="600">Approval</text>
+  <text x="540" y="88" text-anchor="middle" fill="#d2a8ff" font-size="9">Required?</text>
   <!-- Active role -->
   <rect x="230" y="148" width="140" height="40" rx="6" fill="rgba(63,185,80,.1)" stroke="rgba(63,185,80,.4)"/>
-  <text x="300" y="165" text-anchor="middle" fill="#3fb950" font-weight="600">Role Active</text>
-  <text x="300" y="180" text-anchor="middle" fill="#3fb949" font-size="10">Time-limited (JIT)</text>
+  <text x="300" y="164" text-anchor="middle" fill="#3fb950" font-weight="600">Role Active</text>
+  <text x="300" y="177" text-anchor="middle" fill="#3fb949" font-size="9">Time-limited (JIT)</text>
   <!-- Approver wait -->
   <rect x="590" y="55" width="65" height="45" rx="6" fill="rgba(210,168,255,.1)" stroke="rgba(210,168,255,.3)"/>
-  <text x="622" y="74" text-anchor="middle" fill="#d2a8ff" font-size="11">Awaits</text>
-  <text x="622" y="88" text-anchor="middle" fill="#d2a8ff" font-size="11">Approver</text>
+  <text x="622" y="73" text-anchor="middle" fill="#d2a8ff">Awaits</text>
+  <text x="622" y="86" text-anchor="middle" fill="#d2a8ff">Approver</text>
   <!-- Arrows -->
   <line x1="110" y1="57" x2="140" y2="57" stroke="#30363d" stroke-width="1.5" marker-end="url(#a4)"/>
   <line x1="260" y1="57" x2="280" y2="80" stroke="#30363d" stroke-width="1.5" marker-end="url(#a4)"/>
