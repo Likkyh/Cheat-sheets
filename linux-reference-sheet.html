@@ -957,6 +957,11 @@ function buildTOC() {
 function scrollToSection(id) {
   const el = document.getElementById(id);
   if (!el) return;
+  // Expand the target and its parent cat-section if collapsed
+  el.classList.remove('collapsed');
+  const cat = el.closest('.cat-section');
+  if (cat) cat.classList.remove('collapsed');
+  saveSectionState();
   const top = el.getBoundingClientRect().top + window.scrollY - 70;
   window.scrollTo({ top, behavior: 'smooth' });
 }
@@ -1027,7 +1032,9 @@ function applyFilter() {
     sub.style.display = visible ? '' : 'none';
   });
   document.querySelectorAll('.cat-section').forEach(sec => {
-    const subs = sec.querySelectorAll('.subsection:not([style*="none"]),.ol-card,.proc-card');
+    // Skip sections with no command rows (filesystem, oneliners, procedures)
+    if (!sec.querySelector('.cmd-row')) return;
+    const subs = sec.querySelectorAll('.subsection:not([style*="none"])');
     sec.style.display = subs.length > 0 ? '' : 'none';
   });
 }
