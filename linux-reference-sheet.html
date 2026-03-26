@@ -2025,6 +2025,277 @@ SECTIONS.push({
   ]
 });
 
+/* ==================== USERS & PERMISSIONS ==================== */
+SECTIONS.push({
+  id: 'users', title: 'USERS & PERMISSIONS', type: 'commands',
+  subsections: [
+    {
+      id: 'usr-accounts', title: '1. User & Group Management',
+      commands: [
+        { cmd:'useradd', syntax:'useradd [OPTIONS] <username>', distros:['all'],
+          desc:'Create a new user account.',
+          args:[
+            {name:'-m',type:'flag',range:'-',req:false,def:'-',desc:'Create home directory'},
+            {name:'-s <shell>',type:'path',range:'-',req:false,def:'/bin/sh',desc:'Login shell (e.g. /bin/bash)'},
+            {name:'-G <groups>',type:'string',range:'-',req:false,def:'-',desc:'Supplementary groups (comma-separated)'},
+            {name:'-u <uid>',type:'integer',range:'1–60000',req:false,def:'auto',desc:'Specify UID'},
+            {name:'-c <comment>',type:'string',range:'-',req:false,def:'-',desc:'GECOS field: full name, etc.'},
+          ]},
+        { cmd:'usermod', syntax:'usermod [OPTIONS] <username>', distros:['all'],
+          desc:'Modify a user account.',
+          args:[
+            {name:'-aG <groups>',type:'string',range:'-',req:false,def:'-',desc:'Append user to supplementary group(s) — -a is critical'},
+            {name:'-s <shell>',type:'path',range:'-',req:false,def:'-',desc:'Change login shell'},
+            {name:'-l <new>',type:'string',range:'-',req:false,def:'-',desc:'Rename login name'},
+            {name:'-L / -U',type:'flag',range:'-',req:false,def:'-',desc:'Lock / unlock account'},
+            {name:'-d <home>',type:'path',range:'-',req:false,def:'-',desc:'Change home directory (-m to move files)'},
+          ]},
+        { cmd:'userdel', syntax:'userdel [OPTIONS] <username>', distros:['all'],
+          desc:'Delete a user account.',
+          args:[{name:'-r',type:'flag',range:'-',req:false,def:'-',desc:'Remove home directory and mail spool'}]},
+        { cmd:'passwd', syntax:'passwd [OPTIONS] [<username>]', distros:['all'],
+          desc:'Change user password. Without username, changes own password.',
+          args:[
+            {name:'-l / -u',type:'flag',range:'-',req:false,def:'-',desc:'Lock / unlock password (add/remove ! prefix in /etc/shadow)'},
+            {name:'-e',type:'flag',range:'-',req:false,def:'-',desc:'Expire password — force change at next login'},
+            {name:'-d',type:'flag',range:'-',req:false,def:'-',desc:'Delete password (allow passwordless login — dangerous)'},
+          ]},
+        { cmd:'groupadd', syntax:'groupadd [OPTIONS] <groupname>', distros:['all'],
+          desc:'Create a new group.',
+          args:[{name:'-g <gid>',type:'integer',range:'-',req:false,def:'auto',desc:'Specify GID'}]},
+        { cmd:'groupmod', syntax:'groupmod [OPTIONS] <groupname>', distros:['all'],
+          desc:'Modify a group.',
+          args:[
+            {name:'-n <new>',type:'string',range:'-',req:false,def:'-',desc:'Rename the group'},
+            {name:'-g <gid>',type:'integer',range:'-',req:false,def:'-',desc:'Change GID'},
+          ]},
+        { cmd:'groupdel', syntax:'groupdel <groupname>', distros:['all'],
+          desc:'Delete a group. Fails if it is a primary group of any user.',
+          args:[]},
+        { cmd:'id', syntax:'id [<user>]', distros:['all'],
+          desc:'Print UID, GID and supplementary group memberships.',
+          args:[]},
+        { cmd:'whoami', syntax:'whoami', distros:['all'],
+          desc:'Print the effective username of the current process.',
+          args:[]},
+        { cmd:'who', syntax:'who [OPTIONS]', distros:['all'],
+          desc:'Show who is currently logged in.',
+          args:[]},
+        { cmd:'w', syntax:'w [<user>]', distros:['all'],
+          desc:'Show who is logged in and what they are doing (load, process).',
+          args:[]},
+        { cmd:'last', syntax:'last [OPTIONS] [<user>]', distros:['all'],
+          desc:'Show history of user logins from /var/log/wtmp.',
+          args:[{name:'-n <N>',type:'integer',range:'-',req:false,def:'-',desc:'Show last N entries'}]},
+        { cmd:'su', syntax:'su [OPTIONS] [<user>]', distros:['all'],
+          desc:'Switch user identity. su - starts a full login shell as root.',
+          args:[{name:'-',type:'flag',range:'-',req:false,def:'-',desc:'Full login shell (loads profile, env)'}]},
+        { cmd:'sudo', syntax:'sudo [OPTIONS] <command>', distros:['all'],
+          desc:'Execute a command as another user (default root) per /etc/sudoers policy.',
+          args:[
+            {name:'-u <user>',type:'string',range:'-',req:false,def:'root',desc:'Run as specified user'},
+            {name:'-l',type:'flag',range:'-',req:false,def:'-',desc:'List allowed commands for current user'},
+            {name:'-s',type:'flag',range:'-',req:false,def:'-',desc:'Run a shell as root'},
+            {name:'-i',type:'flag',range:'-',req:false,def:'-',desc:'Simulate initial login (full login shell as root)'},
+          ]},
+      ]
+    },
+    {
+      id: 'usr-perms', title: '2. File Permissions',
+      commands: [
+        { cmd:'chmod', syntax:'chmod [OPTIONS] <mode> <file>', distros:['all'],
+          desc:'Change file mode bits (permissions). Symbolic (u+x) or octal (755).',
+          args:[
+            {name:'mode (octal)',type:'string',range:'000–777',req:false,def:'-',desc:'e.g. 644=rw-r--r--, 755=rwxr-xr-x, 700=rwx------'},
+            {name:'mode (symbolic)',type:'string',range:'-',req:false,def:'-',desc:'e.g. u+x, go-w, a=rw, u=rwx,go=rx'},
+            {name:'-R',type:'flag',range:'-',req:false,def:'-',desc:'Recursive'},
+          ]},
+        { cmd:'chown', syntax:'chown [OPTIONS] <owner>[:<group>] <file>', distros:['all'],
+          desc:'Change file owner and/or group.',
+          args:[
+            {name:'owner:group',type:'string',range:'-',req:true,def:'-',desc:'e.g. alice, alice:www-data, :www-data'},
+            {name:'-R',type:'flag',range:'-',req:false,def:'-',desc:'Recursive'},
+          ]},
+        { cmd:'chgrp', syntax:'chgrp [OPTIONS] <group> <file>', distros:['all'],
+          desc:'Change group ownership of a file.',
+          args:[{name:'-R',type:'flag',range:'-',req:false,def:'-',desc:'Recursive'}]},
+        { cmd:'umask', syntax:'umask [<mask>]', distros:['all'],
+          desc:'Set or display the file creation mask. Permissions = 0666/0777 & ~umask.',
+          args:[{name:'mask',type:'octal',range:'000–777',req:false,def:'-',desc:'e.g. 022 → new files: 644, new dirs: 755'}]},
+        { cmd:'getfacl', syntax:'getfacl [OPTIONS] <file>', distros:['all'],
+          desc:'Get POSIX Access Control List entries of a file.',
+          args:[{name:'-R',type:'flag',range:'-',req:false,def:'-',desc:'Recursive'}]},
+        { cmd:'setfacl', syntax:'setfacl [OPTIONS] <file>', distros:['all'],
+          desc:'Set POSIX ACL entries — allows per-user/group permissions beyond traditional bits.',
+          args:[
+            {name:'-m u:<user>:<perms>',type:'string',range:'-',req:false,def:'-',desc:'Modify ACL for user (e.g. -m u:bob:rw)'},
+            {name:'-m g:<group>:<perms>',type:'string',range:'-',req:false,def:'-',desc:'Modify ACL for group'},
+            {name:'-x u:<user>',type:'string',range:'-',req:false,def:'-',desc:'Remove ACL entry for user'},
+            {name:'-b',type:'flag',range:'-',req:false,def:'-',desc:'Remove all ACL entries'},
+            {name:'-R',type:'flag',range:'-',req:false,def:'-',desc:'Recursive'},
+          ]},
+        { cmd:'chattr', syntax:'chattr [OPTIONS] <file>', distros:['all'],
+          desc:'Change extended filesystem attributes (beyond normal permissions).',
+          args:[
+            {name:'+i',type:'keyword',range:'-',req:false,def:'-',desc:'Immutable: cannot be modified, deleted, or renamed (even by root)'},
+            {name:'+a',type:'keyword',range:'-',req:false,def:'-',desc:'Append-only: can only be opened for appending'},
+            {name:'-R',type:'flag',range:'-',req:false,def:'-',desc:'Recursive'},
+          ]},
+        { cmd:'lsattr', syntax:'lsattr [OPTIONS] [<file>]', distros:['all'],
+          desc:'List extended filesystem attributes (set by chattr).',
+          args:[{name:'-R',type:'flag',range:'-',req:false,def:'-',desc:'Recursive'}]},
+      ]
+    },
+  ]
+});
+
+/* ==================== DISK & STORAGE ==================== */
+SECTIONS.push({
+  id: 'disk', title: 'DISK & STORAGE', type: 'commands',
+  subsections: [
+    {
+      id: 'disk-info', title: '1. Disk Information',
+      commands: [
+        { cmd:'df', syntax:'df [OPTIONS] [<filesystem>]', distros:['all'],
+          desc:'Report disk space usage of mounted filesystems.',
+          args:[
+            {name:'-h',type:'flag',range:'-',req:false,def:'-',desc:'Human-readable sizes (KB, MB, GB)'},
+            {name:'-T',type:'flag',range:'-',req:false,def:'-',desc:'Show filesystem type'},
+            {name:'-i',type:'flag',range:'-',req:false,def:'-',desc:'Show inode usage instead of block usage'},
+          ]},
+        { cmd:'lsblk', syntax:'lsblk [OPTIONS]', distros:['all'],
+          desc:'List block devices in a tree format (disks, partitions, LVM, LUKS).',
+          args:[
+            {name:'-f',type:'flag',range:'-',req:false,def:'-',desc:'Show filesystem type, label, and UUID'},
+            {name:'-o <cols>',type:'string',range:'-',req:false,def:'-',desc:'Select output columns (e.g. NAME,SIZE,TYPE,MOUNTPOINT)'},
+          ]},
+        { cmd:'blkid', syntax:'blkid [<device>]', distros:['all'],
+          desc:'Print block device attributes: UUID, filesystem type, label.',
+          args:[]},
+        { cmd:'fdisk', syntax:'fdisk [OPTIONS] <device>', distros:['all'],
+          desc:'Partition table manipulator for MBR disks. Interactive mode.',
+          args:[
+            {name:'-l',type:'flag',range:'-',req:false,def:'-',desc:'List all partition tables'},
+            {name:'device',type:'path',range:'-',req:false,def:'-',desc:'e.g. /dev/sda (operate on entire disk, not partition)'},
+          ]},
+        { cmd:'gdisk', syntax:'gdisk <device>', distros:['all'],
+          desc:'GPT disk partition manipulator. Interactive mode, similar to fdisk.',
+          args:[]},
+        { cmd:'parted', syntax:'parted [OPTIONS] [<device>] [<command>]', distros:['all'],
+          desc:'Partition manipulation program supporting both MBR and GPT.',
+          args:[
+            {name:'-l',type:'flag',range:'-',req:false,def:'-',desc:'List partition layouts on all block devices'},
+            {name:'print',type:'keyword',range:'-',req:false,def:'-',desc:'Show partition table of device'},
+          ]},
+        { cmd:'smartctl', syntax:'smartctl [OPTIONS] <device>', distros:['all'],
+          desc:'Control and monitor storage systems via S.M.A.R.T. Needs smartmontools.',
+          args:[
+            {name:'-a',type:'flag',range:'-',req:false,def:'-',desc:'Show all SMART information'},
+            {name:'-t short',type:'keyword',range:'short|long|conveyance',req:false,def:'-',desc:'Run a self-test'},
+            {name:'-H',type:'flag',range:'-',req:false,def:'-',desc:'Print overall health status'},
+          ]},
+      ]
+    },
+    {
+      id: 'disk-fs', title: '2. Filesystem Operations',
+      commands: [
+        { cmd:'mount', syntax:'mount [OPTIONS] <device> <mountpoint>', distros:['all'],
+          desc:'Mount a filesystem. Without args, shows all mounted filesystems.',
+          args:[
+            {name:'-t <type>',type:'string',range:'-',req:false,def:'auto',desc:'Filesystem type: ext4, xfs, ntfs, tmpfs, nfs…'},
+            {name:'-o <options>',type:'string',range:'-',req:false,def:'-',desc:'Mount options: rw, ro, noexec, nosuid, bind, remount…'},
+            {name:'-a',type:'flag',range:'-',req:false,def:'-',desc:'Mount all filesystems in /etc/fstab'},
+          ]},
+        { cmd:'umount', syntax:'umount <device|mountpoint>', distros:['all'],
+          desc:'Unmount a filesystem. Fails if busy.',
+          args:[
+            {name:'-l',type:'flag',range:'-',req:false,def:'-',desc:'Lazy unmount: detach now, clean up when no longer busy'},
+            {name:'-f',type:'flag',range:'-',req:false,def:'-',desc:'Force unmount (NFS/network filesystems)'},
+          ]},
+        { cmd:'mkfs', syntax:'mkfs [-t <type>] <device>', distros:['all'],
+          desc:'Build a Linux filesystem on a device/partition.',
+          args:[
+            {name:'-t <type>',type:'keyword',range:'ext4|xfs|btrfs|fat32|ntfs',req:false,def:'ext2',desc:'Filesystem type'},
+            {name:'mkfs.ext4 / mkfs.xfs',type:'keyword',range:'-',req:false,def:'-',desc:'Type-specific frontends (preferred)'},
+          ]},
+        { cmd:'fsck', syntax:'fsck [OPTIONS] <device>', distros:['all'],
+          desc:'Filesystem consistency check and repair. Run on unmounted filesystem.',
+          args:[
+            {name:'-t <type>',type:'string',range:'-',req:false,def:'auto',desc:'Filesystem type'},
+            {name:'-y',type:'flag',range:'-',req:false,def:'-',desc:'Assume yes to all prompts (auto-repair)'},
+            {name:'-n',type:'flag',range:'-',req:false,def:'-',desc:'Dry-run: check but do not repair'},
+          ]},
+        { cmd:'tune2fs', syntax:'tune2fs [OPTIONS] <device>', distros:['all'],
+          desc:'Adjust tunable ext2/ext3/ext4 filesystem parameters.',
+          args:[
+            {name:'-l',type:'flag',range:'-',req:false,def:'-',desc:'List filesystem superblock parameters'},
+            {name:'-L <label>',type:'string',range:'-',req:false,def:'-',desc:'Set filesystem volume label'},
+            {name:'-U <uuid>',type:'string',range:'-',req:false,def:'-',desc:'Set filesystem UUID (use random or clear)'},
+            {name:'-c <n>',type:'integer',range:'-',req:false,def:'-',desc:'Max mount count before fsck (0=disable)'},
+          ]},
+        { cmd:'fstrim', syntax:'fstrim [OPTIONS] <mountpoint>', distros:['all'],
+          desc:'Discard unused blocks on a mounted SSD/NVMe (TRIM). Run periodically for SSD health.',
+          args:[
+            {name:'-a',type:'flag',range:'-',req:false,def:'-',desc:'Trim all mounted filesystems that support it'},
+            {name:'-v',type:'flag',range:'-',req:false,def:'-',desc:'Verbose: show bytes trimmed'},
+          ]},
+        { cmd:'sync', syntax:'sync', distros:['all'],
+          desc:'Flush filesystem buffers to disk. Ensures all cached writes are committed.',
+          args:[]},
+        { cmd:'dd', syntax:'dd [OPTIONS]', distros:['all'],
+          desc:'Convert and copy raw data. Used for disk imaging, wiping, and benchmarking.',
+          args:[
+            {name:'if=<src>',type:'path',range:'-',req:false,def:'-',desc:'Input file/device (e.g. if=/dev/sda)'},
+            {name:'of=<dest>',type:'path',range:'-',req:false,def:'-',desc:'Output file/device'},
+            {name:'bs=<size>',type:'string',range:'-',req:false,def:'512',desc:'Block size (e.g. bs=4M for 4 MiB)'},
+            {name:'count=<n>',type:'integer',range:'-',req:false,def:'to EOF',desc:'Number of blocks to copy'},
+            {name:'status=progress',type:'keyword',range:'-',req:false,def:'-',desc:'Show progress during operation'},
+            {name:'conv=sync,noerror',type:'keyword',range:'-',req:false,def:'-',desc:'Pad bad blocks and continue on read errors'},
+          ]},
+      ]
+    },
+    {
+      id: 'disk-lvm', title: '3. LVM (Logical Volume Manager)',
+      commands: [
+        { cmd:'pvdisplay / pvs', syntax:'pvdisplay [<device>]', distros:['all'],
+          desc:'Display Physical Volume (PV) attributes. pvs gives a compact summary.',
+          args:[]},
+        { cmd:'vgdisplay / vgs', syntax:'vgdisplay [<vgname>]', distros:['all'],
+          desc:'Display Volume Group (VG) attributes. vgs gives a compact summary.',
+          args:[]},
+        { cmd:'lvdisplay / lvs', syntax:'lvdisplay [<lvpath>]', distros:['all'],
+          desc:'Display Logical Volume (LV) attributes. lvs gives a compact summary.',
+          args:[]},
+        { cmd:'pvcreate', syntax:'pvcreate <device>', distros:['all'],
+          desc:'Initialize a disk or partition as an LVM Physical Volume.',
+          args:[]},
+        { cmd:'vgcreate', syntax:'vgcreate <vgname> <pv...>', distros:['all'],
+          desc:'Create a Volume Group from one or more Physical Volumes.',
+          args:[]},
+        { cmd:'lvcreate', syntax:'lvcreate -L <size> -n <name> <vgname>', distros:['all'],
+          desc:'Create a Logical Volume inside a Volume Group.',
+          args:[
+            {name:'-L <size>',type:'string',range:'-',req:true,def:'-',desc:'Size: 10G, 500M, etc.'},
+            {name:'-n <name>',type:'string',range:'-',req:true,def:'-',desc:'Logical volume name'},
+            {name:'-l <extents>',type:'string',range:'-',req:false,def:'-',desc:'Size in extents (e.g. 100%FREE)'},
+          ]},
+        { cmd:'lvextend', syntax:'lvextend -L [+]<size> <lvpath>', distros:['all'],
+          desc:'Extend a Logical Volume. After extending, also resize the filesystem.',
+          args:[
+            {name:'-L +10G',type:'string',range:'-',req:true,def:'-',desc:'Add 10G to existing size (+ prefix = relative)'},
+            {name:'-r',type:'flag',range:'-',req:false,def:'-',desc:'Resize filesystem simultaneously (ext4, xfs)'},
+          ]},
+        { cmd:'resize2fs', syntax:'resize2fs <device> [<size>]', distros:['all'],
+          desc:'Resize an ext2/ext3/ext4 filesystem. Run after lvextend without -r.',
+          args:[]},
+        { cmd:'vgextend', syntax:'vgextend <vgname> <pv>', distros:['all'],
+          desc:'Add a Physical Volume to an existing Volume Group.',
+          args:[]},
+      ]
+    },
+  ]
+});
+
 render();
 </script>
 </body>
