@@ -183,14 +183,16 @@ body.sidebar-collapsed #sidebar { display: none; }
 .emc-value { font-size: 18px; font-weight: 700; margin-top: 2px; }
 .weight-chart { margin-bottom: 8px; }
 .weight-chart-title { font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 10px; text-transform: uppercase; letter-spacing: .05em; }
-.weight-bars-grid { display: grid; grid-template-columns: max-content 1fr auto; align-items: center; gap: 8px 12px; }
+.weight-bars-grid { display: grid; grid-template-columns: max-content auto; align-items: center; gap: 8px 12px; }
 .weight-bar-label { font-size: 12px; color: var(--text); white-space: nowrap; }
+.weight-bar-cell { display: flex; align-items: center; gap: 8px; }
 .weight-bar-track {
+  width: 200px; flex-shrink: 0;
   height: 8px; background: var(--surface2);
-  border-radius: 4px; overflow: hidden; max-width: 280px;
+  border-radius: 4px; overflow: hidden;
 }
 .weight-bar-fill { height: 100%; border-radius: 4px; }
-.weight-bar-pct { font-size: 11px; color: var(--muted); }
+.weight-bar-pct { font-size: 11px; color: var(--muted); white-space: nowrap; }
 
 /* ===== DOMAIN SECTION ===== */
 .domain-section { border-bottom: 1px solid var(--border); }
@@ -427,17 +429,25 @@ kbd { font-size: 11px; font-weight: 600; padding: 2px 7px; border-radius: 4px; b
         <div class="weight-chart-title">Domain Weight Distribution</div>
         <div class="weight-bars-grid">
           <div class="weight-bar-label">Domain 1 — Implement and Manage User Identities</div>
-          <div class="weight-bar-track"><div class="weight-bar-fill" style="width:22%;background:var(--d1)"></div></div>
-          <div class="weight-bar-pct" style="color:var(--d1)">20–25%</div>
+          <div class="weight-bar-cell">
+            <div class="weight-bar-track"><div class="weight-bar-fill" style="width:22%;background:var(--d1)"></div></div>
+            <div class="weight-bar-pct" style="color:var(--d1)">20–25%</div>
+          </div>
           <div class="weight-bar-label">Domain 2 — Implement Authentication and Access Management</div>
-          <div class="weight-bar-track"><div class="weight-bar-fill" style="width:27%;background:var(--d2)"></div></div>
-          <div class="weight-bar-pct" style="color:var(--d2)">25–30%</div>
+          <div class="weight-bar-cell">
+            <div class="weight-bar-track"><div class="weight-bar-fill" style="width:27%;background:var(--d2)"></div></div>
+            <div class="weight-bar-pct" style="color:var(--d2)">25–30%</div>
+          </div>
           <div class="weight-bar-label">Domain 3 — Plan and Implement Workload Identities</div>
-          <div class="weight-bar-track"><div class="weight-bar-fill" style="width:22%;background:var(--d3)"></div></div>
-          <div class="weight-bar-pct" style="color:var(--d3)">20–25%</div>
+          <div class="weight-bar-cell">
+            <div class="weight-bar-track"><div class="weight-bar-fill" style="width:22%;background:var(--d3)"></div></div>
+            <div class="weight-bar-pct" style="color:var(--d3)">20–25%</div>
+          </div>
           <div class="weight-bar-label">Domain 4 — Plan and Automate Identity Governance</div>
-          <div class="weight-bar-track"><div class="weight-bar-fill" style="width:22%;background:var(--d4)"></div></div>
-          <div class="weight-bar-pct" style="color:var(--d4)">20–25%</div>
+          <div class="weight-bar-cell">
+            <div class="weight-bar-track"><div class="weight-bar-fill" style="width:22%;background:var(--d4)"></div></div>
+            <div class="weight-bar-pct" style="color:var(--d4)">20–25%</div>
+          </div>
         </div>
       </div>
     </div>
