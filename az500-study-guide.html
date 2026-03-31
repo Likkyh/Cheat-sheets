@@ -1,0 +1,2218 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AZ-500 Study Guide — Microsoft Azure Security Engineer Associate</title>
+<style>
+/* ===== VARIABLES ===== */
+:root {
+  --bg: #0d1117;
+  --surface: #161b22;
+  --border: #30363d;
+  --text: #e6edf3;
+  --muted: #8b949e;
+  --topbar-bg: #010409;
+  --topbar-h: 56px;
+  --sidebar-w: 280px;
+  --blue: #79c0ff;
+  --green: #3fb950;
+  --orange: #f78166;
+  --purple: #d2a8ff;
+  --yellow: #e3b341;
+  --focus: #1f6feb;
+  --cmd-color: #79c0ff;
+  --surface2: #1c2128;
+  --radius: 6px;
+  --radius-lg: 10px;
+  /* Domain accent colors */
+  --d1: #79c0ff;
+  --d2: #f78166;
+  --d3: #3fb950;
+  --d4: #d2a8ff;
+}
+[data-theme="light"] {
+  --bg: #ffffff;
+  --surface: #f6f8fa;
+  --surface2: #eaeef2;
+  --border: #d0d7de;
+  --text: #1f2328;
+  --muted: #57606a;
+  --topbar-bg: #24292f;
+  --cmd-color: #0550ae;
+}
+
+/* ===== RESET ===== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  font-size: 14px; line-height: 1.6;
+  background: var(--bg); color: var(--text);
+  transition: background .2s, color .2s;
+}
+a { text-decoration: none; color: inherit; }
+strong { font-weight: 600; }
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas, monospace;
+  font-size: 12px; background: var(--surface2);
+  border: 1px solid var(--border); border-radius: 3px;
+  padding: 1px 5px;
+}
+
+/* ===== TOPBAR ===== */
+#topbar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+  height: var(--topbar-h); background: var(--topbar-bg);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 12px; padding: 0 16px;
+}
+#home-link {
+  font-size: 12px; font-weight: 500; color: var(--muted);
+  padding: 4px 10px; border-radius: var(--radius);
+  border: 1px solid var(--border); background: transparent;
+  transition: background .15s, color .15s;
+  white-space: nowrap;
+}
+#home-link:hover { background: var(--surface); color: var(--text); }
+.topbar-sep { color: var(--border); }
+.topbar-title { font-size: 14px; font-weight: 700; color: var(--text); letter-spacing: -.01em; flex: 1; min-width: 0; }
+.topbar-title .exam-code {
+  display: inline-block; font-size: 11px; font-weight: 700;
+  padding: 1px 7px; border-radius: 10px;
+  background: rgba(121,192,255,.15); color: var(--blue);
+  border: 1px solid rgba(121,192,255,.3); margin-right: 8px;
+  vertical-align: middle;
+}
+.topbar-actions { display: flex; align-items: center; gap: 6px; }
+.icon-btn {
+  display: flex; align-items: center; justify-content: center;
+  width: 32px; height: 32px; border-radius: var(--radius);
+  border: 1px solid var(--border); background: transparent;
+  color: var(--muted); cursor: pointer; font-size: 15px;
+  transition: background .15s, color .15s;
+}
+.icon-btn:hover { background: var(--surface); color: var(--text); }
+#search-btn { font-size: 12px; font-weight: 500; width: auto; padding: 0 10px; gap: 6px; }
+
+/* ===== SEARCH OVERLAY ===== */
+#search-overlay {
+  display: none; position: fixed; inset: 0; z-index: 500;
+  background: rgba(1,4,9,.7); backdrop-filter: blur(4px);
+  align-items: flex-start; justify-content: center; padding-top: 80px;
+}
+#search-overlay.open { display: flex; }
+.search-box {
+  width: 100%; max-width: 560px; background: var(--surface);
+  border: 1px solid var(--border); border-radius: var(--radius-lg);
+  overflow: hidden; box-shadow: 0 16px 48px rgba(0,0,0,.6);
+}
+.search-box input {
+  width: 100%; padding: 14px 16px; background: transparent;
+  border: none; outline: none; color: var(--text); font-size: 15px;
+  font-family: inherit; border-bottom: 1px solid var(--border);
+}
+.search-box input::placeholder { color: var(--muted); }
+#search-results { max-height: 360px; overflow-y: auto; }
+.search-result {
+  padding: 10px 16px; cursor: pointer; border-bottom: 1px solid var(--border);
+  transition: background .1s;
+}
+.search-result:last-child { border-bottom: none; }
+.search-result:hover, .search-result.active { background: var(--surface2); }
+.sr-title { font-size: 13px; font-weight: 600; color: var(--text); }
+.sr-meta { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.search-empty { padding: 24px 16px; text-align: center; color: var(--muted); font-size: 13px; }
+
+/* ===== LAYOUT ===== */
+#layout { display: flex; margin-top: var(--topbar-h); min-height: calc(100vh - var(--topbar-h)); }
+
+/* ===== SIDEBAR ===== */
+#sidebar {
+  width: var(--sidebar-w); flex-shrink: 0;
+  position: sticky; top: var(--topbar-h);
+  height: calc(100vh - var(--topbar-h));
+  overflow-y: auto; overflow-x: hidden;
+  background: var(--bg);
+  border-right: 1px solid var(--border);
+  padding: 16px 0 32px;
+  scrollbar-width: thin; scrollbar-color: var(--border) transparent;
+}
+body.sidebar-collapsed #sidebar { display: none; }
+.toc-section { margin-bottom: 4px; }
+.toc-domain-label {
+  font-size: 10px; font-weight: 700; letter-spacing: .08em;
+  text-transform: uppercase; padding: 10px 16px 4px;
+  color: var(--muted);
+}
+.toc-link {
+  display: block; padding: 5px 16px 5px 24px;
+  font-size: 12px; color: var(--muted);
+  border-left: 2px solid transparent;
+  transition: color .1s, border-color .1s, background .1s;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.toc-link:hover { color: var(--text); background: rgba(255,255,255,.03); }
+.toc-link.active { color: var(--blue); border-left-color: var(--blue); background: rgba(121,192,255,.05); }
+.toc-link.d1 { border-left-color: transparent; }
+.toc-link.d1.active { color: var(--d1); border-left-color: var(--d1); background: rgba(121,192,255,.05); }
+.toc-link.d2.active { color: var(--d2); border-left-color: var(--d2); background: rgba(247,129,102,.05); }
+.toc-link.d3.active { color: var(--d3); border-left-color: var(--d3); background: rgba(63,185,80,.05); }
+.toc-link.d4.active { color: var(--d4); border-left-color: var(--d4); background: rgba(210,168,255,.05); }
+
+/* ===== MAIN CONTENT ===== */
+#main { flex: 1; min-width: 0; padding: 0 0 80px; }
+
+/* ===== EXAM OVERVIEW ===== */
+.exam-overview {
+  padding: 32px 40px 24px;
+  border-bottom: 1px solid var(--border);
+}
+.exam-overview h1 {
+  font-size: 26px; font-weight: 800; letter-spacing: -.02em;
+  margin-bottom: 6px;
+}
+.exam-overview .exam-subtitle { color: var(--muted); font-size: 14px; margin-bottom: 24px; }
+.exam-meta-cards {
+  display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 28px;
+}
+.exam-meta-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 12px 16px; min-width: 130px;
+}
+.emc-label { font-size: 10px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+.emc-value { font-size: 18px; font-weight: 700; margin-top: 2px; }
+.weight-chart { margin-bottom: 8px; }
+.weight-chart-title { font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 10px; text-transform: uppercase; letter-spacing: .05em; }
+.weight-bars-grid { display: grid; grid-template-columns: max-content auto; align-items: center; gap: 8px 12px; }
+.weight-bar-label { font-size: 12px; color: var(--text); white-space: nowrap; }
+.weight-bar-cell { display: flex; align-items: center; gap: 8px; }
+.weight-bar-track {
+  width: 200px; flex-shrink: 0;
+  height: 8px; background: var(--surface2);
+  border-radius: 4px; overflow: hidden;
+}
+.weight-bar-fill { height: 100%; border-radius: 4px; }
+.weight-bar-pct { font-size: 11px; color: var(--muted); white-space: nowrap; }
+
+/* ===== DOMAIN SECTION ===== */
+.domain-section { border-bottom: 1px solid var(--border); }
+.domain-header {
+  display: flex; align-items: center; gap: 12px;
+  padding: 20px 40px 16px; cursor: pointer;
+  user-select: none;
+  transition: background .1s;
+}
+.domain-header:hover { background: rgba(255,255,255,.02); }
+.domain-badge {
+  font-size: 10px; font-weight: 700; padding: 3px 10px;
+  border-radius: 10px; letter-spacing: .05em; white-space: nowrap;
+  flex-shrink: 0;
+}
+.d1-badge { background: rgba(121,192,255,.15); color: var(--d1); border: 1px solid rgba(121,192,255,.3); }
+.d2-badge { background: rgba(247,129,102,.15); color: var(--d2); border: 1px solid rgba(247,129,102,.3); }
+.d3-badge { background: rgba(63,185,80,.15); color: var(--d3); border: 1px solid rgba(63,185,80,.3); }
+.d4-badge { background: rgba(210,168,255,.15); color: var(--d4); border: 1px solid rgba(210,168,255,.3); }
+.domain-title { font-size: 17px; font-weight: 700; flex: 1; }
+.domain-weight-badge {
+  font-size: 11px; font-weight: 600; color: var(--muted);
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 10px; padding: 2px 10px;
+}
+.domain-collapse-icon { color: var(--muted); font-size: 12px; transition: transform .2s; }
+.domain-section.collapsed .domain-collapse-icon { transform: rotate(-90deg); }
+.domain-body { padding: 0 40px 24px; }
+.domain-section.collapsed .domain-body { display: none; }
+
+/* ===== LESSON CARD ===== */
+.lesson-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); margin-bottom: 16px;
+  overflow: hidden;
+}
+.lesson-header {
+  display: flex; align-items: center; gap: 10px;
+  padding: 14px 18px; cursor: pointer; user-select: none;
+  transition: background .1s;
+}
+.lesson-header:hover { background: var(--surface2); }
+.lesson-num {
+  font-size: 10px; font-weight: 700; color: var(--muted);
+  min-width: 32px;
+}
+.lesson-title { font-size: 14px; font-weight: 600; flex: 1; }
+.lesson-collapse-icon { color: var(--muted); font-size: 11px; transition: transform .2s; }
+.lesson-card.collapsed .lesson-collapse-icon { transform: rotate(-90deg); }
+.lesson-card.collapsed .lesson-body { display: none; }
+.lesson-body { padding: 0 18px 18px; border-top: 1px solid var(--border); }
+
+/* ===== LESSON BODY CONTENT ===== */
+.lesson-body p { margin: 12px 0; color: var(--text); font-size: 13px; line-height: 1.7; }
+.lesson-body p:first-child { margin-top: 14px; }
+.lesson-body h4 { font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin: 18px 0 8px; }
+.lesson-body ul, .lesson-body ol { margin: 8px 0 8px 20px; }
+.lesson-body li { font-size: 13px; line-height: 1.7; color: var(--text); margin-bottom: 3px; }
+.lesson-body li::marker { color: var(--muted); }
+.lesson-body table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 12px; }
+.lesson-body th { background: var(--surface2); padding: 7px 10px; text-align: left; font-weight: 600; border: 1px solid var(--border); color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .04em; }
+.lesson-body td { padding: 7px 10px; border: 1px solid var(--border); vertical-align: top; }
+.lesson-body td:first-child { color: var(--blue); font-family: ui-monospace, monospace; font-size: 11px; }
+
+/* ===== CONCEPT PILLS ===== */
+.concept-pills { display: flex; flex-wrap: wrap; gap: 6px; margin: 14px 0 4px; }
+.pill {
+  font-size: 11px; font-weight: 600; padding: 3px 10px;
+  border-radius: 12px; border: 1px solid var(--border);
+  background: var(--surface2); color: var(--text);
+  letter-spacing: .02em;
+}
+
+/* ===== EXAM TIP ===== */
+.exam-tip {
+  background: rgba(227,179,65,.07); border: 1px solid rgba(227,179,65,.25);
+  border-left: 3px solid var(--yellow); border-radius: var(--radius);
+  padding: 12px 14px; margin: 14px 0;
+  font-size: 12px; line-height: 1.65;
+}
+.exam-tip-header { font-weight: 700; color: var(--yellow); font-size: 11px; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 4px; }
+.exam-tip p { margin: 0; color: var(--text); }
+
+/* ===== DIAGRAM ===== */
+.diagram-wrap {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 20px;
+  margin: 14px 0; overflow-x: auto;
+}
+.diagram-wrap svg { display: block; max-width: 100%; }
+
+/* ===== COMMAND TABLE (quickref) ===== */
+.cmd-table-wrap { overflow-x: auto; margin: 12px 0; }
+.cmd-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.cmd-table th {
+  background: var(--surface2); padding: 7px 10px;
+  text-align: left; font-size: 10px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .06em;
+  color: var(--muted); border: 1px solid var(--border);
+  white-space: nowrap;
+}
+.cmd-table td {
+  padding: 7px 10px; border: 1px solid var(--border);
+  vertical-align: top;
+}
+.cmd-table .col-cmd { color: var(--cmd-color); font-family: ui-monospace, monospace; font-size: 11px; }
+.cmd-table .col-syntax { font-family: ui-monospace, monospace; font-size: 11px; }
+.cmd-table .col-desc { color: var(--muted); }
+.cmd-table .syn-req { color: var(--orange); }
+.cmd-table .syn-opt { color: var(--blue); }
+.cmd-table .syn-kw { color: var(--text); }
+.cmd-table tr:hover td { background: rgba(255,255,255,.02); }
+
+/* ===== ARGS TABLE ===== */
+.args-wrap { margin-top: 6px; }
+.args-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+.args-table th { background: var(--surface2); padding: 5px 8px; text-align: left; font-weight: 600; color: var(--muted); border: 1px solid var(--border); font-size: 10px; text-transform: uppercase; letter-spacing: .04em; }
+.args-table td { padding: 5px 8px; border: 1px solid var(--border); vertical-align: top; }
+.req-badge { font-size: 9px; font-weight: 700; padding: 1px 5px; border-radius: 3px; background: rgba(247,129,102,.2); color: var(--orange); border: 1px solid rgba(247,129,102,.3); letter-spacing: .04em; }
+.opt-badge { font-size: 9px; font-weight: 700; padding: 1px 5px; border-radius: 3px; background: rgba(121,192,255,.15); color: var(--blue); border: 1px solid rgba(121,192,255,.25); letter-spacing: .04em; }
+
+/* ===== SHORTCUTS MODAL ===== */
+#shortcuts-modal {
+  display: none; position: fixed; inset: 0; z-index: 600;
+  background: rgba(1,4,9,.7); backdrop-filter: blur(4px);
+  align-items: center; justify-content: center;
+}
+#shortcuts-modal.open { display: flex; }
+.shortcuts-box {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 24px; min-width: 280px;
+  max-width: 380px;
+}
+.shortcuts-box h3 { font-size: 14px; font-weight: 700; margin-bottom: 14px; }
+.shortcut-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; font-size: 13px; color: var(--muted); }
+kbd { font-size: 11px; font-weight: 600; padding: 2px 7px; border-radius: 4px; background: var(--surface2); border: 1px solid var(--border); color: var(--text); font-family: inherit; }
+
+/* ===== PRINT ===== */
+@media print {
+  #topbar, #sidebar, #search-overlay, #shortcuts-modal { display: none !important; }
+  #main { margin-left: 0 !important; }
+  .domain-section.collapsed .domain-body,
+  .lesson-card.collapsed .lesson-body { display: block !important; }
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  :root { --sidebar-w: 0px; }
+  #sidebar { display: none; }
+  body:not(.sidebar-collapsed) #sidebar { display: block; position: fixed; top: var(--topbar-h); bottom: 0; left: 0; z-index: 150; width: 260px; background: var(--bg); }
+  .exam-overview, .domain-header, .domain-body { padding-left: 16px; padding-right: 16px; }
+}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div id="topbar">
+  <button class="icon-btn" id="sidebar-toggle" title="Toggle sidebar (B)">☰</button>
+  <button class="icon-btn" id="expand-btn" title="Expand all (E)">⊞</button>
+  <button class="icon-btn" id="collapse-btn" title="Collapse all (C)">⊟</button>
+  <a href="index.html" id="home-link">← Home</a>
+  <span class="topbar-sep">/</span>
+  <div class="topbar-title">
+    <span class="exam-code">AZ-500</span> Azure Security Engineer Associate
+  </div>
+  <div class="topbar-actions">
+    <button class="icon-btn" id="search-btn" title="Search (/)">⌕ Search</button>
+    <button class="icon-btn" id="theme-btn" title="Toggle theme (T)">☀</button>
+    <button class="icon-btn" id="shortcuts-btn" title="Keyboard shortcuts (?)">?</button>
+  </div>
+</div>
+
+<!-- SEARCH OVERLAY -->
+<div id="search-overlay">
+  <div class="search-box">
+    <input type="text" id="search-input" placeholder="Search topics, concepts, commands…" autocomplete="off" spellcheck="false">
+    <div id="search-results"></div>
+  </div>
+</div>
+
+<!-- SHORTCUTS MODAL -->
+<div id="shortcuts-modal">
+  <div class="shortcuts-box">
+    <h3>Keyboard Shortcuts</h3>
+    <div class="shortcut-row"><span>Focus search</span><kbd>/</kbd></div>
+    <div class="shortcut-row"><span>Close overlay</span><kbd>Esc</kbd></div>
+    <div class="shortcut-row"><span>Toggle theme</span><kbd>T</kbd></div>
+    <div class="shortcut-row"><span>Toggle sidebar</span><kbd>B</kbd></div>
+    <div class="shortcut-row"><span>Expand all</span><kbd>E</kbd></div>
+    <div class="shortcut-row"><span>Collapse all</span><kbd>C</kbd></div>
+    <div class="shortcut-row"><span>This modal</span><kbd>?</kbd></div>
+  </div>
+</div>
+
+<!-- LAYOUT -->
+<div id="layout">
+
+  <!-- SIDEBAR TOC (built by JS) -->
+  <nav id="sidebar"></nav>
+
+  <!-- MAIN -->
+  <main id="main">
+
+    <!-- EXAM OVERVIEW (static) -->
+    <div class="exam-overview" id="exam-overview">
+      <h1>AZ-500 Study Guide</h1>
+      <div class="exam-subtitle">Microsoft Azure Security Engineer Associate — Comprehensive Exam Preparation (January 2026 Update)</div>
+
+      <div class="exam-meta-cards">
+        <div class="exam-meta-card">
+          <div class="emc-label">Exam</div>
+          <div class="emc-value" style="color:var(--blue)">AZ-500</div>
+        </div>
+        <div class="exam-meta-card">
+          <div class="emc-label">Passing Score</div>
+          <div class="emc-value">700 <span style="font-size:12px;color:var(--muted)">/1000</span></div>
+        </div>
+        <div class="exam-meta-card">
+          <div class="emc-label">Questions</div>
+          <div class="emc-value">40–60</div>
+        </div>
+        <div class="exam-meta-card">
+          <div class="emc-label">Duration</div>
+          <div class="emc-value">100 <span style="font-size:12px;color:var(--muted)">min</span></div>
+        </div>
+        <div class="exam-meta-card">
+          <div class="emc-label">Question Types</div>
+          <div class="emc-value" style="font-size:13px">MCQ, Case Studies, Labs</div>
+        </div>
+      </div>
+
+      <div class="weight-chart">
+        <div class="weight-chart-title">Domain Weight Distribution</div>
+        <div class="weight-bars-grid">
+          <div class="weight-bar-label">Domain 1 — Secure Identity and Access</div>
+          <div class="weight-bar-cell">
+            <div class="weight-bar-track"><div class="weight-bar-fill" style="width:17%;background:var(--d1)"></div></div>
+            <div class="weight-bar-pct" style="color:var(--d1)">15–20%</div>
+          </div>
+          <div class="weight-bar-label">Domain 2 — Secure Networking</div>
+          <div class="weight-bar-cell">
+            <div class="weight-bar-track"><div class="weight-bar-fill" style="width:22%;background:var(--d2)"></div></div>
+            <div class="weight-bar-pct" style="color:var(--d2)">20–25%</div>
+          </div>
+          <div class="weight-bar-label">Domain 3 — Secure Compute, Storage, and Databases</div>
+          <div class="weight-bar-cell">
+            <div class="weight-bar-track"><div class="weight-bar-fill" style="width:22%;background:var(--d3)"></div></div>
+            <div class="weight-bar-pct" style="color:var(--d3)">20–25%</div>
+          </div>
+          <div class="weight-bar-label">Domain 4 — Secure Azure Using Defender for Cloud and Sentinel</div>
+          <div class="weight-bar-cell">
+            <div class="weight-bar-track"><div class="weight-bar-fill" style="width:32%;background:var(--d4)"></div></div>
+            <div class="weight-bar-pct" style="color:var(--d4)">30–35%</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTIONS rendered here by JS -->
+    <div id="content"></div>
+
+  </main>
+</div>
+
+<script>
+/* ================================================================
+   AZ-500 RENDERING ENGINE
+   ================================================================ */
+
+/* ---------- Syntax tokenizer ---------- */
+function tokenizeSyntax(s) {
+  if (!s) return '';
+  return s
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/\[([^\]]+)\]/g, '<span class="syn-opt">[$1]</span>')
+    .replace(/&lt;([^&]+)&gt;/g, '<span class="syn-req">&lt;$1&gt;</span>');
+}
+
+/* ---------- Build command table row ---------- */
+function buildCmdRow(c) {
+  const argsHtml = c.args && c.args.length ? `
+    <tr class="args-row">
+      <td colspan="3" style="padding:0 10px 8px 10px;">
+        <div class="args-wrap">
+          <table class="args-table">
+            <tr><th>Parameter</th><th>Type</th><th>Range</th><th>Req?</th><th>Default</th><th>Description</th></tr>
+            ${c.args.map(a => `<tr>
+              <td style="font-family:monospace;color:var(--orange)">${a.name}</td>
+              <td>${a.type||''}</td>
+              <td>${a.range||'-'}</td>
+              <td><span class="${a.req?'req-badge':'opt-badge'}">${a.req?'REQ':'opt'}</span></td>
+              <td>${a.def||'-'}</td>
+              <td style="color:var(--muted)">${a.desc||''}</td>
+            </tr>`).join('')}
+          </table>
+        </div>
+      </td>
+    </tr>` : '';
+  return `<tr class="cmd-row">
+    <td class="col-cmd">${c.cmd}</td>
+    <td class="col-syntax">${tokenizeSyntax(c.syntax)}</td>
+    <td class="col-desc">${c.desc||''}</td>
+  </tr>${argsHtml}`;
+}
+
+/* ---------- Build quickref command table ---------- */
+function buildQuickref(sub) {
+  const rows = (sub.commands||[]).map(buildCmdRow).join('');
+  return `<div class="cmd-table-wrap">
+    <table class="cmd-table">
+      <thead><tr><th style="width:22%">Command</th><th style="width:35%">Syntax</th><th>Description</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+  </div>`;
+}
+
+/* ---------- Build concept pills ---------- */
+function buildPills(concepts) {
+  if (!concepts || !concepts.length) return '';
+  return `<div class="concept-pills">${concepts.map(c => `<span class="pill">${c}</span>`).join('')}</div>`;
+}
+
+/* ---------- Build exam tip ---------- */
+function buildTip(tip) {
+  if (!tip) return '';
+  return `<div class="exam-tip"><div class="exam-tip-header">💡 Exam Tip</div><p>${tip}</p></div>`;
+}
+
+/* ---------- Build diagram ---------- */
+function buildDiagram(svg) {
+  if (!svg) return '';
+  return `<div class="diagram-wrap">${svg}</div>`;
+}
+
+/* ---------- Build lesson card ---------- */
+function buildLesson(sub, idx, domainClass) {
+  const id = sub.id || ('lesson-' + idx);
+  const body = `
+    <div class="lesson-body">
+      ${sub.concepts ? buildPills(sub.concepts) : ''}
+      ${sub.body || ''}
+      ${sub.diagram ? buildDiagram(sub.diagram) : ''}
+      ${sub.tip ? buildTip(sub.tip) : ''}
+      ${sub.commands && sub.commands.length ? buildQuickref(sub) : ''}
+    </div>`;
+  return `<div class="lesson-card" id="${id}">
+    <div class="lesson-header" onclick="toggleLesson(this)">
+      <span class="lesson-num">${String(idx).padStart(2,'0')}</span>
+      <span class="lesson-title">${sub.title}</span>
+      <span class="lesson-collapse-icon">▾</span>
+    </div>
+    ${body}
+  </div>`;
+}
+
+/* ---------- Build domain section ---------- */
+function buildDomain(sec) {
+  const idx = sec.domainNum || 1;
+  const badgeClass = `d${idx}-badge`;
+  const domClass = `d${idx}`;
+  const lessons = (sec.subsections || []).map((s, i) => buildLesson(s, i + 1, domClass)).join('');
+  return `<div class="domain-section" id="${sec.id}">
+    <div class="domain-header" onclick="toggleDomain(this)">
+      <span class="domain-badge ${badgeClass}">Domain ${idx}</span>
+      <span class="domain-title">${sec.title}</span>
+      <span class="domain-weight-badge">${sec.weight || ''}</span>
+      <span class="domain-collapse-icon">▾</span>
+    </div>
+    <div class="domain-body">${lessons}</div>
+  </div>`;
+}
+
+/* ---------- Master renderer ---------- */
+function render() {
+  const content = document.getElementById('content');
+  content.innerHTML = SECTIONS.map(sec => {
+    if (sec.type === 'domain') return buildDomain(sec);
+    return '';
+  }).join('');
+  buildTOC();
+  initTOCObserver();
+  restoreCollapseState();
+}
+
+/* ================================================================
+   TOC
+   ================================================================ */
+function buildTOC() {
+  const sidebar = document.getElementById('sidebar');
+  let html = '';
+  SECTIONS.forEach(sec => {
+    if (sec.type !== 'domain') return;
+    const idx = sec.domainNum || 1;
+    html += `<div class="toc-section">
+      <div class="toc-domain-label">Domain ${idx}</div>
+      <a class="toc-link d${idx}" href="#${sec.id}" onclick="scrollToSection('${sec.id}');return false;">${sec.title}</a>
+      ${(sec.subsections||[]).map(s =>
+        `<a class="toc-link d${idx}" href="#${s.id}" style="padding-left:36px;font-size:11px;"
+           onclick="scrollToSection('${s.id}');return false;">${s.title}</a>`
+      ).join('')}
+    </div>`;
+  });
+  sidebar.innerHTML = html;
+}
+
+function scrollToSection(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const domain = el.closest('.domain-section');
+  if (domain) domain.classList.remove('collapsed');
+  if (el.classList.contains('lesson-card')) el.classList.remove('collapsed');
+  saveCollapseState();
+  requestAnimationFrame(() => {
+    const top = el.getBoundingClientRect().top + window.scrollY - 70;
+    window.scrollTo({ top, behavior: 'smooth' });
+  });
+}
+
+function initTOCObserver() {
+  const links = document.querySelectorAll('.toc-link');
+  if (!links.length) return;
+  const idMap = {};
+  links.forEach(l => {
+    const href = l.getAttribute('href');
+    if (href && href.startsWith('#')) idMap[href.slice(1)] = l;
+  });
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting && idMap[e.target.id]) {
+        links.forEach(l => l.classList.remove('active'));
+        idMap[e.target.id].classList.add('active');
+      }
+    });
+  }, { rootMargin: '-60px 0px -70% 0px', threshold: 0 });
+  document.querySelectorAll('.domain-section, .lesson-card').forEach(el => obs.observe(el));
+}
+
+/* ================================================================
+   COLLAPSE / EXPAND
+   ================================================================ */
+function toggleDomain(header) {
+  header.closest('.domain-section').classList.toggle('collapsed');
+  saveCollapseState();
+}
+function toggleLesson(header) {
+  header.closest('.lesson-card').classList.toggle('collapsed');
+  saveCollapseState();
+}
+function saveCollapseState() {
+  const state = {};
+  document.querySelectorAll('.domain-section, .lesson-card').forEach(el => {
+    if (el.id) state[el.id] = el.classList.contains('collapsed');
+  });
+  try { localStorage.setItem('az500-collapse', JSON.stringify(state)); } catch(e) {}
+}
+function restoreCollapseState() {
+  let state = {};
+  try { state = JSON.parse(localStorage.getItem('az500-collapse') || '{}'); } catch(e) {}
+  document.querySelectorAll('.domain-section, .lesson-card').forEach(el => {
+    if (el.id && state[el.id]) el.classList.add('collapsed');
+  });
+}
+
+/* ================================================================
+   SEARCH
+   ================================================================ */
+let searchIndex = [];
+
+function buildSearchIndex() {
+  searchIndex = [];
+  SECTIONS.forEach(sec => {
+    if (sec.type !== 'domain') return;
+    (sec.subsections || []).forEach(sub => {
+      const bodyText = (sub.body || '').replace(/<[^>]+>/g, ' ');
+      const concepts = (sub.concepts || []).join(' ');
+      searchIndex.push({
+        id: sub.id,
+        title: sub.title,
+        domain: sec.title,
+        domainId: sec.id,
+        text: bodyText + ' ' + concepts
+      });
+      (sub.commands || []).forEach(c => {
+        searchIndex.push({
+          id: sub.id,
+          title: c.cmd + ' — ' + (c.desc || ''),
+          domain: sec.title,
+          domainId: sec.id,
+          text: c.syntax + ' ' + c.desc
+        });
+      });
+    });
+  });
+}
+
+const searchOverlay = document.getElementById('search-overlay');
+const searchInput = document.getElementById('search-input');
+const searchResults = document.getElementById('search-results');
+let searchActive = -1;
+
+function openSearch() {
+  searchOverlay.classList.add('open');
+  searchInput.value = '';
+  searchResults.innerHTML = '<div class="search-empty">Type to search…</div>';
+  searchActive = -1;
+  searchInput.focus();
+}
+function closeSearch() {
+  searchOverlay.classList.remove('open');
+  searchActive = -1;
+}
+
+searchInput.addEventListener('input', () => {
+  const q = searchInput.value.trim().toLowerCase();
+  searchActive = -1;
+  if (!q) { searchResults.innerHTML = '<div class="search-empty">Type to search…</div>'; return; }
+  const hits = searchIndex.filter(e =>
+    e.title.toLowerCase().includes(q) || e.text.toLowerCase().includes(q)
+  ).slice(0, 25);
+  if (!hits.length) { searchResults.innerHTML = '<div class="search-empty">No results for "' + q + '"</div>'; return; }
+  searchResults.innerHTML = hits.map((h, i) => `
+    <div class="search-result" data-id="${h.id}" data-idx="${i}" onmousedown="selectResult('${h.id}')">
+      <div class="sr-title">${h.title}</div>
+      <div class="sr-meta">${h.domain}</div>
+    </div>`).join('');
+});
+
+function selectResult(id) {
+  closeSearch();
+  scrollToSection(id);
+}
+
+searchInput.addEventListener('keydown', e => {
+  const items = searchResults.querySelectorAll('.search-result');
+  if (e.key === 'ArrowDown') { e.preventDefault(); searchActive = Math.min(searchActive + 1, items.length - 1); items.forEach((el, i) => el.classList.toggle('active', i === searchActive)); }
+  else if (e.key === 'ArrowUp') { e.preventDefault(); searchActive = Math.max(searchActive - 1, 0); items.forEach((el, i) => el.classList.toggle('active', i === searchActive)); }
+  else if (e.key === 'Enter' && searchActive >= 0) { const el = items[searchActive]; if (el) selectResult(el.dataset.id); }
+  else if (e.key === 'Escape') closeSearch();
+});
+
+searchOverlay.addEventListener('click', e => { if (e.target === searchOverlay) closeSearch(); });
+document.getElementById('search-btn').addEventListener('click', openSearch);
+
+/* ================================================================
+   THEME
+   ================================================================ */
+const themeBtn = document.getElementById('theme-btn');
+function applyTheme(t) {
+  document.documentElement.dataset.theme = t;
+  themeBtn.textContent = t === 'dark' ? '☀' : '☾';
+  try { localStorage.setItem('az500-theme', t); } catch(e) {}
+}
+(function() { applyTheme(localStorage.getItem('az500-theme') || 'dark'); })();
+themeBtn.addEventListener('click', () => {
+  applyTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark');
+});
+
+/* ================================================================
+   SIDEBAR TOGGLE
+   ================================================================ */
+document.getElementById('sidebar-toggle').addEventListener('click', () => {
+  document.body.classList.toggle('sidebar-collapsed');
+  try { localStorage.setItem('az500-sidebar', document.body.classList.contains('sidebar-collapsed') ? '1' : '0'); } catch(e) {}
+});
+(function() {
+  if (localStorage.getItem('az500-sidebar') === '1') document.body.classList.add('sidebar-collapsed');
+})();
+
+/* ================================================================
+   EXPAND / COLLAPSE ALL
+   ================================================================ */
+document.getElementById('expand-btn').addEventListener('click', () => {
+  document.querySelectorAll('.domain-section, .lesson-card').forEach(el => el.classList.remove('collapsed'));
+  saveCollapseState();
+});
+document.getElementById('collapse-btn').addEventListener('click', () => {
+  document.querySelectorAll('.domain-section, .lesson-card').forEach(el => el.classList.add('collapsed'));
+  saveCollapseState();
+});
+
+/* ================================================================
+   SHORTCUTS MODAL
+   ================================================================ */
+const shortcutsModal = document.getElementById('shortcuts-modal');
+document.getElementById('shortcuts-btn').addEventListener('click', () => shortcutsModal.classList.toggle('open'));
+shortcutsModal.addEventListener('click', e => { if (e.target === shortcutsModal) shortcutsModal.classList.remove('open'); });
+
+/* ================================================================
+   KEYBOARD
+   ================================================================ */
+document.addEventListener('keydown', e => {
+  if (searchOverlay.classList.contains('open')) return;
+  if (shortcutsModal.classList.contains('open') && e.key === 'Escape') { shortcutsModal.classList.remove('open'); return; }
+  const tag = document.activeElement.tagName;
+  if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+  switch (e.key) {
+    case '/': e.preventDefault(); openSearch(); break;
+    case 'Escape': shortcutsModal.classList.remove('open'); break;
+    case 't': case 'T': applyTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'); break;
+    case 'b': case 'B': document.body.classList.toggle('sidebar-collapsed'); break;
+    case 'e': case 'E': document.querySelectorAll('.domain-section,.lesson-card').forEach(el => el.classList.remove('collapsed')); saveCollapseState(); break;
+    case 'c': case 'C': document.querySelectorAll('.domain-section,.lesson-card').forEach(el => el.classList.add('collapsed')); saveCollapseState(); break;
+    case '?': shortcutsModal.classList.toggle('open'); break;
+  }
+});
+</script>
+
+<!-- ================================================================
+     DATA — SECTIONS array
+     ================================================================ -->
+<script>
+const SECTIONS = [];
+</script>
+
+<!-- ==================== DOMAIN 1: Secure Identity and Access ==================== -->
+<script>
+SECTIONS.push({
+  id: 'domain-1',
+  title: 'Secure Identity and Access',
+  weight: '15–20%',
+  type: 'domain',
+  domainNum: 1,
+  subsections: [
+
+    /* ---- 1.1 Azure RBAC ---- */
+    {
+      id: 'd1-rbac',
+      title: 'Manage Azure RBAC Role Assignments',
+      concepts: ['RBAC', 'Built-in Roles', 'Custom Roles', 'Scope Hierarchy', 'ABAC', 'Deny Assignments', 'Role Assignment'],
+      body: `
+        <h4>Azure RBAC Overview</h4>
+        <p><strong>Azure Role-Based Access Control (RBAC)</strong> provides fine-grained access management for Azure resources. It uses an <em>additive</em> model — permissions are combined from all role assignments. RBAC is an <strong>allow-only</strong> system by default (deny assignments exist but are rare).</p>
+        <p>A <strong>role assignment</strong> has three components: a <strong>security principal</strong> (who), a <strong>role definition</strong> (what), and a <strong>scope</strong> (where).</p>
+        <h4>Scope Hierarchy</h4>
+        <p>Permissions inherit downward: <strong>Management Group → Subscription → Resource Group → Resource</strong>. A role assigned at a parent scope applies to all child scopes.</p>
+        <h4>Key Built-in Roles</h4>
+        <table>
+          <tr><th>Role</th><th>Description</th><th>Scope</th></tr>
+          <tr><td>Owner</td><td>Full access to all resources, can assign roles</td><td>Any</td></tr>
+          <tr><td>Contributor</td><td>Full access except role assignment</td><td>Any</td></tr>
+          <tr><td>Reader</td><td>View all resources</td><td>Any</td></tr>
+          <tr><td>User Access Administrator</td><td>Manage user access to resources</td><td>Any</td></tr>
+          <tr><td>Security Admin</td><td>View/update security policies, manage alerts</td><td>Any</td></tr>
+          <tr><td>Security Reader</td><td>View security policies, alerts, recommendations</td><td>Any</td></tr>
+          <tr><td>Key Vault Administrator</td><td>Full access to Key Vault data plane</td><td>Key Vault</td></tr>
+        </table>
+        <h4>Custom Roles</h4>
+        <p>When built-in roles don't meet your needs, create <strong>custom roles</strong>. Define <code>Actions</code>, <code>NotActions</code>, <code>DataActions</code>, and <code>NotDataActions</code>. Custom roles can be scoped to a management group or subscription and shared across subscriptions in the same Entra ID tenant.</p>
+        <h4>ABAC (Attribute-Based Access Control)</h4>
+        <p>ABAC adds <strong>role assignment conditions</strong> based on resource attributes. Example: grant <em>Storage Blob Data Reader</em> only for blobs tagged <code>Project=Alpha</code>. Conditions use the <code>@Resource</code> attribute in assignment expressions.</p>
+        <h4>Deny Assignments</h4>
+        <p>Deny assignments block specific actions even if a role grants them. Created by Azure Blueprints and managed apps — you cannot create deny assignments directly. Deny takes precedence over allow.</p>`,
+      commands: [
+        { cmd: 'az role assignment create', syntax: 'az role assignment create --assignee <principal> --role <role-name> --scope <scope>', desc: 'Create a role assignment' },
+        { cmd: 'az role assignment list', syntax: 'az role assignment list [--assignee <principal>] [--scope <scope>] [--role <role>]', desc: 'List role assignments' },
+        { cmd: 'az role definition create', syntax: 'az role definition create --role-definition <json-file>', desc: 'Create a custom role' },
+        { cmd: 'az role definition list', syntax: 'az role definition list [--custom-role-only true]', desc: 'List role definitions' },
+        { cmd: 'New-AzRoleAssignment', syntax: 'New-AzRoleAssignment -ObjectId <id> -RoleDefinitionName <role> -Scope <scope>', desc: 'Create a role assignment (PowerShell)' },
+      ],
+      tip: 'Know the difference between control plane (Actions/NotActions) and data plane (DataActions/NotDataActions) permissions. Storage Blob Data Reader is a DATA PLANE role — assigning Reader alone does NOT grant blob read access. Max 5000 custom roles per tenant.'
+    },
+
+    /* ---- 1.2 PIM ---- */
+    {
+      id: 'd1-pim',
+      title: 'Configure Privileged Identity Management (PIM)',
+      concepts: ['PIM', 'Eligible vs Active', 'Activation Flow', 'Just-in-Time', 'Approval Workflow', 'PIM for Groups', 'Access Reviews'],
+      body: `
+        <h4>PIM Overview</h4>
+        <p><strong>Privileged Identity Management (PIM)</strong> provides just-in-time (JIT) privileged access to Azure resources and Entra ID roles. It reduces the attack surface by minimizing the number of permanent administrators. Requires <strong>Entra ID P2</strong> license.</p>
+        <h4>Eligible vs Active Assignments</h4>
+        <table>
+          <tr><th>Type</th><th>Description</th><th>Access</th></tr>
+          <tr><td>Eligible</td><td>User must activate the role before use</td><td>On-demand, time-limited</td></tr>
+          <tr><td>Active (Permanent)</td><td>Role is always assigned</td><td>Persistent, no activation needed</td></tr>
+          <tr><td>Time-bound Active</td><td>Active for a specified period with start/end dates</td><td>Temporary persistent</td></tr>
+        </table>
+        <h4>PIM Settings per Role</h4>
+        <ul>
+          <li><strong>Maximum activation duration</strong> — 0.5 to 24 hours (default 8h)</li>
+          <li><strong>Require MFA on activation</strong> — enforce MFA before role becomes active</li>
+          <li><strong>Require justification</strong> — user must provide a reason</li>
+          <li><strong>Require approval</strong> — designated approvers must approve activation</li>
+          <li><strong>Require ticket information</strong> — link activation to a ticket system</li>
+          <li><strong>Allow permanent eligible/active assignment</strong> — can disable to force time-bound only</li>
+        </ul>
+        <h4>PIM for Groups</h4>
+        <p>Assign a group as <strong>eligible</strong> for a role. When a user activates the group membership, they inherit the group's role assignments. This simplifies management for multiple roles.</p>
+        <h4>PIM for Azure Resources</h4>
+        <p>PIM also covers Azure resource roles (Owner, Contributor, etc.) at any scope. Discovery must be run first to onboard subscriptions into PIM.</p>`,
+      diagram: `<svg viewBox="0 0 700 160" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="10">
+  <defs><marker id="arr" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#8b949e"/></marker></defs>
+  <!-- User -->
+  <rect x="10" y="50" width="100" height="60" rx="6" fill="#1c2128" stroke="#30363d"/>
+  <text x="60" y="76" text-anchor="middle" fill="#e6edf3" font-weight="600" textLength="80" lengthAdjust="spacingAndGlyphs">User</text>
+  <text x="60" y="96" text-anchor="middle" fill="#8b949e" font-size="9" textLength="80" lengthAdjust="spacingAndGlyphs">(Eligible Role)</text>
+  <!-- Arrow 1 -->
+  <line x1="110" y1="80" x2="155" y2="80" stroke="#30363d" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="133" y="72" text-anchor="middle" fill="#8b949e" font-size="8">Request</text>
+  <!-- Activate -->
+  <rect x="160" y="50" width="100" height="60" rx="6" fill="rgba(121,192,255,0.1)" stroke="rgba(121,192,255,0.4)"/>
+  <text x="210" y="76" text-anchor="middle" fill="#79c0ff" font-weight="600" textLength="80" lengthAdjust="spacingAndGlyphs">Activate</text>
+  <text x="210" y="96" text-anchor="middle" fill="#79c0ff" font-size="9" textLength="80" lengthAdjust="spacingAndGlyphs">+ Justification</text>
+  <!-- Arrow 2 -->
+  <line x1="260" y1="80" x2="305" y2="80" stroke="#30363d" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="283" y="72" text-anchor="middle" fill="#8b949e" font-size="8">Verify</text>
+  <!-- MFA -->
+  <rect x="310" y="50" width="90" height="60" rx="6" fill="rgba(247,129,102,0.1)" stroke="rgba(247,129,102,0.4)"/>
+  <text x="355" y="76" text-anchor="middle" fill="#f78166" font-weight="600" textLength="70" lengthAdjust="spacingAndGlyphs">MFA</text>
+  <text x="355" y="96" text-anchor="middle" fill="#f78166" font-size="9" textLength="70" lengthAdjust="spacingAndGlyphs">Challenge</text>
+  <!-- Arrow 3 -->
+  <line x1="400" y1="80" x2="445" y2="80" stroke="#30363d" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="423" y="72" text-anchor="middle" fill="#8b949e" font-size="8">Approve</text>
+  <!-- Approval -->
+  <rect x="450" y="50" width="100" height="60" rx="6" fill="rgba(210,168,255,0.1)" stroke="rgba(210,168,255,0.4)"/>
+  <text x="500" y="76" text-anchor="middle" fill="#d2a8ff" font-weight="600" textLength="80" lengthAdjust="spacingAndGlyphs">Approval</text>
+  <text x="500" y="96" text-anchor="middle" fill="#d2a8ff" font-size="9" textLength="80" lengthAdjust="spacingAndGlyphs">(if required)</text>
+  <!-- Arrow 4 -->
+  <line x1="550" y1="80" x2="595" y2="80" stroke="#30363d" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="573" y="72" text-anchor="middle" fill="#8b949e" font-size="8">Grant</text>
+  <!-- Active -->
+  <rect x="600" y="50" width="90" height="60" rx="6" fill="rgba(63,185,80,0.1)" stroke="rgba(63,185,80,0.4)"/>
+  <text x="645" y="76" text-anchor="middle" fill="#3fb950" font-weight="600" textLength="70" lengthAdjust="spacingAndGlyphs">Active</text>
+  <text x="645" y="96" text-anchor="middle" fill="#3fb950" font-size="9" textLength="70" lengthAdjust="spacingAndGlyphs">Time-limited</text>
+</svg>`,
+      commands: [
+        { cmd: 'az rest (PIM)', syntax: 'az rest --method POST --uri "https://graph.microsoft.com/v1.0/roleManagement/directory/roleAssignmentScheduleRequests" --body <json>', desc: 'Activate a PIM role via Graph API' },
+        { cmd: 'Get-AzureADMSPrivilegedRoleAssignment', syntax: 'Get-AzureADMSPrivilegedRoleAssignment -ProviderId aadRoles -ResourceId <tenantId>', desc: 'List PIM role assignments (deprecated module)' },
+      ],
+      tip: 'PIM requires Entra ID P2. Know the activation flow: Request → MFA → Approval → Active. PIM for Azure Resources must be "discovered" first (onboarded). The Global Administrator and Privileged Role Administrator roles manage PIM settings.'
+    },
+
+    /* ---- 1.3 MFA & Auth ---- */
+    {
+      id: 'd1-mfa',
+      title: 'Configure MFA and Authentication for Azure Resources',
+      concepts: ['MFA', 'Authentication Strengths', 'Phishing-Resistant MFA', 'Security Defaults', 'Per-User MFA', 'FIDO2', 'Passwordless'],
+      body: `
+        <h4>Authentication Strengths</h4>
+        <p>Authentication strengths define which MFA methods are acceptable. Used in Conditional Access policies to enforce stronger auth for sensitive resources.</p>
+        <table>
+          <tr><th>Strength Level</th><th>Methods Allowed</th><th>Phishing Resistant</th></tr>
+          <tr><td>MFA strength</td><td>Any MFA: Authenticator push, phone, OATH token</td><td>No</td></tr>
+          <tr><td>Passwordless MFA strength</td><td>FIDO2, WHfB, Authenticator (passwordless)</td><td>Partial</td></tr>
+          <tr><td>Phishing-resistant MFA strength</td><td>FIDO2, WHfB, Certificate-based auth (CBA)</td><td>Yes</td></tr>
+        </table>
+        <h4>Security Defaults</h4>
+        <p>A baseline set of identity security mechanisms automatically enabled on new tenants:</p>
+        <ul>
+          <li>Require all users to register for MFA within 14 days</li>
+          <li>Require admins to perform MFA at every sign-in</li>
+          <li>Block legacy authentication protocols</li>
+          <li>Require MFA for Azure management (portal, CLI, PowerShell)</li>
+        </ul>
+        <p><strong>Security defaults and Conditional Access are mutually exclusive</strong> — you must disable security defaults to use CA policies.</p>
+        <h4>Protecting Azure Management</h4>
+        <p>Use a Conditional Access policy targeting the <strong>Microsoft Azure Management</strong> cloud app to require MFA for portal, CLI, and PowerShell access. This covers the Azure portal, Azure Resource Manager, and Azure PowerShell/CLI.</p>
+        <h4>Per-User MFA vs Conditional Access MFA</h4>
+        <p>Per-user MFA (legacy) enables MFA for specific users regardless of context. Conditional Access MFA is recommended — it provides context-aware enforcement based on signals like location, device, and risk level.</p>`,
+      commands: [
+        { cmd: 'az account get-access-token', syntax: 'az account get-access-token --resource https://management.azure.com', desc: 'Get token for Azure management (triggers MFA if CA requires)' },
+      ],
+      tip: 'Security defaults are free and don\'t require P1/P2. But Conditional Access requires P1. You CANNOT use both at the same time. For the exam, know the three built-in authentication strength levels and what qualifies as phishing-resistant (FIDO2, WHfB, CBA only).'
+    },
+
+    /* ---- 1.4 Conditional Access ---- */
+    {
+      id: 'd1-ca',
+      title: 'Implement Conditional Access Policies',
+      concepts: ['Conditional Access', 'Grant Controls', 'Session Controls', 'Named Locations', 'Risk-Based Policies', 'Auth Context', 'Report-Only'],
+      body: `
+        <h4>Conditional Access Policy Structure</h4>
+        <p>A CA policy is an <strong>if-then</strong> statement: <em>When a signal matches, apply the control.</em> Policies evaluate at sign-in time.</p>
+        <h4>Signals (Conditions)</h4>
+        <ul>
+          <li><strong>Users and groups</strong> — include/exclude specific users, groups, roles, guest users</li>
+          <li><strong>Cloud apps or actions</strong> — target specific apps (e.g., Microsoft Azure Management, Office 365)</li>
+          <li><strong>Conditions</strong> — sign-in risk, user risk, device platform, location, client apps, device filter</li>
+          <li><strong>Authentication context</strong> — step-up auth triggered by app-level claims (e.g., access sensitive SharePoint label)</li>
+        </ul>
+        <h4>Grant Controls</h4>
+        <table>
+          <tr><th>Control</th><th>Description</th></tr>
+          <tr><td>Block access</td><td>Deny sign-in entirely</td></tr>
+          <tr><td>Require MFA</td><td>Force multi-factor authentication</td></tr>
+          <tr><td>Require authentication strength</td><td>Require specific MFA methods (e.g., phishing-resistant)</td></tr>
+          <tr><td>Require compliant device</td><td>Device must be Intune compliant</td></tr>
+          <tr><td>Require Entra hybrid joined</td><td>Device must be hybrid Entra joined</td></tr>
+          <tr><td>Require approved client app</td><td>Use of an Intune-approved application</td></tr>
+          <tr><td>Require app protection policy</td><td>Intune MAM policy must be applied</td></tr>
+          <tr><td>Require password change</td><td>Force password change (with risk policies)</td></tr>
+        </table>
+        <h4>Session Controls</h4>
+        <ul>
+          <li><strong>Sign-in frequency</strong> — force re-auth every N hours/days</li>
+          <li><strong>Persistent browser session</strong> — allow or disallow "stay signed in"</li>
+          <li><strong>Conditional Access App Control</strong> — route sessions through Defender for Cloud Apps (proxy)</li>
+          <li><strong>Customize continuous access evaluation</strong> — strictly enforce location policies</li>
+        </ul>
+        <h4>Named Locations</h4>
+        <p>Define trusted IP ranges or countries. Use in CA policies to skip MFA for trusted locations or block access from risky countries. Mark corporate IPs as <strong>trusted</strong> to reduce MFA friction.</p>
+        <h4>Report-Only Mode</h4>
+        <p>Test CA policies without enforcing them. Results appear in sign-in logs. Always deploy new policies in report-only mode first.</p>`,
+      diagram: `<svg viewBox="0 0 700 180" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="10">
+  <defs><marker id="arr2" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#8b949e"/></marker></defs>
+  <!-- Signals -->
+  <rect x="10" y="10" width="150" height="160" rx="8" fill="#161b22" stroke="#30363d" stroke-width="1.5"/>
+  <text x="85" y="30" text-anchor="middle" fill="#8b949e" font-size="9" font-weight="600" letter-spacing="1">SIGNALS</text>
+  <rect x="22" y="40" width="126" height="24" rx="4" fill="#1c2128" stroke="#30363d"/>
+  <text x="85" y="56" text-anchor="middle" fill="#79c0ff" font-size="9" textLength="114" lengthAdjust="spacingAndGlyphs">User / Group / Role</text>
+  <rect x="22" y="70" width="126" height="24" rx="4" fill="#1c2128" stroke="#30363d"/>
+  <text x="85" y="86" text-anchor="middle" fill="#f78166" font-size="9" textLength="114" lengthAdjust="spacingAndGlyphs">App / Auth Context</text>
+  <rect x="22" y="100" width="126" height="24" rx="4" fill="#1c2128" stroke="#30363d"/>
+  <text x="85" y="116" text-anchor="middle" fill="#3fb950" font-size="9" textLength="114" lengthAdjust="spacingAndGlyphs">Location / Platform</text>
+  <rect x="22" y="130" width="126" height="24" rx="4" fill="#1c2128" stroke="#30363d"/>
+  <text x="85" y="146" text-anchor="middle" fill="#d2a8ff" font-size="9" textLength="114" lengthAdjust="spacingAndGlyphs">Risk / Device State</text>
+  <!-- Arrow -->
+  <line x1="160" y1="90" x2="220" y2="90" stroke="#30363d" stroke-width="1.5" marker-end="url(#arr2)"/>
+  <text x="190" y="82" text-anchor="middle" fill="#8b949e" font-size="8">Evaluate</text>
+  <!-- Decision -->
+  <rect x="225" y="40" width="130" height="100" rx="8" fill="rgba(121,192,255,0.08)" stroke="rgba(121,192,255,0.3)" stroke-width="1.5"/>
+  <text x="290" y="60" text-anchor="middle" fill="#79c0ff" font-size="9" font-weight="600" letter-spacing="1">DECISION</text>
+  <text x="290" y="82" text-anchor="middle" fill="#e6edf3" font-size="9" textLength="110" lengthAdjust="spacingAndGlyphs">If conditions match</text>
+  <text x="290" y="98" text-anchor="middle" fill="#e6edf3" font-size="9" textLength="110" lengthAdjust="spacingAndGlyphs">→ Apply controls</text>
+  <text x="290" y="114" text-anchor="middle" fill="#8b949e" font-size="9" textLength="110" lengthAdjust="spacingAndGlyphs">Else → Allow</text>
+  <!-- Arrow -->
+  <line x1="355" y1="90" x2="415" y2="90" stroke="#30363d" stroke-width="1.5" marker-end="url(#arr2)"/>
+  <text x="385" y="82" text-anchor="middle" fill="#8b949e" font-size="8">Enforce</text>
+  <!-- Enforce -->
+  <rect x="420" y="10" width="270" height="160" rx="8" fill="#161b22" stroke="#30363d" stroke-width="1.5"/>
+  <text x="555" y="30" text-anchor="middle" fill="#8b949e" font-size="9" font-weight="600" letter-spacing="1">ENFORCEMENT</text>
+  <rect x="432" y="42" width="120" height="28" rx="4" fill="rgba(247,129,102,0.1)" stroke="rgba(247,129,102,0.3)"/>
+  <text x="492" y="60" text-anchor="middle" fill="#f78166" font-size="9" font-weight="600" textLength="104" lengthAdjust="spacingAndGlyphs">Block Access</text>
+  <rect x="558" y="42" width="120" height="28" rx="4" fill="rgba(63,185,80,0.1)" stroke="rgba(63,185,80,0.3)"/>
+  <text x="618" y="60" text-anchor="middle" fill="#3fb950" font-size="9" font-weight="600" textLength="104" lengthAdjust="spacingAndGlyphs">Require MFA</text>
+  <rect x="432" y="78" width="120" height="28" rx="4" fill="rgba(121,192,255,0.1)" stroke="rgba(121,192,255,0.3)"/>
+  <text x="492" y="96" text-anchor="middle" fill="#79c0ff" font-size="9" font-weight="600" textLength="104" lengthAdjust="spacingAndGlyphs">Compliant Device</text>
+  <rect x="558" y="78" width="120" height="28" rx="4" fill="rgba(210,168,255,0.1)" stroke="rgba(210,168,255,0.3)"/>
+  <text x="618" y="96" text-anchor="middle" fill="#d2a8ff" font-size="9" font-weight="600" textLength="104" lengthAdjust="spacingAndGlyphs">Auth Strength</text>
+  <rect x="432" y="114" width="246" height="28" rx="4" fill="rgba(227,179,65,0.1)" stroke="rgba(227,179,65,0.3)"/>
+  <text x="555" y="132" text-anchor="middle" fill="#e3b341" font-size="9" font-weight="600" textLength="230" lengthAdjust="spacingAndGlyphs">Session Controls (frequency, CAE, MCAS)</text>
+</svg>`,
+      tip: 'CA policies are NOT first-match — ALL matching policies apply. If one policy blocks and another allows, the BLOCK wins. Always test in report-only mode. Know that "Microsoft Azure Management" as a cloud app covers portal + CLI + PowerShell + ARM.'
+    },
+
+    /* ---- 1.5 Enterprise App Access ---- */
+    {
+      id: 'd1-app-access',
+      title: 'Manage Enterprise Application Access and Consent',
+      concepts: ['App Registration', 'Enterprise App', 'Service Principal', 'Delegated Permissions', 'Application Permissions', 'Consent Framework', 'Admin Consent'],
+      body: `
+        <h4>App Registration vs Enterprise App</h4>
+        <table>
+          <tr><th>Concept</th><th>Description</th><th>Scope</th></tr>
+          <tr><td>App Registration</td><td>The application's identity definition (template)</td><td>Home tenant</td></tr>
+          <tr><td>Enterprise Application</td><td>Service principal instance in a tenant</td><td>Each tenant where used</td></tr>
+          <tr><td>Service Principal</td><td>The identity the app uses to access resources</td><td>Per tenant</td></tr>
+        </table>
+        <h4>Permission Types</h4>
+        <table>
+          <tr><th>Type</th><th>Description</th><th>Granted By</th></tr>
+          <tr><td>Delegated</td><td>App acts on behalf of signed-in user; combined with user's permissions</td><td>User or admin consent</td></tr>
+          <tr><td>Application</td><td>App acts as itself (no user context); daemon/service scenarios</td><td>Admin consent only</td></tr>
+        </table>
+        <h4>Consent Framework</h4>
+        <ul>
+          <li><strong>User consent</strong> — users can grant delegated permissions from verified publishers (configurable)</li>
+          <li><strong>Admin consent</strong> — admin grants permissions tenant-wide; required for application permissions</li>
+          <li><strong>Admin consent workflow</strong> — users can request admin consent; admins review and approve/deny</li>
+          <li><strong>Disable user consent</strong> — force all consent through admins (most restrictive)</li>
+        </ul>
+        <h4>Service Principal Types</h4>
+        <ul>
+          <li><strong>Application</strong> — created for an app registration (most common)</li>
+          <li><strong>Managed identity</strong> — created for a managed identity (system/user-assigned)</li>
+          <li><strong>Legacy</strong> — created before app registrations existed</li>
+        </ul>`,
+      commands: [
+        { cmd: 'az ad app create', syntax: 'az ad app create --display-name <name> [--sign-in-audience AzureADMyOrg]', desc: 'Create an app registration' },
+        { cmd: 'az ad sp create', syntax: 'az ad sp create --id <app-id>', desc: 'Create a service principal for an app' },
+        { cmd: 'az ad app permission grant', syntax: 'az ad app permission grant --id <sp-id> --api <api-id> --scope <scope>', desc: 'Grant delegated permission consent' },
+        { cmd: 'az ad app permission admin-consent', syntax: 'az ad app permission admin-consent --id <app-id>', desc: 'Grant admin consent for all requested permissions' },
+      ],
+      tip: 'Application permissions ALWAYS require admin consent. Delegated permissions respect the intersection of the app\'s granted permissions and the user\'s own permissions. Know the consent settings: "Do not allow user consent", "Allow for verified publishers", and "Allow for all apps".'
+    },
+
+    /* ---- 1.6 Managed Identities ---- */
+    {
+      id: 'd1-managed-id',
+      title: 'Implement and Manage Managed Identities',
+      concepts: ['System-Assigned', 'User-Assigned', 'IMDS', 'Workload Identity Federation', 'DefaultAzureCredential', 'Managed Identity'],
+      body: `
+        <h4>Managed Identities Overview</h4>
+        <p>Managed identities eliminate the need for credentials in code. Azure automatically manages the identity's lifecycle and credentials. The identity is used to obtain tokens from Entra ID to access Azure resources.</p>
+        <h4>System-Assigned vs User-Assigned</h4>
+        <table>
+          <tr><th>Feature</th><th>System-Assigned</th><th>User-Assigned</th></tr>
+          <tr><td>Lifecycle</td><td>Tied to resource (created/deleted with it)</td><td>Independent (created separately)</td></tr>
+          <tr><td>Sharing</td><td>One-to-one (single resource)</td><td>Many-to-many (shared across resources)</td></tr>
+          <tr><td>Use case</td><td>Single resource needs unique identity</td><td>Multiple resources share an identity</td></tr>
+          <tr><td>Cleanup</td><td>Auto-deleted when resource is deleted</td><td>Must be manually deleted</td></tr>
+        </table>
+        <h4>IMDS (Instance Metadata Service)</h4>
+        <p>VMs and other compute resources obtain tokens by calling the <strong>Instance Metadata Service</strong> at <code>http://169.254.169.254/metadata/identity/oauth2/token</code>. This endpoint is only accessible from within the VM — no credentials needed.</p>
+        <h4>Workload Identity Federation</h4>
+        <p>For external workloads (GitHub Actions, Kubernetes, other clouds), <strong>workload identity federation</strong> enables token exchange without storing secrets. Configure a federated credential on an app registration that trusts tokens from an external IdP (e.g., GitHub OIDC provider).</p>
+        <h4>DefaultAzureCredential</h4>
+        <p>The Azure SDK's <code>DefaultAzureCredential</code> tries multiple credential sources in order: environment variables → workload identity → managed identity → Azure CLI → Azure PowerShell → Interactive browser. Use this in code for seamless local dev + production identity.</p>`,
+      commands: [
+        { cmd: 'az vm identity assign', syntax: 'az vm identity assign -g <rg> -n <vm> [--identities <user-mi-id>]', desc: 'Assign managed identity to a VM' },
+        { cmd: 'az identity create', syntax: 'az identity create -g <rg> -n <name>', desc: 'Create a user-assigned managed identity' },
+        { cmd: 'az role assignment create', syntax: 'az role assignment create --assignee <mi-principal-id> --role <role> --scope <scope>', desc: 'Grant a managed identity access to a resource' },
+        { cmd: 'az identity federated-credential create', syntax: 'az identity federated-credential create --identity-name <name> -g <rg> --issuer <url> --subject <sub> --audiences api://AzureADTokenExchange', desc: 'Create a federated credential' },
+      ],
+      tip: 'Managed identities are free and don\'t require any license. System-assigned is simpler but user-assigned is better for shared scenarios (e.g., multiple VMs accessing the same Key Vault). Know that IMDS is at 169.254.169.254 — a link-local address, not routable externally.'
+    }
+
+  ]
+});
+</script>
+
+<!-- ==================== DOMAIN 2: Secure Networking ==================== -->
+<script>
+SECTIONS.push({
+  id: 'domain-2',
+  title: 'Secure Networking',
+  weight: '20–25%',
+  type: 'domain',
+  domainNum: 2,
+  subsections: [
+
+    /* ---- 2.1 NSGs and ASGs ---- */
+    {
+      id: 'd2-nsg-asg',
+      title: 'Plan and Implement NSGs and ASGs',
+      concepts: ['NSG', 'ASG', 'Default Rules', 'Service Tags', 'Evaluation Order', 'Flow Logs', 'Augmented Rules'],
+      body: `
+        <h4>Network Security Groups</h4>
+        <p>A <strong>Network Security Group (NSG)</strong> contains a list of security rules that allow or deny inbound/outbound traffic. NSGs can be associated with <strong>subnets</strong> and/or <strong>NICs</strong>.</p>
+        <h4>Default Rules (cannot be deleted, lowest priority)</h4>
+        <table>
+          <tr><th>Direction</th><th>Name</th><th>Priority</th><th>Action</th></tr>
+          <tr><td>Inbound</td><td>AllowVNetInBound</td><td>65000</td><td>Allow VNet ↔ VNet</td></tr>
+          <tr><td>Inbound</td><td>AllowAzureLoadBalancerInBound</td><td>65001</td><td>Allow health probes</td></tr>
+          <tr><td>Inbound</td><td>DenyAllInBound</td><td>65500</td><td>Deny everything else</td></tr>
+          <tr><td>Outbound</td><td>AllowVNetOutBound</td><td>65000</td><td>Allow VNet ↔ VNet</td></tr>
+          <tr><td>Outbound</td><td>AllowInternetOutBound</td><td>65001</td><td>Allow outbound internet</td></tr>
+          <tr><td>Outbound</td><td>DenyAllOutBound</td><td>65500</td><td>Deny everything else</td></tr>
+        </table>
+        <h4>Rule Evaluation Order</h4>
+        <p>Rules are evaluated by <strong>priority number (lowest wins)</strong>. Range: 100–4096. Once a match is found, evaluation stops. Default rules use 65000–65500.</p>
+        <h4>Service Tags</h4>
+        <p>Predefined groups of IP ranges managed by Microsoft: <code>Internet</code>, <code>VirtualNetwork</code>, <code>AzureLoadBalancer</code>, <code>Storage</code>, <code>Sql</code>, <code>AzureKeyVault</code>, <code>AzureMonitor</code>, etc. Use instead of hardcoding IPs.</p>
+        <h4>Application Security Groups (ASGs)</h4>
+        <p>ASGs let you group VMs logically and reference them in NSG rules instead of explicit IPs. Example: create ASG "WebServers" and "DbServers", then allow port 1433 from WebServers to DbServers.</p>
+        <h4>NSG Flow Logs</h4>
+        <p>Log all traffic flowing through an NSG. Stored in a Storage Account in JSON format. Enable <strong>Traffic Analytics</strong> (requires Log Analytics workspace) for visualization and anomaly detection.</p>`,
+      diagram: `<svg viewBox="0 0 700 200" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="10">
+  <defs><marker id="arr3" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#8b949e"/></marker></defs>
+  <!-- Internet -->
+  <rect x="10" y="70" width="90" height="50" rx="6" fill="#1c2128" stroke="#30363d"/>
+  <text x="55" y="100" text-anchor="middle" fill="#e6edf3" font-weight="600" textLength="70" lengthAdjust="spacingAndGlyphs">Internet</text>
+  <!-- Arrow -->
+  <line x1="100" y1="95" x2="145" y2="95" stroke="#30363d" stroke-width="1.5" marker-end="url(#arr3)"/>
+  <!-- Subnet NSG -->
+  <rect x="150" y="20" width="160" height="160" rx="8" fill="rgba(247,129,102,0.06)" stroke="rgba(247,129,102,0.3)" stroke-width="1.5"/>
+  <text x="230" y="40" text-anchor="middle" fill="#f78166" font-size="9" font-weight="600" letter-spacing="1">SUBNET NSG</text>
+  <rect x="165" y="50" width="130" height="28" rx="4" fill="#1c2128" stroke="#30363d"/>
+  <text x="230" y="68" text-anchor="middle" fill="#e6edf3" font-size="9" textLength="118" lengthAdjust="spacingAndGlyphs">Inbound Rules (priority)</text>
+  <rect x="165" y="85" width="130" height="24" rx="4" fill="rgba(63,185,80,0.1)" stroke="rgba(63,185,80,0.3)"/>
+  <text x="230" y="101" text-anchor="middle" fill="#3fb950" font-size="9" textLength="118" lengthAdjust="spacingAndGlyphs">Allow: 100, 200, 300...</text>
+  <rect x="165" y="115" width="130" height="24" rx="4" fill="rgba(247,129,102,0.1)" stroke="rgba(247,129,102,0.3)"/>
+  <text x="230" y="131" text-anchor="middle" fill="#f78166" font-size="9" textLength="118" lengthAdjust="spacingAndGlyphs">Deny: DenyAllInBound</text>
+  <text x="230" y="165" text-anchor="middle" fill="#8b949e" font-size="8" textLength="140" lengthAdjust="spacingAndGlyphs">Lowest priority # wins</text>
+  <!-- Arrow -->
+  <line x1="310" y1="95" x2="355" y2="95" stroke="#30363d" stroke-width="1.5" marker-end="url(#arr3)"/>
+  <text x="333" y="87" text-anchor="middle" fill="#8b949e" font-size="8">Pass</text>
+  <!-- NIC NSG -->
+  <rect x="360" y="20" width="160" height="160" rx="8" fill="rgba(121,192,255,0.06)" stroke="rgba(121,192,255,0.3)" stroke-width="1.5"/>
+  <text x="440" y="40" text-anchor="middle" fill="#79c0ff" font-size="9" font-weight="600" letter-spacing="1">NIC NSG</text>
+  <rect x="375" y="50" width="130" height="28" rx="4" fill="#1c2128" stroke="#30363d"/>
+  <text x="440" y="68" text-anchor="middle" fill="#e6edf3" font-size="9" textLength="118" lengthAdjust="spacingAndGlyphs">Inbound Rules (priority)</text>
+  <rect x="375" y="85" width="130" height="24" rx="4" fill="rgba(63,185,80,0.1)" stroke="rgba(63,185,80,0.3)"/>
+  <text x="440" y="101" text-anchor="middle" fill="#3fb950" font-size="9" textLength="118" lengthAdjust="spacingAndGlyphs">Allow: 100, 200, 300...</text>
+  <rect x="375" y="115" width="130" height="24" rx="4" fill="rgba(247,129,102,0.1)" stroke="rgba(247,129,102,0.3)"/>
+  <text x="440" y="131" text-anchor="middle" fill="#f78166" font-size="9" textLength="118" lengthAdjust="spacingAndGlyphs">Deny: DenyAllInBound</text>
+  <text x="440" y="165" text-anchor="middle" fill="#8b949e" font-size="8" textLength="140" lengthAdjust="spacingAndGlyphs">Evaluated separately</text>
+  <!-- Arrow -->
+  <line x1="520" y1="95" x2="565" y2="95" stroke="#30363d" stroke-width="1.5" marker-end="url(#arr3)"/>
+  <text x="543" y="87" text-anchor="middle" fill="#8b949e" font-size="8">Pass</text>
+  <!-- VM -->
+  <rect x="570" y="60" width="110" height="70" rx="6" fill="rgba(63,185,80,0.1)" stroke="rgba(63,185,80,0.4)"/>
+  <text x="625" y="90" text-anchor="middle" fill="#3fb950" font-weight="600" textLength="90" lengthAdjust="spacingAndGlyphs">VM / Resource</text>
+  <text x="625" y="110" text-anchor="middle" fill="#3fb950" font-size="9" textLength="90" lengthAdjust="spacingAndGlyphs">Traffic allowed</text>
+</svg>`,
+      commands: [
+        { cmd: 'az network nsg create', syntax: 'az network nsg create -g <rg> -n <name>', desc: 'Create a network security group' },
+        { cmd: 'az network nsg rule create', syntax: 'az network nsg rule create -g <rg> --nsg-name <nsg> -n <rule> --priority <num> --access Allow|Deny --protocol Tcp|Udp|* --direction Inbound|Outbound --source-address-prefixes <src> --destination-port-ranges <ports>', desc: 'Create an NSG rule' },
+        { cmd: 'az network asg create', syntax: 'az network asg create -g <rg> -n <name>', desc: 'Create an application security group' },
+        { cmd: 'az network watcher flow-log create', syntax: 'az network watcher flow-log create -g <rg> --nsg <nsg-id> -n <name> --storage-account <sa-id> --enabled true', desc: 'Enable NSG flow logs' },
+      ],
+      tip: 'For INBOUND traffic: Subnet NSG is evaluated first, then NIC NSG. For OUTBOUND: NIC NSG first, then Subnet NSG. Traffic must be allowed by BOTH if both exist. If only one NSG is associated, only that one is evaluated. ASGs can only be used for NICs in the same VNet.'
+    },
+
+    /* ---- 2.2 VNet Connectivity, UDRs, VPN ---- */
+    {
+      id: 'd2-routing-connectivity',
+      title: 'Implement VNet Connectivity, UDRs, and VPN',
+      concepts: ['VNet Peering', 'UDR', 'Route Table', 'VPN Gateway', 'S2S', 'P2S', 'ExpressRoute', 'Virtual WAN', 'AVNM'],
+      body: `
+        <h4>VNet Peering</h4>
+        <p>Connects two VNets over the Microsoft backbone (no public internet). <strong>Non-transitive</strong> by default — if VNet A peers with B and B peers with C, A cannot reach C unless explicitly peered or using hub-spoke with a gateway/NVA.</p>
+        <ul>
+          <li><strong>Regional peering</strong> — VNets in the same region</li>
+          <li><strong>Global peering</strong> — VNets in different regions</li>
+          <li><strong>Allow gateway transit</strong> — share a VPN/ER gateway from the hub VNet</li>
+          <li><strong>Use remote gateway</strong> — spoke uses the hub's gateway for on-prem connectivity</li>
+        </ul>
+        <h4>User-Defined Routes (UDRs)</h4>
+        <p>Override Azure's default system routes. Associate a route table with a subnet. Common use cases:</p>
+        <ul>
+          <li>Force traffic through an NVA (firewall): next hop = Virtual Appliance IP</li>
+          <li>Force tunneling: send all internet traffic (0.0.0.0/0) to on-prem via VPN</li>
+          <li>Prevent direct communication between subnets</li>
+        </ul>
+        <p>Next hop types: <code>VirtualAppliance</code>, <code>VnetGateway</code>, <code>VirtualNetwork</code>, <code>Internet</code>, <code>None</code> (drop).</p>
+        <h4>VPN Gateway</h4>
+        <table>
+          <tr><th>Type</th><th>Description</th><th>Protocol</th></tr>
+          <tr><td>Site-to-Site (S2S)</td><td>On-prem to Azure over IPsec/IKE tunnel</td><td>IPsec IKEv2</td></tr>
+          <tr><td>Point-to-Site (P2S)</td><td>Individual client to Azure VNet</td><td>OpenVPN, IKEv2, SSTP</td></tr>
+          <tr><td>VNet-to-VNet</td><td>Azure VNet to VNet over IPsec tunnel</td><td>IPsec IKEv2</td></tr>
+        </table>
+        <p>VPN Gateway requires a dedicated subnet named <strong>GatewaySubnet</strong> (minimum /27 recommended).</p>
+        <h4>ExpressRoute</h4>
+        <p>Private connection from on-prem to Azure via a connectivity provider. Does NOT traverse the internet. Supports Microsoft Peering (M365/Dynamics) and Private Peering (VNets).</p>
+        <h4>Azure Virtual Network Manager (AVNM)</h4>
+        <p>Centrally manage VNet connectivity (hub-and-spoke or mesh) and security admin rules across subscriptions. Security admin rules take precedence over NSG rules.</p>`,
+      commands: [
+        { cmd: 'az network vnet peering create', syntax: 'az network vnet peering create -g <rg> --vnet-name <vnet1> -n <peering-name> --remote-vnet <vnet2-id> --allow-vnet-access', desc: 'Create a VNet peering' },
+        { cmd: 'az network route-table create', syntax: 'az network route-table create -g <rg> -n <name>', desc: 'Create a route table' },
+        { cmd: 'az network route-table route create', syntax: 'az network route-table route create -g <rg> --route-table-name <rt> -n <name> --address-prefix <cidr> --next-hop-type VirtualAppliance --next-hop-ip-address <ip>', desc: 'Create a UDR' },
+        { cmd: 'az network vnet-gateway create', syntax: 'az network vnet-gateway create -g <rg> -n <name> --vnet <vnet> --gateway-type Vpn --vpn-type RouteBased --sku VpnGw1 --public-ip-addresses <pip>', desc: 'Create a VPN Gateway' },
+      ],
+      tip: 'Peering is non-transitive: A↔B and B↔C does NOT mean A↔C. To enable transitivity, use gateway transit on the hub or deploy an NVA. UDRs with next hop "None" DROP traffic — useful for microsegmentation. GatewaySubnet should NOT have an NSG.'
+    },
+
+    /* ---- 2.3 Private Access ---- */
+    {
+      id: 'd2-private-access',
+      title: 'Implement Service Endpoints, Private Endpoints, and Private Link',
+      concepts: ['Service Endpoint', 'Private Endpoint', 'Private Link', 'Private DNS Zone', 'Private Link Service'],
+      body: `
+        <h4>Service Endpoints vs Private Endpoints</h4>
+        <table>
+          <tr><th>Feature</th><th>Service Endpoint</th><th>Private Endpoint</th></tr>
+          <tr><td>Traffic path</td><td>Optimized route over MS backbone, uses PaaS public IP</td><td>Private IP in your VNet</td></tr>
+          <tr><td>DNS</td><td>No DNS change needed</td><td>Requires Private DNS zone</td></tr>
+          <tr><td>Access from on-prem</td><td>Not supported (VNet-only)</td><td>Supported via VPN/ER + DNS</td></tr>
+          <tr><td>Cost</td><td>Free</td><td>Per-hour + per-GB processed</td></tr>
+          <tr><td>NSG support</td><td>Service endpoint policies (Storage only)</td><td>Full NSG on PE subnet</td></tr>
+          <tr><td>Scope</td><td>Entire PaaS service</td><td>Specific PaaS resource instance</td></tr>
+        </table>
+        <h4>Private Endpoint Architecture</h4>
+        <p>A private endpoint creates a NIC with a private IP in your VNet. DNS resolution for the PaaS resource is redirected to this private IP via a <strong>Private DNS Zone</strong> (e.g., <code>privatelink.blob.core.windows.net</code>).</p>
+        <h4>Private Link Service</h4>
+        <p>Expose YOUR OWN service behind a Standard Load Balancer to consumers in other VNets/tenants via Private Link. The consumer creates a Private Endpoint that connects to your Private Link Service.</p>
+        <h4>Common Private DNS Zone Names</h4>
+        <ul>
+          <li>Blob Storage: <code>privatelink.blob.core.windows.net</code></li>
+          <li>SQL Database: <code>privatelink.database.windows.net</code></li>
+          <li>Key Vault: <code>privatelink.vaultcore.azure.net</code></li>
+          <li>Web Apps: <code>privatelink.azurewebsites.net</code></li>
+          <li>ACR: <code>privatelink.azurecr.io</code></li>
+        </ul>`,
+      diagram: `<svg viewBox="0 0 700 160" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="10">
+  <defs><marker id="arr4" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#8b949e"/></marker></defs>
+  <!-- Client -->
+  <rect x="10" y="45" width="110" height="60" rx="6" fill="#1c2128" stroke="#30363d"/>
+  <text x="65" y="72" text-anchor="middle" fill="#e6edf3" font-weight="600" textLength="90" lengthAdjust="spacingAndGlyphs">Client / VM</text>
+  <text x="65" y="90" text-anchor="middle" fill="#8b949e" font-size="9" textLength="90" lengthAdjust="spacingAndGlyphs">10.0.1.5</text>
+  <!-- Arrow -->
+  <line x1="120" y1="75" x2="175" y2="75" stroke="#79c0ff" stroke-width="1.5" marker-end="url(#arr4)"/>
+  <text x="148" y="67" text-anchor="middle" fill="#79c0ff" font-size="8">DNS</text>
+  <!-- Private Endpoint -->
+  <rect x="180" y="30" width="140" height="85" rx="8" fill="rgba(121,192,255,0.08)" stroke="rgba(121,192,255,0.3)" stroke-width="1.5"/>
+  <text x="250" y="50" text-anchor="middle" fill="#79c0ff" font-size="9" font-weight="600" letter-spacing="1">PRIVATE ENDPOINT</text>
+  <rect x="195" y="58" width="110" height="22" rx="4" fill="#1c2128" stroke="#30363d"/>
+  <text x="250" y="73" text-anchor="middle" fill="#79c0ff" font-size="9" textLength="98" lengthAdjust="spacingAndGlyphs">NIC: 10.0.2.10</text>
+  <rect x="195" y="85" width="110" height="22" rx="4" fill="#1c2128" stroke="#30363d"/>
+  <text x="250" y="100" text-anchor="middle" fill="#8b949e" font-size="9" textLength="98" lengthAdjust="spacingAndGlyphs">Private DNS Zone</text>
+  <!-- Arrow -->
+  <line x1="320" y1="75" x2="375" y2="75" stroke="#d2a8ff" stroke-width="1.5" marker-end="url(#arr4)"/>
+  <text x="348" y="67" text-anchor="middle" fill="#d2a8ff" font-size="8">Private Link</text>
+  <!-- Private Link layer -->
+  <rect x="380" y="40" width="120" height="60" rx="6" fill="rgba(210,168,255,0.08)" stroke="rgba(210,168,255,0.3)"/>
+  <text x="440" y="65" text-anchor="middle" fill="#d2a8ff" font-weight="600" textLength="100" lengthAdjust="spacingAndGlyphs">Private Link</text>
+  <text x="440" y="85" text-anchor="middle" fill="#d2a8ff" font-size="9" textLength="100" lengthAdjust="spacingAndGlyphs">MS Backbone</text>
+  <!-- Arrow -->
+  <line x1="500" y1="75" x2="555" y2="75" stroke="#3fb950" stroke-width="1.5" marker-end="url(#arr4)"/>
+  <!-- PaaS Service -->
+  <rect x="560" y="35" width="130" height="70" rx="6" fill="rgba(63,185,80,0.08)" stroke="rgba(63,185,80,0.3)"/>
+  <text x="625" y="62" text-anchor="middle" fill="#3fb950" font-weight="600" textLength="110" lengthAdjust="spacingAndGlyphs">PaaS Resource</text>
+  <text x="625" y="82" text-anchor="middle" fill="#3fb950" font-size="9" textLength="110" lengthAdjust="spacingAndGlyphs">Storage / SQL / KV</text>
+</svg>`,
+      commands: [
+        { cmd: 'az network vnet subnet update', syntax: 'az network vnet subnet update -g <rg> --vnet-name <vnet> -n <subnet> --service-endpoints Microsoft.Storage Microsoft.Sql', desc: 'Enable service endpoints on a subnet' },
+        { cmd: 'az network private-endpoint create', syntax: 'az network private-endpoint create -g <rg> -n <name> --vnet-name <vnet> --subnet <subnet> --private-connection-resource-id <resource-id> --group-id <subresource> --connection-name <conn-name>', desc: 'Create a private endpoint' },
+        { cmd: 'az network private-dns zone create', syntax: 'az network private-dns zone create -g <rg> -n <zone-name>', desc: 'Create a private DNS zone' },
+        { cmd: 'az network private-dns link vnet create', syntax: 'az network private-dns link vnet create -g <rg> --zone-name <zone> -n <link-name> --virtual-network <vnet> --registration-enabled false', desc: 'Link private DNS zone to VNet' },
+      ],
+      tip: 'Service endpoints are FREE but don\'t work from on-prem. Private endpoints cost money but work from anywhere (on-prem via VPN/ER). You MUST create a Private DNS Zone and link it to the VNet for private endpoints to work. On the exam, know the correct privatelink.* zone name for each service.'
+    },
+
+    /* ---- 2.4 Azure Firewall ---- */
+    {
+      id: 'd2-firewall',
+      title: 'Configure Azure Firewall, Firewall Manager, and Policies',
+      concepts: ['Azure Firewall', 'DNAT', 'Network Rules', 'Application Rules', 'IDPS', 'TLS Inspection', 'Firewall Manager', 'Firewall Policy'],
+      body: `
+        <h4>Azure Firewall SKUs</h4>
+        <table>
+          <tr><th>SKU</th><th>Key Features</th></tr>
+          <tr><td>Basic</td><td>L3-L4 filtering, threat intelligence (alert only), 250 Mbps</td></tr>
+          <tr><td>Standard</td><td>L3-L7 filtering, FQDN filtering, threat intel (alert/deny), NAT</td></tr>
+          <tr><td>Premium</td><td>All Standard features + IDPS, TLS inspection, URL filtering, web categories</td></tr>
+        </table>
+        <h4>Rule Processing Order</h4>
+        <p>Azure Firewall evaluates rules in this fixed order:</p>
+        <ol>
+          <li><strong>DNAT rules</strong> — translate inbound traffic to backend resources (processed first)</li>
+          <li><strong>Network rules</strong> — L3/L4 rules (IP, port, protocol). If a network rule matches, no application rules are evaluated</li>
+          <li><strong>Application rules</strong> — L7 FQDN-based rules (HTTP/HTTPS). Evaluated last</li>
+        </ol>
+        <p>Within each rule type: rules from <strong>parent policies</strong> take priority, then child policies. Within a policy, rule collections are processed by <strong>priority (lowest first)</strong>.</p>
+        <h4>IDPS (Premium Only)</h4>
+        <p>Intrusion Detection and Prevention System based on signature matching. Modes: Alert (log only), Alert and Deny (block matching traffic). Covers 67,000+ signatures across 50+ categories.</p>
+        <h4>TLS Inspection (Premium Only)</h4>
+        <p>Terminates and re-encrypts HTTPS traffic for deep inspection. Requires an intermediate CA certificate stored in Key Vault. Clients must trust the CA certificate.</p>
+        <h4>Azure Firewall Manager</h4>
+        <p>Central management for Azure Firewall policies across multiple firewalls and regions. Supports <strong>Secured Virtual Hub</strong> (in Virtual WAN) and <strong>Hub Virtual Network</strong> deployments.</p>`,
+      diagram: `<svg viewBox="0 0 700 180" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="10">
+  <defs><marker id="arr5" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#8b949e"/></marker></defs>
+  <!-- Inbound traffic -->
+  <rect x="10" y="60" width="100" height="50" rx="6" fill="#1c2128" stroke="#30363d"/>
+  <text x="60" y="82" text-anchor="middle" fill="#e6edf3" font-weight="600" textLength="80" lengthAdjust="spacingAndGlyphs">Traffic</text>
+  <text x="60" y="100" text-anchor="middle" fill="#8b949e" font-size="9" textLength="80" lengthAdjust="spacingAndGlyphs">(Inbound)</text>
+  <!-- Arrow -->
+  <line x1="110" y1="85" x2="155" y2="85" stroke="#30363d" stroke-width="1.5" marker-end="url(#arr5)"/>
+  <!-- DNAT -->
+  <rect x="160" y="50" width="120" height="70" rx="6" fill="rgba(247,129,102,0.1)" stroke="rgba(247,129,102,0.4)"/>
+  <text x="220" y="72" text-anchor="middle" fill="#f78166" font-weight="600" textLength="100" lengthAdjust="spacingAndGlyphs">1. DNAT Rules</text>
+  <text x="220" y="90" text-anchor="middle" fill="#f78166" font-size="9" textLength="100" lengthAdjust="spacingAndGlyphs">Inbound NAT</text>
+  <text x="220" y="108" text-anchor="middle" fill="#8b949e" font-size="8" textLength="100" lengthAdjust="spacingAndGlyphs">(Processed first)</text>
+  <!-- Arrow -->
+  <line x1="280" y1="85" x2="315" y2="85" stroke="#30363d" stroke-width="1.5" marker-end="url(#arr5)"/>
+  <!-- Network -->
+  <rect x="320" y="50" width="120" height="70" rx="6" fill="rgba(121,192,255,0.1)" stroke="rgba(121,192,255,0.4)"/>
+  <text x="380" y="72" text-anchor="middle" fill="#79c0ff" font-weight="600" textLength="100" lengthAdjust="spacingAndGlyphs">2. Network Rules</text>
+  <text x="380" y="90" text-anchor="middle" fill="#79c0ff" font-size="9" textLength="100" lengthAdjust="spacingAndGlyphs">L3/L4 (IP, port)</text>
+  <text x="380" y="108" text-anchor="middle" fill="#8b949e" font-size="8" textLength="100" lengthAdjust="spacingAndGlyphs">(If match → stop)</text>
+  <!-- Arrow -->
+  <line x1="440" y1="85" x2="475" y2="85" stroke="#30363d" stroke-width="1.5" marker-end="url(#arr5)"/>
+  <!-- Application -->
+  <rect x="480" y="50" width="120" height="70" rx="6" fill="rgba(63,185,80,0.1)" stroke="rgba(63,185,80,0.4)"/>
+  <text x="540" y="72" text-anchor="middle" fill="#3fb950" font-weight="600" textLength="100" lengthAdjust="spacingAndGlyphs">3. App Rules</text>
+  <text x="540" y="90" text-anchor="middle" fill="#3fb950" font-size="9" textLength="100" lengthAdjust="spacingAndGlyphs">L7 FQDN-based</text>
+  <text x="540" y="108" text-anchor="middle" fill="#8b949e" font-size="8" textLength="100" lengthAdjust="spacingAndGlyphs">(Evaluated last)</text>
+  <!-- Arrow -->
+  <line x1="600" y1="85" x2="635" y2="85" stroke="#30363d" stroke-width="1.5" marker-end="url(#arr5)"/>
+  <!-- Result -->
+  <rect x="640" y="60" width="52" height="50" rx="6" fill="rgba(210,168,255,0.1)" stroke="rgba(210,168,255,0.3)"/>
+  <text x="666" y="90" text-anchor="middle" fill="#d2a8ff" font-weight="600" font-size="9">Allow</text>
+  <text x="666" y="102" text-anchor="middle" fill="#d2a8ff" font-size="8">or Deny</text>
+</svg>`,
+      commands: [
+        { cmd: 'az network firewall create', syntax: 'az network firewall create -g <rg> -n <name> --sku AZFW_VNet --tier Standard|Premium', desc: 'Create an Azure Firewall' },
+        { cmd: 'az network firewall policy create', syntax: 'az network firewall policy create -g <rg> -n <name> --sku Standard|Premium', desc: 'Create a firewall policy' },
+        { cmd: 'az network firewall policy rule-collection-group create', syntax: 'az network firewall policy rule-collection-group create -g <rg> --policy-name <policy> -n <name> --priority <num>', desc: 'Create a rule collection group' },
+        { cmd: 'az network firewall nat-rule create', syntax: 'az network firewall nat-rule create -g <rg> -f <fw> -c <collection> -n <rule> --source-addresses "*" --dest-addr <fw-pip> --dest-ports <port> --protocols Tcp --translated-address <backend-ip> --translated-port <port>', desc: 'Create a DNAT rule' },
+      ],
+      tip: 'The rule processing order is ALWAYS DNAT → Network → Application. IDPS and TLS inspection are Premium-only features. Azure Firewall requires a dedicated subnet named "AzureFirewallSubnet" (minimum /26). For forced tunneling, also create "AzureFirewallManagementSubnet".'
+    },
+
+    /* ---- 2.5 App Gateway, Front Door, WAF ---- */
+    {
+      id: 'd2-appgw-frontdoor',
+      title: 'Implement Application Gateway, Front Door, and WAF',
+      concepts: ['App Gateway v2', 'WAF', 'WAF Modes', 'Front Door', 'DDoS Protection', 'OWASP CRS', 'Custom Rules'],
+      body: `
+        <h4>Application Gateway v2</h4>
+        <p>L7 load balancer with <strong>WAF</strong>, SSL termination, URL-based routing, cookie-based affinity, and autoscaling. Deployed into a VNet (dedicated subnet: minimum /24 recommended).</p>
+        <h4>Web Application Firewall (WAF)</h4>
+        <table>
+          <tr><th>Mode</th><th>Description</th></tr>
+          <tr><td>Detection</td><td>Logs threats but does not block (monitoring)</td></tr>
+          <tr><td>Prevention</td><td>Blocks attacks that match rules</td></tr>
+        </table>
+        <p>WAF uses <strong>OWASP Core Rule Set (CRS)</strong> for protection against SQL injection, XSS, command injection, etc. Create <strong>custom rules</strong> for geo-filtering, rate limiting, and IP allow/deny lists. Custom rules are evaluated before managed rules.</p>
+        <h4>Azure Front Door</h4>
+        <p>Global L7 load balancer and CDN with built-in WAF, SSL offloading, and anycast routing. Operates at the edge (Microsoft POP locations). Use for global applications requiring low latency and high availability.</p>
+        <ul>
+          <li><strong>Front Door Standard</strong> — CDN + basic WAF</li>
+          <li><strong>Front Door Premium</strong> — CDN + advanced WAF + Private Link origin support + bot protection</li>
+        </ul>
+        <h4>DDoS Protection</h4>
+        <table>
+          <tr><th>Tier</th><th>Description</th><th>Cost</th></tr>
+          <tr><td>Network Protection</td><td>Always-on monitoring, auto-mitigation, metrics/alerts, DDoS Rapid Response</td><td>~$2,944/month + overage</td></tr>
+          <tr><td>IP Protection</td><td>Same core mitigation, per-IP pricing, no DRR or cost protection</td><td>~$199/month per IP</td></tr>
+        </table>`,
+      commands: [
+        { cmd: 'az network application-gateway create', syntax: 'az network application-gateway create -g <rg> -n <name> --sku WAF_v2 --capacity 2 --vnet-name <vnet> --subnet <subnet> --public-ip-address <pip>', desc: 'Create an App Gateway with WAF v2' },
+        { cmd: 'az network application-gateway waf-policy create', syntax: 'az network application-gateway waf-policy create -g <rg> -n <name>', desc: 'Create a WAF policy' },
+        { cmd: 'az afd profile create', syntax: 'az afd profile create -g <rg> --profile-name <name> --sku Standard_AzureFrontDoor|Premium_AzureFrontDoor', desc: 'Create an Azure Front Door profile' },
+      ],
+      tip: 'App Gateway is regional (single region), Front Door is global (edge). WAF custom rules are evaluated BEFORE managed rules. DDoS Network Protection provides cost protection guarantee and DDoS Rapid Response (DRR) team support. IP Protection tier is cheaper but lacks DRR.'
+    },
+
+    /* ---- 2.6 Network Watcher and TLS ---- */
+    {
+      id: 'd2-network-watcher',
+      title: 'Monitor Networks with Network Watcher and TLS',
+      concepts: ['Network Watcher', 'IP Flow Verify', 'Next Hop', 'Connection Troubleshoot', 'Traffic Analytics', 'Packet Capture', 'TLS'],
+      body: `
+        <h4>Network Watcher Tools</h4>
+        <table>
+          <tr><th>Tool</th><th>Purpose</th></tr>
+          <tr><td>IP Flow Verify</td><td>Test if a packet is allowed/denied by NSG rules — shows which rule matched</td></tr>
+          <tr><td>Next Hop</td><td>Determine the next hop for a packet from a VM — verify routing</td></tr>
+          <tr><td>Connection Troubleshoot</td><td>Test TCP/ICMP connectivity between source and destination</td></tr>
+          <tr><td>NSG Diagnostics</td><td>Show all NSG rules that apply to a NIC and whether traffic is allowed</td></tr>
+          <tr><td>Packet Capture</td><td>Capture packets on a VM NIC (requires Network Watcher Agent extension)</td></tr>
+          <tr><td>Connection Monitor</td><td>Continuous monitoring of connectivity between endpoints</td></tr>
+          <tr><td>Traffic Analytics</td><td>Analyze NSG flow logs — visualize traffic patterns, identify anomalies</td></tr>
+          <tr><td>VPN Troubleshoot</td><td>Diagnose VPN gateway and connection health</td></tr>
+        </table>
+        <h4>NSG Flow Logs + Traffic Analytics</h4>
+        <p>Flow logs capture L4 metadata (src/dst IP, port, protocol, action). Traffic Analytics processes flow logs using a Log Analytics workspace to provide insights: top talkers, geo-distribution, security threats, unused NSG rules.</p>
+        <h4>TLS Enforcement</h4>
+        <p>Enforce minimum TLS versions on Azure services:</p>
+        <ul>
+          <li><strong>Storage accounts</strong> — set <code>minimumTlsVersion</code> to <code>TLS1_2</code></li>
+          <li><strong>App Service</strong> — configure minimum TLS version in TLS/SSL settings</li>
+          <li><strong>SQL Database</strong> — set minimal TLS version to 1.2</li>
+          <li><strong>Key Vault</strong> — enforce TLS 1.2 on the vault</li>
+        </ul>`,
+      commands: [
+        { cmd: 'az network watcher test-ip-flow', syntax: 'az network watcher test-ip-flow --vm <vm-id> --direction Inbound|Outbound --local <ip:port> --remote <ip:port> --protocol Tcp|Udp', desc: 'Test if a packet is allowed or denied by NSG' },
+        { cmd: 'az network watcher show-next-hop', syntax: 'az network watcher show-next-hop --vm <vm-id> --source-ip <src> --dest-ip <dst>', desc: 'Determine the next hop for a packet' },
+        { cmd: 'az network watcher test-connectivity', syntax: 'az network watcher test-connectivity --source-resource <vm-id> --dest-address <ip-or-fqdn> --dest-port <port>', desc: 'Test connectivity between endpoints' },
+        { cmd: 'az network watcher packet-capture create', syntax: 'az network watcher packet-capture create -g <rg> --vm <vm> -n <name> --storage-account <sa-id>', desc: 'Start a packet capture on a VM' },
+      ],
+      tip: 'IP Flow Verify is the go-to tool for "why is my traffic being blocked by NSG?" — it tells you exactly which rule matched. Next Hop is for routing issues. Network Watcher is auto-enabled per region but requires the Network Watcher Agent extension for packet capture on VMs.'
+    },
+
+    /* ---- 2.7 Resource Firewalls ---- */
+    {
+      id: 'd2-resource-firewalls',
+      title: 'Configure Firewall Settings on PaaS Resources',
+      concepts: ['Storage Firewall', 'SQL Firewall', 'Key Vault Firewall', 'Trusted Services', 'IP Rules', 'VNet Rules'],
+      body: `
+        <h4>PaaS Resource Firewalls</h4>
+        <p>Most Azure PaaS services have built-in firewalls to restrict network access. Default is typically "allow all networks" — you should restrict to specific IPs and VNets.</p>
+        <h4>Storage Account Firewall</h4>
+        <ul>
+          <li>Default action: <strong>Allow</strong> (all networks) or <strong>Deny</strong> (selected networks only)</li>
+          <li>Add IP rules (individual IPs or CIDR ranges) and VNet rules (specific subnets with service endpoints)</li>
+          <li><strong>Trusted Microsoft services</strong> — allow Azure Backup, Azure Monitor, Event Grid, etc. to bypass the firewall</li>
+          <li>Resource instances: allow specific Azure resources (by managed identity) to access storage</li>
+        </ul>
+        <h4>Azure SQL Firewall</h4>
+        <ul>
+          <li><strong>Server-level IP firewall rules</strong> — allow specific IP ranges for all databases on the server</li>
+          <li><strong>Database-level IP firewall rules</strong> — per-database IP rules (managed via T-SQL)</li>
+          <li><strong>Allow Azure services</strong> — allow connections from Azure services (start/end IP = 0.0.0.0)</li>
+          <li>VNet rules: allow traffic from specific subnets (requires service endpoint)</li>
+        </ul>
+        <h4>Key Vault Firewall</h4>
+        <ul>
+          <li>Configure under Networking: allow public access from all/specific/no networks</li>
+          <li>Add IP rules and VNet service endpoint rules</li>
+          <li><strong>Allow trusted Microsoft services to bypass</strong> — enables services like Azure Backup, Disk Encryption, Managed Identity to access Key Vault</li>
+        </ul>
+        <h4>General Best Practices</h4>
+        <ul>
+          <li>Set default action to <strong>Deny</strong> and whitelist specific IPs/VNets</li>
+          <li>Always enable <strong>Trusted Microsoft services</strong> bypass when using Azure services</li>
+          <li>Prefer Private Endpoints over service firewalls for most secure access</li>
+          <li>Audit with Azure Policy: ensure firewalls are enabled on all PaaS resources</li>
+        </ul>`,
+      commands: [
+        { cmd: 'az storage account update', syntax: 'az storage account update -g <rg> -n <name> --default-action Deny', desc: 'Set storage firewall default to deny' },
+        { cmd: 'az storage account network-rule add', syntax: 'az storage account network-rule add -g <rg> --account-name <name> --ip-address <ip> | --vnet-name <vnet> --subnet <subnet>', desc: 'Add IP or VNet rule to storage firewall' },
+        { cmd: 'az sql server firewall-rule create', syntax: 'az sql server firewall-rule create -g <rg> -s <server> -n <rule> --start-ip-address <ip> --end-ip-address <ip>', desc: 'Create SQL server firewall rule' },
+        { cmd: 'az keyvault update', syntax: 'az keyvault update -g <rg> -n <name> --default-action Deny', desc: 'Set Key Vault firewall default to deny' },
+      ],
+      tip: 'When you set a storage firewall to "Deny", you MUST add your own IP or you\'ll lock yourself out of the portal. "Allow Azure services on the trusted services list" is a checkbox you almost always want enabled. SQL firewall rule 0.0.0.0 to 0.0.0.0 means "allow Azure services".'
+    }
+
+  ]
+});
+</script>
+
+<!-- ==================== DOMAIN 3: Secure Compute, Storage, and Databases ==================== -->
+<script>
+SECTIONS.push({
+  id: 'domain-3',
+  title: 'Secure Compute, Storage, and Databases',
+  weight: '20–25%',
+  type: 'domain',
+  domainNum: 3,
+  subsections: [
+
+    /* ---- 3.1 VM Security ---- */
+    {
+      id: 'd3-vm-security',
+      title: 'Secure VM Access with Bastion and JIT',
+      concepts: ['Azure Bastion', 'JIT VM Access', 'AzureBastionSubnet', 'Bastion SKUs', 'SSH/RDP', 'NSG JIT Rules'],
+      body: `
+        <h4>Azure Bastion</h4>
+        <p>Azure Bastion provides secure RDP/SSH access to VMs directly from the Azure portal over TLS — no public IP needed on the VM. Deployed into a dedicated subnet named <strong>AzureBastionSubnet</strong> (minimum /26).</p>
+        <table>
+          <tr><th>SKU</th><th>Key Features</th></tr>
+          <tr><td>Developer</td><td>Single VM at a time, no scaling, no VNet peering support</td></tr>
+          <tr><td>Basic</td><td>2 instances, manual scaling, RDP/SSH from portal only</td></tr>
+          <tr><td>Standard</td><td>Autoscale up to 50 instances, native client support, file transfer, shareable links, IP-based connections, VNet peering</td></tr>
+          <tr><td>Premium</td><td>All Standard + session recording, private-only deployment</td></tr>
+        </table>
+        <h4>Just-in-Time (JIT) VM Access</h4>
+        <p>JIT VM Access is a <strong>Defender for Servers</strong> feature that locks down management ports (RDP 3389, SSH 22) and opens them only when needed, for a limited time, to specific IPs.</p>
+        <ul>
+          <li>JIT creates temporary NSG rules with highest priority (100) to allow access</li>
+          <li>Rules auto-expire after the configured time window (default: 3 hours, max: 24 hours)</li>
+          <li>Users must have <code>Microsoft.Security/locations/jitNetworkAccessPolicies/initiate/action</code> permission</li>
+          <li>Works with Azure Firewall too (creates DNAT rules)</li>
+        </ul>
+        <h4>Bastion vs JIT</h4>
+        <table>
+          <tr><th>Feature</th><th>Bastion</th><th>JIT</th></tr>
+          <tr><td>Purpose</td><td>Secure access method (replaces public IP)</td><td>Time-limited port opening</td></tr>
+          <tr><td>Can be used together</td><td colspan="2">Yes — Bastion + JIT is the most secure combination</td></tr>
+          <tr><td>Requires</td><td>AzureBastionSubnet + Bastion host</td><td>Defender for Servers plan</td></tr>
+        </table>`,
+      commands: [
+        { cmd: 'az network bastion create', syntax: 'az network bastion create -g <rg> -n <name> --vnet-name <vnet> --public-ip-address <pip> --sku Standard', desc: 'Create an Azure Bastion host' },
+        { cmd: 'az network bastion ssh', syntax: 'az network bastion ssh -g <rg> -n <bastion> --target-resource-id <vm-id> --auth-type ssh-key --username <user> --ssh-key <path>', desc: 'SSH to a VM via Bastion (native client)' },
+        { cmd: 'az security jit-policy create', syntax: 'az security jit-policy create -g <rg> -n default -l <location> --virtual-machines <vm-config-json>', desc: 'Create a JIT access policy' },
+      ],
+      tip: 'AzureBastionSubnet must be at least /26. JIT requires Defender for Servers (Plan 1 or 2). The best practice is to use BOTH Bastion and JIT together — Bastion provides the secure channel, JIT provides time-limited access. The Developer SKU is cheapest but very limited.'
+    },
+
+    /* ---- 3.2 Container Security ---- */
+    {
+      id: 'd3-container-security',
+      title: 'Secure AKS, ACI, ACA, and ACR',
+      concepts: ['AKS', 'Private Cluster', 'Network Policy', 'Workload Identity', 'ACR', 'Defender for Containers', 'ACI', 'ACA'],
+      body: `
+        <h4>AKS Security Layers</h4>
+        <ul>
+          <li><strong>API Server access</strong> — use <em>private cluster</em> (API server gets a private IP) or authorized IP ranges</li>
+          <li><strong>Network policies</strong> — Calico or Azure Network Policy to control pod-to-pod traffic (default: all pods can communicate)</li>
+          <li><strong>Workload Identity</strong> — federate Kubernetes service accounts with Entra ID managed identities (replaces pod identity)</li>
+          <li><strong>Azure RBAC for AKS</strong> — use Entra ID + Azure RBAC for Kubernetes authorization</li>
+          <li><strong>Node security</strong> — auto-patched node images, Defender for Containers runtime protection</li>
+        </ul>
+        <h4>Azure Container Registry (ACR)</h4>
+        <table>
+          <tr><th>Feature</th><th>Basic</th><th>Standard</th><th>Premium</th></tr>
+          <tr><td>Storage</td><td>10 GiB</td><td>100 GiB</td><td>500 GiB</td></tr>
+          <tr><td>Geo-replication</td><td>✗</td><td>✗</td><td>✓</td></tr>
+          <tr><td>Private endpoints</td><td>✗</td><td>✗</td><td>✓</td></tr>
+          <tr><td>Content trust</td><td>✗</td><td>✗</td><td>✓</td></tr>
+        </table>
+        <ul>
+          <li><strong>ACR Roles</strong>: AcrPull (pull images), AcrPush (push/pull), Contributor (full, avoid), Owner</li>
+          <li><strong>Admin account</strong> — disabled by default; avoid in production (use service principal or managed identity)</li>
+          <li><strong>Content trust</strong> — sign images to guarantee integrity (Premium only)</li>
+        </ul>
+        <h4>Defender for Containers</h4>
+        <ul>
+          <li>Image vulnerability scanning (powered by Qualys/MDVM) in ACR and at runtime</li>
+          <li>Kubernetes runtime threat detection (suspicious processes, crypto mining, etc.)</li>
+          <li>Security posture for AKS — Kubernetes security best practices (CIS benchmark)</li>
+          <li>Multi-cloud support: AWS EKS, GCP GKE</li>
+        </ul>`,
+      diagram: `<svg viewBox="0 0 700 180" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="10">
+  <!-- AKS Security Layers -->
+  <rect x="10" y="10" width="680" height="160" rx="8" fill="#161b22" stroke="#30363d" stroke-width="1.5"/>
+  <text x="350" y="30" text-anchor="middle" fill="#8b949e" font-size="9" font-weight="600" letter-spacing="1">AKS SECURITY LAYERS</text>
+  <!-- Network -->
+  <rect x="25" y="42" width="150" height="55" rx="6" fill="rgba(247,129,102,0.1)" stroke="rgba(247,129,102,0.3)"/>
+  <text x="100" y="60" text-anchor="middle" fill="#f78166" font-weight="600" textLength="130" lengthAdjust="spacingAndGlyphs">Network</text>
+  <text x="100" y="76" text-anchor="middle" fill="#f78166" font-size="9" textLength="130" lengthAdjust="spacingAndGlyphs">Private cluster / NSG</text>
+  <text x="100" y="90" text-anchor="middle" fill="#f78166" font-size="9" textLength="130" lengthAdjust="spacingAndGlyphs">Network policies</text>
+  <!-- Identity -->
+  <rect x="185" y="42" width="150" height="55" rx="6" fill="rgba(121,192,255,0.1)" stroke="rgba(121,192,255,0.3)"/>
+  <text x="260" y="60" text-anchor="middle" fill="#79c0ff" font-weight="600" textLength="130" lengthAdjust="spacingAndGlyphs">Identity</text>
+  <text x="260" y="76" text-anchor="middle" fill="#79c0ff" font-size="9" textLength="130" lengthAdjust="spacingAndGlyphs">Workload Identity</text>
+  <text x="260" y="90" text-anchor="middle" fill="#79c0ff" font-size="9" textLength="130" lengthAdjust="spacingAndGlyphs">Entra RBAC</text>
+  <!-- Workload -->
+  <rect x="345" y="42" width="150" height="55" rx="6" fill="rgba(63,185,80,0.1)" stroke="rgba(63,185,80,0.3)"/>
+  <text x="420" y="60" text-anchor="middle" fill="#3fb950" font-weight="600" textLength="130" lengthAdjust="spacingAndGlyphs">Workload</text>
+  <text x="420" y="76" text-anchor="middle" fill="#3fb950" font-size="9" textLength="130" lengthAdjust="spacingAndGlyphs">ACR image scanning</text>
+  <text x="420" y="90" text-anchor="middle" fill="#3fb950" font-size="9" textLength="130" lengthAdjust="spacingAndGlyphs">Content trust</text>
+  <!-- Runtime -->
+  <rect x="505" y="42" width="170" height="55" rx="6" fill="rgba(210,168,255,0.1)" stroke="rgba(210,168,255,0.3)"/>
+  <text x="590" y="60" text-anchor="middle" fill="#d2a8ff" font-weight="600" textLength="150" lengthAdjust="spacingAndGlyphs">Runtime Protection</text>
+  <text x="590" y="76" text-anchor="middle" fill="#d2a8ff" font-size="9" textLength="150" lengthAdjust="spacingAndGlyphs">Defender for Containers</text>
+  <text x="590" y="90" text-anchor="middle" fill="#d2a8ff" font-size="9" textLength="150" lengthAdjust="spacingAndGlyphs">Threat detection</text>
+  <!-- Bottom bar -->
+  <rect x="25" y="110" width="650" height="45" rx="6" fill="rgba(227,179,65,0.08)" stroke="rgba(227,179,65,0.2)"/>
+  <text x="350" y="130" text-anchor="middle" fill="#e3b341" font-weight="600" textLength="200" lengthAdjust="spacingAndGlyphs">Monitoring &amp; Compliance</text>
+  <text x="350" y="147" text-anchor="middle" fill="#e3b341" font-size="9" textLength="400" lengthAdjust="spacingAndGlyphs">Azure Policy / Gatekeeper • CIS Benchmarks • Container Insights</text>
+</svg>`,
+      commands: [
+        { cmd: 'az aks create', syntax: 'az aks create -g <rg> -n <name> --enable-private-cluster --network-policy calico --enable-oidc-issuer --enable-workload-identity --attach-acr <acr-name>', desc: 'Create a private AKS cluster with security features' },
+        { cmd: 'az aks update', syntax: 'az aks update -g <rg> -n <name> --enable-defender', desc: 'Enable Defender for Containers on AKS' },
+        { cmd: 'az acr create', syntax: 'az acr create -g <rg> -n <name> --sku Premium --admin-enabled false', desc: 'Create a Premium ACR (no admin account)' },
+      ],
+      tip: 'Private cluster makes the API server accessible only via private IP. Workload Identity replaces the deprecated AAD Pod Identity. ACR Premium is required for private endpoints and content trust. Defender for Containers provides both vulnerability scanning and runtime threat detection.'
+    },
+
+    /* ---- 3.3 Disk Encryption ---- */
+    {
+      id: 'd3-disk-encryption',
+      title: 'Configure Disk Encryption and Confidential Computing',
+      concepts: ['SSE', 'ADE', 'Encryption at Host', 'Confidential Disk Encryption', 'Trusted Launch', 'PMK', 'CMK', 'DES'],
+      body: `
+        <h4>Disk Encryption Options</h4>
+        <table>
+          <tr><th>Method</th><th>Description</th><th>Key Management</th></tr>
+          <tr><td>SSE with PMK</td><td>Server-side encryption with platform-managed keys (default)</td><td>Microsoft manages keys</td></tr>
+          <tr><td>SSE with CMK</td><td>Server-side encryption with customer-managed keys</td><td>Customer keys in Key Vault</td></tr>
+          <tr><td>ADE</td><td>Azure Disk Encryption — OS-level encryption (BitLocker/DM-Crypt)</td><td>Keys in Key Vault</td></tr>
+          <tr><td>Encryption at Host</td><td>Encrypts data on the VM host before reaching storage</td><td>PMK or CMK</td></tr>
+          <tr><td>Confidential Disk Encryption</td><td>Encrypts OS disk with a key tied to VM's TPM</td><td>Bound to VM's vTPM</td></tr>
+        </table>
+        <h4>SSE (Server-Side Encryption)</h4>
+        <p>All Azure managed disks are encrypted at rest with <strong>256-bit AES</strong> SSE by default using <strong>platform-managed keys (PMK)</strong>. To use your own keys, create a <strong>Disk Encryption Set (DES)</strong> linked to a Key Vault.</p>
+        <h4>Azure Disk Encryption (ADE)</h4>
+        <p>Uses <strong>BitLocker</strong> (Windows) or <strong>DM-Crypt</strong> (Linux) inside the guest OS. Encryption keys are stored in Azure Key Vault. ADE is a <strong>VM extension</strong> — requires the Key Vault to allow disk encryption access.</p>
+        <h4>Trusted Launch</h4>
+        <ul>
+          <li><strong>Secure Boot</strong> — ensures only signed OS components load at boot</li>
+          <li><strong>vTPM</strong> — virtual Trusted Platform Module for measured boot and key storage</li>
+          <li><strong>Integrity Monitoring</strong> — detect boot-level tampering (requires Guest Attestation extension)</li>
+          <li>Available on Gen 2 VMs; recommended for all new VMs</li>
+        </ul>
+        <h4>Double Encryption</h4>
+        <p>Combine SSE (infrastructure layer) with ADE (OS layer) for two layers of encryption with two different keys.</p>`,
+      commands: [
+        { cmd: 'az disk-encryption-set create', syntax: 'az disk-encryption-set create -g <rg> -n <name> --key-url <key-vault-key-url> --source-vault <vault-id>', desc: 'Create a disk encryption set with CMK' },
+        { cmd: 'az vm encryption enable', syntax: 'az vm encryption enable -g <rg> -n <vm> --disk-encryption-keyvault <vault-name> [--volume-type All|OS|Data]', desc: 'Enable Azure Disk Encryption on a VM' },
+        { cmd: 'az vm encryption show', syntax: 'az vm encryption show -g <rg> -n <vm>', desc: 'Show disk encryption status' },
+        { cmd: 'az vm create (trusted launch)', syntax: 'az vm create -g <rg> -n <name> --image <image> --security-type TrustedLaunch --enable-secure-boot true --enable-vtpm true', desc: 'Create a VM with Trusted Launch' },
+      ],
+      tip: 'SSE is ALWAYS on (you cannot disable it). ADE and SSE are different layers. ADE uses a Key Vault — the vault must have "Azure Disk Encryption for volume encryption" access policy enabled. Encryption at Host encrypts temp disks and cache too. Confidential computing uses DCsv3/ECsv3 VMs with AMD SEV-SNP.'
+    },
+
+    /* ---- 3.4 Storage Security ---- */
+    {
+      id: 'd3-storage-security',
+      title: 'Secure Storage Account Access and Data Protection',
+      concepts: ['Access Keys', 'SAS', 'Entra Auth', 'Soft Delete', 'Versioning', 'Immutable Storage', 'BYOK', 'Double Encryption', 'Lifecycle Management'],
+      body: `
+        <h4>Authentication Methods</h4>
+        <table>
+          <tr><th>Method</th><th>Description</th><th>Recommended</th></tr>
+          <tr><td>Access Keys</td><td>Two 512-bit keys for full account access</td><td>No — rotate regularly, use Key Vault</td></tr>
+          <tr><td>SAS (Shared Access Signature)</td><td>Time-limited, scoped access token</td><td>For temporary access</td></tr>
+          <tr><td>Entra ID (RBAC)</td><td>Identity-based access with Storage data roles</td><td>Yes — best practice</td></tr>
+        </table>
+        <h4>SAS Types</h4>
+        <ul>
+          <li><strong>Account SAS</strong> — access to one or more services (blob, file, queue, table)</li>
+          <li><strong>Service SAS</strong> — access to resources in a single service</li>
+          <li><strong>User Delegation SAS</strong> — signed with Entra ID credentials (most secure, blob/ADLS only)</li>
+        </ul>
+        <p>Always prefer <strong>User Delegation SAS</strong> over account/service SAS (signed with access key).</p>
+        <h4>Data Protection</h4>
+        <ul>
+          <li><strong>Soft delete</strong> — recoverable delete for blobs (1–365 days retention), containers, and file shares</li>
+          <li><strong>Blob versioning</strong> — automatically maintain previous versions of blobs</li>
+          <li><strong>Point-in-time restore</strong> — restore block blobs to a previous state</li>
+          <li><strong>Immutable storage</strong> — WORM (Write Once, Read Many) policies:</li>
+          <ul>
+            <li><strong>Time-based retention</strong> — data cannot be modified/deleted for N days</li>
+            <li><strong>Legal hold</strong> — data protected until hold is removed (no time limit)</li>
+          </ul>
+          <li><strong>Resource locks</strong> — prevent accidental deletion at resource/RG/subscription level</li>
+        </ul>
+        <h4>Encryption</h4>
+        <ul>
+          <li>All data encrypted at rest with <strong>256-bit AES SSE</strong> (always on)</li>
+          <li><strong>CMK (Customer-Managed Key)</strong> — bring your own key from Key Vault or Managed HSM</li>
+          <li><strong>Infrastructure encryption</strong> — double encryption at the infrastructure level (two keys, two algorithms)</li>
+          <li><strong>Encryption scope</strong> — per-container or per-blob encryption with different keys</li>
+        </ul>`,
+      commands: [
+        { cmd: 'az storage account keys renew', syntax: 'az storage account keys renew -g <rg> -n <name> --key primary|secondary', desc: 'Rotate a storage access key' },
+        { cmd: 'az storage account update', syntax: 'az storage account update -g <rg> -n <name> --allow-shared-key-access false', desc: 'Disable shared key access (force Entra auth)' },
+        { cmd: 'az storage blob immutability-policy set', syntax: 'az storage blob immutability-policy set --account-name <sa> -c <container> --period <days> --policy-mode Unlocked|Locked', desc: 'Set immutable storage policy' },
+        { cmd: 'az storage account update', syntax: 'az storage account update -g <rg> -n <name> --encryption-key-source Microsoft.Keyvault --encryption-key-vault <vault-url> --encryption-key-name <key> --encryption-key-version <ver>', desc: 'Enable CMK encryption on storage' },
+      ],
+      tip: 'User Delegation SAS is the most secure SAS type — it\'s signed with Entra ID, not an access key. Disable shared key access (<code>--allow-shared-key-access false</code>) to force all access through Entra ID. Immutable storage with "Locked" time-based retention CANNOT be shortened — only extended. Infrastructure encryption (double encryption) must be enabled at storage account creation.'
+    },
+
+    /* ---- 3.5 API Management ---- */
+    {
+      id: 'd3-api-mgmt',
+      title: 'Secure API Management',
+      concepts: ['APIM', 'Subscription Keys', 'JWT Validation', 'Client Certificates', 'VNet Integration', 'OAuth 2.0', 'Rate Limiting'],
+      body: `
+        <h4>API Management Security Features</h4>
+        <p>Azure API Management (APIM) is a gateway that protects, manages, and analyzes APIs. It sits between consumers and backend services.</p>
+        <h4>Authentication Methods</h4>
+        <table>
+          <tr><th>Method</th><th>Description</th><th>Policy</th></tr>
+          <tr><td>Subscription Keys</td><td>API key passed in header or query string</td><td>Built-in (no policy needed)</td></tr>
+          <tr><td>JWT Validation</td><td>Validate OAuth 2.0 / OIDC tokens</td><td><code>validate-jwt</code></td></tr>
+          <tr><td>Client Certificates</td><td>Mutual TLS (mTLS) authentication</td><td><code>validate-client-certificate</code></td></tr>
+          <tr><td>OAuth 2.0</td><td>Authorize using Entra ID tokens</td><td><code>validate-azure-ad-token</code></td></tr>
+        </table>
+        <h4>Key Security Policies</h4>
+        <ul>
+          <li><code>validate-jwt</code> — validate JWT tokens (issuer, audience, claims, expiry)</li>
+          <li><code>rate-limit</code> — throttle requests per subscription (e.g., 100 calls/minute)</li>
+          <li><code>rate-limit-by-key</code> — throttle by custom key (IP, user, etc.)</li>
+          <li><code>ip-filter</code> — allow/deny requests by caller IP</li>
+          <li><code>cors</code> — configure Cross-Origin Resource Sharing</li>
+          <li><code>set-backend-service</code> — route to different backends based on conditions</li>
+        </ul>
+        <h4>Network Security</h4>
+        <ul>
+          <li><strong>External VNet</strong> — APIM gateway is accessible from internet, backend in VNet</li>
+          <li><strong>Internal VNet</strong> — APIM gateway only accessible from VNet (requires Application Gateway for external access)</li>
+          <li><strong>Private endpoint</strong> — expose APIM via private IP in your VNet</li>
+        </ul>`,
+      commands: [
+        { cmd: 'az apim create', syntax: 'az apim create -g <rg> -n <name> --publisher-name <name> --publisher-email <email> --sku-name Developer|Standard|Premium', desc: 'Create an API Management instance' },
+        { cmd: 'az apim api create', syntax: 'az apim api create -g <rg> -n <apim> --api-id <id> --display-name <name> --path <path> --service-url <backend-url>', desc: 'Create an API in APIM' },
+      ],
+      tip: 'The <code>validate-jwt</code> policy is the most common security policy tested. Know the difference between inbound, backend, outbound, and on-error policy sections. Subscription keys are the simplest auth but provide no identity — use JWT validation for production APIs. Internal VNet mode requires an Application Gateway in front for internet access.'
+    },
+
+    /* ---- 3.6 Database Security ---- */
+    {
+      id: 'd3-database-security',
+      title: 'Secure Azure SQL and Database Services',
+      concepts: ['Entra DB Auth', 'Auditing', 'Dynamic Data Masking', 'TDE', 'Always Encrypted', 'Ledger', 'SQL Firewall'],
+      body: `
+        <h4>Authentication</h4>
+        <ul>
+          <li><strong>SQL Authentication</strong> — username/password stored in SQL (legacy)</li>
+          <li><strong>Entra ID Authentication</strong> — sign in with Entra identities; set an <strong>Entra admin</strong> on the SQL server</li>
+          <li><strong>Entra-only authentication</strong> — disable SQL auth entirely (most secure)</li>
+        </ul>
+        <h4>Auditing</h4>
+        <p>Track database events and write them to an audit log in Storage Account, Log Analytics workspace, or Event Hub. Configure at server level (applies to all databases) or database level.</p>
+        <h4>Dynamic Data Masking</h4>
+        <p>Automatically masks sensitive data in query results for non-privileged users. Masking rules:</p>
+        <table>
+          <tr><th>Function</th><th>Description</th><th>Example</th></tr>
+          <tr><td>Default</td><td>Full mask for string (XXXX), 0 for number, 01-01-1900 for date</td><td>XXXX</td></tr>
+          <tr><td>Email</td><td>Expose first letter and domain suffix</td><td>aXXX@XXXX.com</td></tr>
+          <tr><td>Random number</td><td>Replace numeric with random in range</td><td>Random 1–100</td></tr>
+          <tr><td>Custom string</td><td>Expose prefix/suffix, pad middle</td><td>XX5678XX</td></tr>
+        </table>
+        <p>Users with <code>UNMASK</code> permission see unmasked data. <code>db_owner</code> and <code>sysadmin</code> always see unmasked data.</p>
+        <h4>Transparent Data Encryption (TDE)</h4>
+        <p>Encrypts data at rest at the database file level. Enabled by default on new databases with service-managed keys. Can use <strong>customer-managed keys (CMK)</strong> from Key Vault (Bring Your Own Key — BYOK).</p>
+        <h4>Always Encrypted</h4>
+        <p>Client-side encryption where the database engine never sees plaintext. Data is encrypted/decrypted in the client application using <strong>Column Encryption Keys (CEKs)</strong> protected by <strong>Column Master Keys (CMKs)</strong> in Key Vault or Windows Certificate Store.</p>
+        <ul>
+          <li><strong>Deterministic encryption</strong> — same plaintext always produces same ciphertext (supports equality comparisons, GROUP BY, joins)</li>
+          <li><strong>Randomized encryption</strong> — more secure but no query support on encrypted column</li>
+        </ul>`,
+      commands: [
+        { cmd: 'az sql server ad-admin create', syntax: 'az sql server ad-admin create -g <rg> -s <server> --display-name <name> --object-id <entra-id>', desc: 'Set Entra admin for SQL server' },
+        { cmd: 'az sql server audit-policy update', syntax: 'az sql server audit-policy update -g <rg> -n <server> --state Enabled --storage-account <sa-id>', desc: 'Enable SQL auditing' },
+        { cmd: 'az sql db tde set', syntax: 'az sql db tde set -g <rg> -s <server> -d <db> --status Enabled', desc: 'Enable TDE on a database' },
+        { cmd: 'az sql server tde-key set', syntax: 'az sql server tde-key set -g <rg> -s <server> --server-key-type AzureKeyVault --kid <key-vault-key-id>', desc: 'Configure TDE with CMK (BYOK)' },
+      ],
+      tip: 'TDE is ON by default for new databases. Always Encrypted is for protecting data even from database admins — the server never sees plaintext. Dynamic Data Masking is NOT encryption — it\'s a display-layer mask that can be bypassed by users with UNMASK permission. Know that Always Encrypted deterministic mode allows equality queries but NOT range queries.'
+    },
+
+    /* ---- 3.7 Key Management ---- */
+    {
+      id: 'd3-key-mgmt',
+      title: 'Implement BYOK and Double Encryption',
+      concepts: ['Envelope Encryption', 'CMK', 'Key Rotation', 'Double Encryption', 'Managed HSM', 'Key Wrapping', 'Infrastructure Encryption'],
+      body: `
+        <h4>Envelope Encryption</h4>
+        <p>Azure uses <strong>envelope encryption</strong>: data is encrypted with a <strong>Data Encryption Key (DEK)</strong>, and the DEK is encrypted (wrapped) with a <strong>Key Encryption Key (KEK)</strong> stored in Key Vault or Managed HSM.</p>
+        <ul>
+          <li><strong>PMK</strong> — platform-managed keys: Microsoft manages the entire key hierarchy</li>
+          <li><strong>CMK</strong> — customer-managed keys: you manage the KEK in your Key Vault</li>
+          <li><strong>BYOK</strong> — bring your own key: import your on-prem HSM key into Key Vault</li>
+        </ul>
+        <h4>Key Rotation</h4>
+        <p>Rotate keys regularly to limit the impact of key compromise:</p>
+        <ul>
+          <li><strong>Automatic rotation</strong> — Key Vault can auto-rotate keys based on a rotation policy</li>
+          <li><strong>Event Grid notifications</strong> — trigger on <code>Microsoft.KeyVault.KeyNearExpiry</code> to alert or automate</li>
+          <li>When a new key version is created, services using the key auto-detect the new version (for most services)</li>
+        </ul>
+        <h4>Double Encryption</h4>
+        <p>Two layers of encryption with two different keys at two different levels:</p>
+        <table>
+          <tr><th>Layer</th><th>Description</th><th>Key</th></tr>
+          <tr><td>Infrastructure layer</td><td>SSE at the storage infrastructure level</td><td>PMK (Microsoft-managed)</td></tr>
+          <tr><td>Service layer</td><td>SSE with CMK at the service level</td><td>CMK (your Key Vault key)</td></tr>
+        </table>
+        <p>Double encryption is available for Storage, SQL Database, managed disks, and other services. Must be enabled at resource creation.</p>
+        <h4>Managed HSM</h4>
+        <p><strong>Azure Key Vault Managed HSM</strong> provides FIPS 140-2 Level 3 validated HSMs with full customer control of the security domain. Use for the highest security requirements where you need single-tenant HSM and crypto boundary isolation.</p>
+        <ul>
+          <li>Standard Key Vault: FIPS 140-2 Level 1 (software) or Level 2 (HSM-backed)</li>
+          <li>Managed HSM: FIPS 140-2 Level 3 (full HSM, customer holds security domain)</li>
+        </ul>`,
+      commands: [
+        { cmd: 'az keyvault key rotation-policy update', syntax: 'az keyvault key rotation-policy update --vault-name <vault> -n <key> --value <policy-json>', desc: 'Set key auto-rotation policy' },
+        { cmd: 'az keyvault key rotate', syntax: 'az keyvault key rotate --vault-name <vault> -n <key>', desc: 'Manually rotate a key (create new version)' },
+        { cmd: 'az keyvault key import', syntax: 'az keyvault key import --vault-name <vault> -n <key> --byok-file <path> [--protection hsm]', desc: 'Import a BYOK key into Key Vault' },
+      ],
+      tip: 'Double encryption (infrastructure encryption) must be enabled at CREATION time — you cannot add it later. Managed HSM is for customers with regulatory requirements for FIPS 140-2 Level 3. Standard Key Vault HSM keys are Level 2. Key Vault auto-rotation creates a new key version — most Azure services auto-detect the new version without reconfiguration.'
+    }
+
+  ]
+});
+</script>
+
+<!-- ==================== DOMAIN 4: Secure Azure Using Defender for Cloud and Sentinel ==================== -->
+<script>
+SECTIONS.push({
+  id: 'domain-4',
+  title: 'Secure Azure Using Defender for Cloud and Sentinel',
+  weight: '30–35%',
+  type: 'domain',
+  domainNum: 4,
+  subsections: [
+
+    /* ---- 4.1 Azure Policy ---- */
+    {
+      id: 'd4-policy',
+      title: 'Implement and Manage Azure Policy',
+      concepts: ['Azure Policy', 'Effects', 'Initiatives', 'Assignments', 'Remediation', 'Exemptions', 'Compliance', 'Policy Scope'],
+      body: `
+        <h4>Azure Policy Overview</h4>
+        <p>Azure Policy enforces organizational standards and assesses compliance at scale. Policies evaluate resources during creation, updates, and periodic compliance scans (every 24h).</p>
+        <h4>Policy Effects (Evaluation Order)</h4>
+        <p>Effects are evaluated in this specific order — the first matching effect wins:</p>
+        <ol>
+          <li><strong>Disabled</strong> — policy is off</li>
+          <li><strong>Append</strong> — add fields to the resource request (e.g., add tags)</li>
+          <li><strong>Modify</strong> — add, update, or remove properties/tags (requires managed identity for remediation)</li>
+          <li><strong>Deny</strong> — block the resource request</li>
+          <li><strong>Audit</strong> — log a warning in the activity log but allow the resource</li>
+          <li><strong>AuditIfNotExists</strong> — audit if a related resource doesn't exist</li>
+          <li><strong>DeployIfNotExists</strong> — deploy a related resource if it doesn't exist (requires managed identity)</li>
+        </ol>
+        <h4>Initiatives (Policy Sets)</h4>
+        <p>Group related policies into an <strong>initiative</strong> for easier management. Example: "CIS Azure Foundations Benchmark" initiative contains dozens of individual policies.</p>
+        <h4>Assignments</h4>
+        <p>Assign a policy or initiative to a scope (Management Group, Subscription, Resource Group). Assignments can have <strong>exclusions</strong> and <strong>parameter overrides</strong>.</p>
+        <h4>Remediation</h4>
+        <p>For <code>DeployIfNotExists</code> and <code>Modify</code> effects, create a <strong>remediation task</strong> to fix existing non-compliant resources. The remediation task uses a <strong>managed identity</strong> to make changes.</p>
+        <h4>Exemptions</h4>
+        <p>Temporarily or permanently exempt a resource from a policy. Types: <strong>Waiver</strong> (intentional non-compliance) and <strong>Mitigated</strong> (alternative compliance method).</p>`,
+      commands: [
+        { cmd: 'az policy definition create', syntax: 'az policy definition create -n <name> --rules <json-file> --params <params-json> --mode All|Indexed', desc: 'Create a custom policy definition' },
+        { cmd: 'az policy assignment create', syntax: 'az policy assignment create -n <name> --policy <policy-id> --scope <scope> [--params <json>]', desc: 'Assign a policy to a scope' },
+        { cmd: 'az policy assignment create (initiative)', syntax: 'az policy assignment create -n <name> --policy-set-definition <initiative-id> --scope <scope>', desc: 'Assign an initiative to a scope' },
+        { cmd: 'az policy remediation create', syntax: 'az policy remediation create -n <name> --policy-assignment <assignment-id> --resource-group <rg>', desc: 'Create a remediation task' },
+        { cmd: 'az policy state list', syntax: 'az policy state list --resource-group <rg> --filter "complianceState eq \'NonCompliant\'"', desc: 'List non-compliant resources' },
+      ],
+      tip: 'Know the effect evaluation order — Deny is checked BEFORE Audit. DeployIfNotExists and Modify require a managed identity on the assignment for remediation. Policy evaluation happens on resource creation/update AND during a periodic compliance scan (every 24 hours). Exemptions do NOT delete the policy — they exclude specific resources.'
+    },
+
+    /* ---- 4.2 Key Vault ---- */
+    {
+      id: 'd4-keyvault',
+      title: 'Configure and Manage Azure Key Vault',
+      concepts: ['Key Vault', 'RBAC vs Access Policies', 'Secrets', 'Keys', 'Certificates', 'Soft Delete', 'Purge Protection', 'Key Rotation'],
+      body: `
+        <h4>Key Vault Authorization Models</h4>
+        <table>
+          <tr><th>Model</th><th>Description</th><th>Recommended</th></tr>
+          <tr><td>Azure RBAC</td><td>Manage access via Azure role assignments; granular per-key/secret</td><td>Yes (recommended)</td></tr>
+          <tr><td>Vault Access Policy</td><td>Legacy model — permissions per principal on the vault</td><td>No (legacy)</td></tr>
+        </table>
+        <h4>Key Vault RBAC Roles</h4>
+        <ul>
+          <li><strong>Key Vault Administrator</strong> — full management of all key vault content</li>
+          <li><strong>Key Vault Secrets User</strong> — read secret contents</li>
+          <li><strong>Key Vault Secrets Officer</strong> — manage secrets (CRUD)</li>
+          <li><strong>Key Vault Certificates Officer</strong> — manage certificates</li>
+          <li><strong>Key Vault Crypto User</strong> — perform crypto operations with keys</li>
+          <li><strong>Key Vault Crypto Officer</strong> — manage keys (CRUD)</li>
+          <li><strong>Key Vault Reader</strong> — read metadata (not secret values)</li>
+        </ul>
+        <h4>Data Types</h4>
+        <table>
+          <tr><th>Type</th><th>Use Case</th><th>Operations</th></tr>
+          <tr><td>Secrets</td><td>Connection strings, passwords, API keys</td><td>Get, Set, Delete, List, Backup, Restore</td></tr>
+          <tr><td>Keys</td><td>Encryption keys (RSA, EC), wrapping DEKs</td><td>Encrypt, Decrypt, Sign, Verify, Wrap, Unwrap</td></tr>
+          <tr><td>Certificates</td><td>TLS/SSL certificates, auto-renewal</td><td>Create, Import, Get, Delete, Renew</td></tr>
+        </table>
+        <h4>Soft Delete and Purge Protection</h4>
+        <ul>
+          <li><strong>Soft delete</strong> — deleted items are recoverable for 7–90 days (default: 90). Enabled by default, cannot be disabled.</li>
+          <li><strong>Purge protection</strong> — even admins cannot permanently delete items during the retention period. Once enabled, cannot be disabled.</li>
+        </ul>
+        <h4>Key Vault Diagnostics</h4>
+        <p>Enable diagnostic settings to log all access operations to Log Analytics, Storage, or Event Hub. Essential for audit compliance and detecting unauthorized access.</p>`,
+      commands: [
+        { cmd: 'az keyvault create', syntax: 'az keyvault create -g <rg> -n <name> --enable-rbac-authorization --enable-purge-protection --retention-days 90', desc: 'Create a Key Vault with RBAC and purge protection' },
+        { cmd: 'az keyvault secret set', syntax: 'az keyvault secret set --vault-name <vault> -n <name> --value <value>', desc: 'Create or update a secret' },
+        { cmd: 'az keyvault key create', syntax: 'az keyvault key create --vault-name <vault> -n <name> --kty RSA --size 2048 [--protection hsm]', desc: 'Create a key' },
+        { cmd: 'az keyvault certificate create', syntax: 'az keyvault certificate create --vault-name <vault> -n <name> --policy <policy-json>', desc: 'Create a self-signed certificate' },
+        { cmd: 'az keyvault recover', syntax: 'az keyvault recover -n <name>', desc: 'Recover a soft-deleted Key Vault' },
+      ],
+      tip: 'RBAC is the recommended authorization model — it provides granular, per-object RBAC and uses the same Azure RBAC system. Soft delete is mandatory and CANNOT be turned off. Purge protection should always be enabled for production vaults — especially those backing TDE, ADE, or disk encryption.'
+    },
+
+    /* ---- 4.3 Defender for Cloud ---- */
+    {
+      id: 'd4-defender-cloud',
+      title: 'Configure Defender for Cloud and Secure Score',
+      concepts: ['CSPM', 'Secure Score', 'Recommendations', 'Compliance Dashboard', 'Custom Standards', 'Foundational CSPM', 'Defender CSPM'],
+      body: `
+        <h4>Defender for Cloud Overview</h4>
+        <p>Microsoft Defender for Cloud (MDC) provides <strong>Cloud Security Posture Management (CSPM)</strong> and <strong>Cloud Workload Protection (CWP)</strong>. It covers Azure, AWS, GCP, and on-premises resources.</p>
+        <h4>CSPM Tiers</h4>
+        <table>
+          <tr><th>Tier</th><th>Features</th><th>Cost</th></tr>
+          <tr><td>Foundational CSPM</td><td>Secure score, recommendations, Azure security benchmark</td><td>Free</td></tr>
+          <tr><td>Defender CSPM</td><td>All foundational + attack path analysis, cloud security graph, agentless scanning, governance rules, external attack surface management integration</td><td>Paid</td></tr>
+        </table>
+        <h4>Secure Score</h4>
+        <ul>
+          <li>Score 0–100% representing your security posture</li>
+          <li>Based on the ratio of <strong>healthy resources to total assessed resources</strong></li>
+          <li>Grouped by <strong>security controls</strong> (e.g., "Enable MFA", "Apply system updates", "Restrict unauthorized network access")</li>
+          <li>Each control has a maximum score contribution — completing all recommendations in a control earns the full points</li>
+          <li>Preview recommendations and exempted resources do NOT affect the score</li>
+        </ul>
+        <h4>Recommendations</h4>
+        <p>Actionable steps to improve your security posture. Each recommendation shows severity (High/Medium/Low), affected resources, and remediation steps. Many can be remediated with a "Quick Fix" button.</p>
+        <h4>Regulatory Compliance Dashboard</h4>
+        <p>Map your security posture to compliance standards:</p>
+        <ul>
+          <li><strong>Azure Security Benchmark (ASB)</strong> — default, always enabled</li>
+          <li>Add: PCI DSS, ISO 27001, SOC 2, NIST 800-53, CIS Benchmarks, etc.</li>
+          <li>Create <strong>custom standards</strong> from existing policies/initiatives</li>
+        </ul>`,
+      commands: [
+        { cmd: 'az security pricing create', syntax: 'az security pricing create -n <plan-name> --tier Standard', desc: 'Enable a Defender plan (e.g., VirtualMachines, StorageAccounts)' },
+        { cmd: 'az security secure-score list', syntax: 'az security secure-score list', desc: 'View secure score' },
+        { cmd: 'az security assessment list', syntax: 'az security assessment list', desc: 'List security recommendations' },
+        { cmd: 'az security regulatory-compliance-standards list', syntax: 'az security regulatory-compliance-standards list', desc: 'List compliance standards' },
+      ],
+      tip: 'Foundational CSPM is FREE and includes secure score + basic recommendations. Defender CSPM is paid and adds attack path analysis and agentless scanning. Secure score is NOT affected by recommendations in preview or exempted resources. The Azure Security Benchmark is always enabled and cannot be removed.'
+    },
+
+    /* ---- 4.4 CWP ---- */
+    {
+      id: 'd4-cwp',
+      title: 'Implement Cloud Workload Protection Plans',
+      concepts: ['Defender for Servers', 'Defender for Storage', 'Defender for Databases', 'Defender for Containers', 'Agentless Scanning', 'Multi-Cloud'],
+      body: `
+        <h4>Defender Plans Overview</h4>
+        <table>
+          <tr><th>Plan</th><th>Protects</th><th>Key Features</th></tr>
+          <tr><td>Defender for Servers P1</td><td>VMs (Azure, AWS, GCP, on-prem)</td><td>Defender for Endpoint integration, JIT, file integrity monitoring lite</td></tr>
+          <tr><td>Defender for Servers P2</td><td>VMs</td><td>All P1 + vulnerability scanning, adaptive app controls, FIM, 500 MB/day free Log Analytics</td></tr>
+          <tr><td>Defender for Storage</td><td>Storage accounts</td><td>Malware scanning (uploads), sensitive data threat detection, activity monitoring</td></tr>
+          <tr><td>Defender for SQL</td><td>Azure SQL, SQL on VMs</td><td>Vulnerability assessment, advanced threat protection (SQL injection, anomalous access)</td></tr>
+          <tr><td>Defender for Cosmos DB</td><td>Azure Cosmos DB</td><td>SQL injection detection, suspicious access patterns</td></tr>
+          <tr><td>Defender for Containers</td><td>AKS, ACR, K8s (multi-cloud)</td><td>Image scanning, runtime protection, Kubernetes audit log analysis</td></tr>
+          <tr><td>Defender for App Service</td><td>App Service plans</td><td>Web app attack detection, dangling DNS, suspicious behavior</td></tr>
+          <tr><td>Defender for Key Vault</td><td>Key Vault</td><td>Unusual access patterns, high-volume operations, TOR access</td></tr>
+          <tr><td>Defender for Resource Manager</td><td>ARM operations</td><td>Suspicious management operations, privilege escalation attempts</td></tr>
+          <tr><td>Defender for DNS</td><td>DNS queries</td><td>Malware C2 communication, crypto mining domains</td></tr>
+        </table>
+        <h4>Agentless Scanning</h4>
+        <p>Scans VM disks without installing agents. Creates a snapshot, scans in an isolated environment, and reports vulnerabilities and secrets found. Available in Defender for Servers P2 and Defender CSPM.</p>
+        <h4>Multi-Cloud Support</h4>
+        <p>Connect AWS and GCP accounts to Defender for Cloud via connectors. Provides CSPM and CWP across clouds. Uses <strong>Azure Arc</strong> for on-premises servers and <strong>native connectors</strong> for AWS/GCP.</p>`,
+      commands: [
+        { cmd: 'az security pricing create (Servers)', syntax: 'az security pricing create -n VirtualMachines --tier Standard --subplan P2', desc: 'Enable Defender for Servers P2' },
+        { cmd: 'az security pricing create (Storage)', syntax: 'az security pricing create -n StorageAccounts --tier Standard', desc: 'Enable Defender for Storage' },
+        { cmd: 'az security pricing list', syntax: 'az security pricing list -o table', desc: 'List all Defender plan statuses' },
+      ],
+      tip: 'Defender for Servers P1 includes Microsoft Defender for Endpoint (MDE) integration — no separate MDE license needed. P2 adds vulnerability assessment and adaptive application controls. Agentless scanning is the newest approach — no agents, snapshots disk for offline analysis. Know which plan protects which resource type.'
+    },
+
+    /* ---- 4.5 EASM and DevOps Security ---- */
+    {
+      id: 'd4-easm-devops',
+      title: 'Manage EASM and DevOps Security',
+      concepts: ['EASM', 'External Attack Surface', 'DevOps Security', 'GitHub Connector', 'ADO Connector', 'Code Scanning', 'Secret Scanning', 'IaC Scanning'],
+      body: `
+        <h4>External Attack Surface Management (EASM)</h4>
+        <p>Microsoft Defender EASM discovers and maps your organization's external internet-facing assets. It continuously discovers:</p>
+        <ul>
+          <li>Domains, subdomains, and IP addresses</li>
+          <li>Web applications and APIs</li>
+          <li>SSL/TLS certificates (expiry, weak algorithms)</li>
+          <li>Open ports and services</li>
+          <li>Known vulnerabilities (CVEs) on exposed assets</li>
+        </ul>
+        <p>EASM feeds into Defender for Cloud's attack surface view and security recommendations.</p>
+        <h4>DevOps Security</h4>
+        <p>Defender for Cloud provides DevOps security posture management by connecting to source control platforms:</p>
+        <table>
+          <tr><th>Connector</th><th>Platforms</th><th>Capabilities</th></tr>
+          <tr><td>GitHub</td><td>GitHub.com, GitHub Enterprise</td><td>Code scanning, secret scanning, dependency scanning, IaC scanning</td></tr>
+          <tr><td>Azure DevOps</td><td>Azure DevOps Services</td><td>Same + pipeline security</td></tr>
+          <tr><td>GitLab</td><td>GitLab.com, GitLab self-managed</td><td>Code scanning, secret scanning</td></tr>
+        </table>
+        <h4>Scanning Types</h4>
+        <ul>
+          <li><strong>Code scanning</strong> — detect vulnerabilities in source code (e.g., SQL injection, XSS)</li>
+          <li><strong>Secret scanning</strong> — detect exposed credentials, API keys, connection strings in code</li>
+          <li><strong>Dependency scanning</strong> — identify vulnerable open-source dependencies (CVEs)</li>
+          <li><strong>IaC scanning</strong> — detect misconfigurations in ARM templates, Terraform, Bicep, CloudFormation</li>
+        </ul>
+        <p>Results appear as recommendations in Defender for Cloud and can block PRs via PR annotations.</p>`,
+      tip: 'EASM discovers assets you might not know about — shadow IT, forgotten subdomains, expired certs. DevOps security connectors require authorization from the platform admin. IaC scanning can detect misconfigurations BEFORE deployment — this is shift-left security. Know that Defender for DevOps supports GitHub, Azure DevOps, AND GitLab.'
+    },
+
+    /* ---- 4.6 Security Alerts ---- */
+    {
+      id: 'd4-alerts',
+      title: 'Manage Security Alerts and Workflow Automation',
+      concepts: ['Security Alerts', 'Alert Severity', 'Suppression Rules', 'Workflow Automation', 'Logic Apps', 'Continuous Export', 'MITRE ATT&CK'],
+      body: `
+        <h4>Security Alerts</h4>
+        <p>Defender for Cloud generates alerts when threats are detected. Alerts include:</p>
+        <ul>
+          <li><strong>Severity</strong> — High, Medium, Low, Informational</li>
+          <li><strong>Description</strong> — what happened and why it's suspicious</li>
+          <li><strong>MITRE ATT&CK tactics</strong> — mapped to the framework (Initial Access, Execution, Persistence, etc.)</li>
+          <li><strong>Affected resource</strong> — the resource that triggered the alert</li>
+          <li><strong>Remediation steps</strong> — recommended actions to investigate and fix</li>
+        </ul>
+        <h4>Alert Triage</h4>
+        <p>Review alerts in the Security Alerts blade. Change status: Active → In Progress → Resolved → Dismissed. Use <strong>suppression rules</strong> to automatically dismiss false positives based on criteria (IP, resource, alert type).</p>
+        <h4>Workflow Automation</h4>
+        <p>Automate responses to security alerts and recommendations using <strong>Logic Apps</strong>:</p>
+        <ul>
+          <li>Trigger: new security alert, recommendation change, or regulatory compliance change</li>
+          <li>Actions: send email, create ServiceNow ticket, post to Teams/Slack, trigger remediation</li>
+          <li>Filter by: severity, alert name, resource type, subscription</li>
+        </ul>
+        <h4>Continuous Export</h4>
+        <p>Stream security data (alerts, recommendations, secure score, compliance) to:</p>
+        <ul>
+          <li><strong>Log Analytics workspace</strong> — for custom queries, dashboards, long-term retention</li>
+          <li><strong>Event Hub</strong> — for integration with SIEM/SOAR tools (Splunk, QRadar, etc.)</li>
+        </ul>`,
+      commands: [
+        { cmd: 'az security alert list', syntax: 'az security alert list [--resource-group <rg>] [-l <location>]', desc: 'List security alerts' },
+        { cmd: 'az security alert update', syntax: 'az security alert update -l <location> -n <alert-name> --status Resolved', desc: 'Update alert status' },
+        { cmd: 'az security automation create', syntax: 'az security automation create -g <rg> -n <name> --scopes <scope> --sources <source-json> --actions <action-json>', desc: 'Create a workflow automation' },
+      ],
+      tip: 'Alerts are mapped to MITRE ATT&CK tactics — know the framework basics. Suppression rules are for known false positives — they don\'t delete alerts, they auto-dismiss them. Continuous export to Log Analytics is essential if you want to query alerts with KQL or integrate with Sentinel.'
+    },
+
+    /* ---- 4.7 Sentinel Data Connectors ---- */
+    {
+      id: 'd4-sentinel-data',
+      title: 'Configure Sentinel Data Connectors and Analytics',
+      concepts: ['Microsoft Sentinel', 'Data Connectors', 'DCR', 'Analytics Rules', 'Scheduled Rules', 'NRT Rules', 'Fusion', 'Threat Intelligence'],
+      body: `
+        <h4>Microsoft Sentinel Overview</h4>
+        <p>Microsoft Sentinel is a cloud-native <strong>SIEM</strong> (Security Information and Event Management) and <strong>SOAR</strong> (Security Orchestration, Automation, and Response) solution built on top of a Log Analytics workspace.</p>
+        <h4>Data Connectors</h4>
+        <table>
+          <tr><th>Connector Type</th><th>Examples</th><th>Method</th></tr>
+          <tr><td>Microsoft services</td><td>Entra ID, Defender for Cloud, M365 Defender, Azure Activity</td><td>Native (one-click)</td></tr>
+          <tr><td>Syslog / CEF</td><td>Linux hosts, firewalls, network devices</td><td>Log Analytics Agent or AMA with DCR</td></tr>
+          <tr><td>Windows Events</td><td>Windows Security Events</td><td>AMA with DCR (recommended) or MMA</td></tr>
+          <tr><td>REST API / Codeless</td><td>Custom log sources, SaaS apps</td><td>Data Collector API or Codeless Connector Platform</td></tr>
+          <tr><td>Threat Intelligence</td><td>TAXII feeds, Microsoft TI, STIX indicators</td><td>TI connectors or TI upload API</td></tr>
+        </table>
+        <h4>Data Collection Rules (DCRs)</h4>
+        <p>DCRs define which data to collect from sources using the Azure Monitor Agent (AMA). They specify: data sources, transformations (KQL), and destinations (Log Analytics workspace).</p>
+        <h4>Analytics Rule Types</h4>
+        <table>
+          <tr><th>Type</th><th>Description</th><th>Latency</th></tr>
+          <tr><td>Scheduled</td><td>KQL query runs on a schedule (every 5min–14 days)</td><td>Minutes to hours</td></tr>
+          <tr><td>NRT (Near Real-Time)</td><td>KQL query runs every minute with limited lookback</td><td>~1 minute</td></tr>
+          <tr><td>Fusion</td><td>ML-based correlation of multiple signals into single incident</td><td>Varies</td></tr>
+          <tr><td>Microsoft Security</td><td>Auto-creates incidents from connected Microsoft alert sources</td><td>Near real-time</td></tr>
+          <tr><td>Anomaly</td><td>Built-in ML anomaly detection (customizable thresholds)</td><td>Varies</td></tr>
+        </table>
+        <h4>Threat Intelligence</h4>
+        <p>Ingest indicators of compromise (IoCs) — IP addresses, domains, file hashes, URLs — from TAXII servers or Microsoft Threat Intelligence. Use TI matching analytics rules to correlate IoCs with your log data.</p>`,
+      diagram: `<svg viewBox="0 0 700 200" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="10">
+  <defs><marker id="arr6" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#8b949e"/></marker></defs>
+  <!-- Sources -->
+  <rect x="10" y="10" width="120" height="180" rx="8" fill="#161b22" stroke="#30363d" stroke-width="1.5"/>
+  <text x="70" y="30" text-anchor="middle" fill="#8b949e" font-size="9" font-weight="600" letter-spacing="1">SOURCES</text>
+  <rect x="20" y="40" width="100" height="22" rx="4" fill="#1c2128" stroke="#30363d"/>
+  <text x="70" y="55" text-anchor="middle" fill="#79c0ff" font-size="9" textLength="88" lengthAdjust="spacingAndGlyphs">Entra ID</text>
+  <rect x="20" y="68" width="100" height="22" rx="4" fill="#1c2128" stroke="#30363d"/>
+  <text x="70" y="83" text-anchor="middle" fill="#f78166" font-size="9" textLength="88" lengthAdjust="spacingAndGlyphs">Defender for Cloud</text>
+  <rect x="20" y="96" width="100" height="22" rx="4" fill="#1c2128" stroke="#30363d"/>
+  <text x="70" y="111" text-anchor="middle" fill="#3fb950" font-size="9" textLength="88" lengthAdjust="spacingAndGlyphs">Syslog / CEF</text>
+  <rect x="20" y="124" width="100" height="22" rx="4" fill="#1c2128" stroke="#30363d"/>
+  <text x="70" y="139" text-anchor="middle" fill="#d2a8ff" font-size="9" textLength="88" lengthAdjust="spacingAndGlyphs">Windows Events</text>
+  <rect x="20" y="152" width="100" height="22" rx="4" fill="#1c2128" stroke="#30363d"/>
+  <text x="70" y="167" text-anchor="middle" fill="#e3b341" font-size="9" textLength="88" lengthAdjust="spacingAndGlyphs">Threat Intel</text>
+  <!-- Arrow -->
+  <line x1="130" y1="100" x2="175" y2="100" stroke="#30363d" stroke-width="1.5" marker-end="url(#arr6)"/>
+  <!-- Connectors -->
+  <rect x="180" y="40" width="110" height="120" rx="8" fill="rgba(121,192,255,0.08)" stroke="rgba(121,192,255,0.3)"/>
+  <text x="235" y="60" text-anchor="middle" fill="#79c0ff" font-size="9" font-weight="600" letter-spacing="1">CONNECTORS</text>
+  <text x="235" y="82" text-anchor="middle" fill="#e6edf3" font-size="9" textLength="90" lengthAdjust="spacingAndGlyphs">Native / API</text>
+  <text x="235" y="100" text-anchor="middle" fill="#e6edf3" font-size="9" textLength="90" lengthAdjust="spacingAndGlyphs">AMA + DCR</text>
+  <text x="235" y="118" text-anchor="middle" fill="#e6edf3" font-size="9" textLength="90" lengthAdjust="spacingAndGlyphs">Syslog / CEF</text>
+  <text x="235" y="136" text-anchor="middle" fill="#e6edf3" font-size="9" textLength="90" lengthAdjust="spacingAndGlyphs">TAXII / STIX</text>
+  <!-- Arrow -->
+  <line x1="290" y1="100" x2="335" y2="100" stroke="#30363d" stroke-width="1.5" marker-end="url(#arr6)"/>
+  <!-- LA Workspace -->
+  <rect x="340" y="40" width="130" height="120" rx="8" fill="rgba(63,185,80,0.08)" stroke="rgba(63,185,80,0.3)"/>
+  <text x="405" y="58" text-anchor="middle" fill="#3fb950" font-size="9" font-weight="600" letter-spacing="1">LOG ANALYTICS</text>
+  <text x="405" y="80" text-anchor="middle" fill="#e6edf3" font-size="9" textLength="110" lengthAdjust="spacingAndGlyphs">Workspace Tables</text>
+  <text x="405" y="98" text-anchor="middle" fill="#e6edf3" font-size="9" textLength="110" lengthAdjust="spacingAndGlyphs">KQL Queries</text>
+  <text x="405" y="116" text-anchor="middle" fill="#e6edf3" font-size="9" textLength="110" lengthAdjust="spacingAndGlyphs">Retention / Archive</text>
+  <text x="405" y="134" text-anchor="middle" fill="#8b949e" font-size="9" textLength="110" lengthAdjust="spacingAndGlyphs">(Pay-per-GB ingested)</text>
+  <!-- Arrow -->
+  <line x1="470" y1="100" x2="515" y2="100" stroke="#30363d" stroke-width="1.5" marker-end="url(#arr6)"/>
+  <!-- Analytics -->
+  <rect x="520" y="30" width="170" height="140" rx="8" fill="rgba(210,168,255,0.08)" stroke="rgba(210,168,255,0.3)"/>
+  <text x="605" y="50" text-anchor="middle" fill="#d2a8ff" font-size="9" font-weight="600" letter-spacing="1">ANALYTICS</text>
+  <rect x="530" y="58" width="150" height="22" rx="4" fill="#1c2128" stroke="#30363d"/>
+  <text x="605" y="73" text-anchor="middle" fill="#f78166" font-size="9" textLength="138" lengthAdjust="spacingAndGlyphs">Scheduled / NRT Rules</text>
+  <rect x="530" y="86" width="150" height="22" rx="4" fill="#1c2128" stroke="#30363d"/>
+  <text x="605" y="101" text-anchor="middle" fill="#d2a8ff" font-size="9" textLength="138" lengthAdjust="spacingAndGlyphs">Fusion (ML correlation)</text>
+  <rect x="530" y="114" width="150" height="22" rx="4" fill="#1c2128" stroke="#30363d"/>
+  <text x="605" y="129" text-anchor="middle" fill="#3fb950" font-size="9" textLength="138" lengthAdjust="spacingAndGlyphs">→ Incidents created</text>
+  <rect x="530" y="142" width="150" height="22" rx="4" fill="#1c2128" stroke="#30363d"/>
+  <text x="605" y="157" text-anchor="middle" fill="#e3b341" font-size="9" textLength="138" lengthAdjust="spacingAndGlyphs">→ Automation triggered</text>
+</svg>`,
+      commands: [
+        { cmd: 'az sentinel data-connector connect', syntax: 'az sentinel data-connector connect --workspace-name <ws> -g <rg> -n <connector-name>', desc: 'Enable a Sentinel data connector' },
+        { cmd: 'az sentinel alert-rule create', syntax: 'az sentinel alert-rule create --workspace-name <ws> -g <rg> -n <name> --type Scheduled --query <kql> --query-frequency PT5H --query-period PT5H --severity High --trigger-operator GreaterThan --trigger-threshold 0', desc: 'Create a scheduled analytics rule' },
+        { cmd: 'az monitor data-collection rule create', syntax: 'az monitor data-collection rule create -g <rg> -n <name> --data-flows <json> --destinations <json> --data-sources <json>', desc: 'Create a data collection rule (DCR)' },
+      ],
+      tip: 'Sentinel is built ON TOP of Log Analytics — data costs are primarily Log Analytics ingestion costs. NRT rules run every ~1 minute but with limited lookback. Fusion rules are ML-based and cannot use custom KQL — they correlate alerts from multiple sources automatically. AMA with DCR is the recommended agent (replacing legacy MMA/OMS).'
+    },
+
+    /* ---- 4.8 Sentinel Automation ---- */
+    {
+      id: 'd4-sentinel-automation',
+      title: 'Implement Sentinel Automation and Response',
+      concepts: ['Automation Rules', 'Playbooks', 'Watchlists', 'Workbooks', 'Investigation Graph', 'SOAR', 'Entities'],
+      body: `
+        <h4>Automation Rules</h4>
+        <p>Lightweight automation that runs when incidents are created or updated. Use for:</p>
+        <ul>
+          <li><strong>Triage</strong> — auto-assign owner, change severity, add tags</li>
+          <li><strong>Suppression</strong> — close known false positive incidents automatically</li>
+          <li><strong>Trigger playbooks</strong> — call a Logic App for complex automation</li>
+        </ul>
+        <p>Automation rules run in order of priority and are evaluated on every incident change.</p>
+        <h4>Playbooks (Logic Apps)</h4>
+        <p>Playbooks are <strong>Azure Logic Apps</strong> that execute in response to Sentinel triggers. Typical use cases:</p>
+        <ul>
+          <li>Enrich incidents with external threat intelligence</li>
+          <li>Block malicious IPs in firewall/NSG</li>
+          <li>Disable compromised user accounts</li>
+          <li>Send notifications to Teams/Slack/email</li>
+          <li>Create tickets in ServiceNow/Jira</li>
+        </ul>
+        <p>Triggers: <strong>Microsoft Sentinel Incident</strong> (when incident is created/updated) or <strong>Microsoft Sentinel Alert</strong> (per individual alert).</p>
+        <h4>Watchlists</h4>
+        <p>Import CSV data into Sentinel for use in KQL queries and analytics rules. Examples:</p>
+        <ul>
+          <li>VIP user lists for priority alerting</li>
+          <li>Terminated employee lists for access monitoring</li>
+          <li>Allowed IP ranges for whitelisting</li>
+          <li>Service accounts inventory</li>
+        </ul>
+        <p>Reference in KQL: <code>_GetWatchlist('watchlist-alias')</code></p>
+        <h4>Workbooks</h4>
+        <p>Interactive dashboards built on KQL queries. Use built-in templates or create custom workbooks for:</p>
+        <ul>
+          <li>SOC overview — incident trends, alert volume, MTTR</li>
+          <li>Identity monitoring — sign-in anomalies, risky users</li>
+          <li>Network monitoring — traffic patterns, blocked connections</li>
+        </ul>
+        <h4>Investigation Graph</h4>
+        <p>Visual graph showing relationships between entities (users, IPs, hosts, files) and alerts in an incident. Helps analysts understand the scope and timeline of an attack.</p>
+        <h4>Entity Behavior Analytics (UEBA)</h4>
+        <p>Builds behavioral profiles for users and entities. Identifies anomalous activities based on baseline patterns. Requires Entra ID and Azure Activity log connectors.</p>`,
+      commands: [
+        { cmd: 'az sentinel automation-rule create', syntax: 'az sentinel automation-rule create --workspace-name <ws> -g <rg> -n <name> --order <priority> --actions <json> --triggering-logic <json>', desc: 'Create an automation rule' },
+        { cmd: 'az sentinel watchlist create', syntax: 'az sentinel watchlist create --workspace-name <ws> -g <rg> -n <name> --display-name <name> --provider <provider> --source <csv-file> --items-search-key <key-column>', desc: 'Create a watchlist from CSV' },
+        { cmd: 'az sentinel incident list', syntax: 'az sentinel incident list --workspace-name <ws> -g <rg>', desc: 'List Sentinel incidents' },
+        { cmd: 'az sentinel incident update', syntax: 'az sentinel incident update --workspace-name <ws> -g <rg> -n <incident-id> --status Active|Closed --owner <json>', desc: 'Update incident status and owner' },
+      ],
+      tip: 'Automation rules are simpler (no-code, built into Sentinel). Playbooks are more powerful (Logic Apps, can call any API). Use automation rules for triage (assign owner, change severity) and playbooks for response (block IP, disable user). Watchlists are queryable in KQL with <code>_GetWatchlist()</code>. UEBA requires enabling the feature and connecting identity data sources.'
+    }
+
+  ]
+});
+</script>
+
+<script>
+// Final render + search index build — must be after all SECTIONS.push() calls
+render();
+buildSearchIndex();
+</script>
+
+</body>
+</html>
