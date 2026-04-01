@@ -761,6 +761,7 @@ document.getElementById('sidebar-toggle').addEventListener('click', () => {
 });
 (function() {
   if (localStorage.getItem('az500-sidebar') === '1') document.body.classList.add('sidebar-collapsed');
+  if (window.innerWidth <= 768) document.body.classList.add('sidebar-collapsed');
 })();
 
 /* ================================================================

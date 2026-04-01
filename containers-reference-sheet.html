@@ -501,8 +501,9 @@ mark { background: #e3b34133; color: var(--param-color); border-radius: 2px; pad
 
 /* ===== RESPONSIVE ===== */
 @media (max-width: 900px) {
+  :root { --sidebar-w: 0px; }
   #sidebar { display: none; }
-  body.sidebar-collapsed #sidebar { display: none; }
+  body:not(.sidebar-collapsed) #sidebar { display: block; position: fixed; top: var(--topbar-h); bottom: 0; left: 0; z-index: 150; width: 260px; background: var(--sidebar-bg); border-right: 1px solid var(--border); }
   #main { max-width: 100vw; }
   #topbar { gap: 8px; padding: 0 10px; }
   #search-wrap { max-width: 200px; }
@@ -1176,6 +1177,7 @@ document.addEventListener('keydown', e => {
 function toggleSidebar() {
   document.body.classList.toggle('sidebar-collapsed');
 }
+if (window.innerWidth <= 900) document.body.classList.add('sidebar-collapsed');
 document.getElementById('sidebar-toggle').addEventListener('click', toggleSidebar);
 document.getElementById('help-btn').addEventListener('click', () => {
   document.getElementById('shortcuts-modal').classList.toggle('visible');

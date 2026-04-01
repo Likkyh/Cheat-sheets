@@ -765,6 +765,7 @@ document.getElementById('sidebar-toggle').addEventListener('click', () => {
 });
 (function() {
   if (localStorage.getItem('sc300-sidebar') === '1') document.body.classList.add('sidebar-collapsed');
+  if (window.innerWidth <= 768) document.body.classList.add('sidebar-collapsed');
 })();
 
 /* ================================================================
