@@ -115,6 +115,7 @@ a { text-decoration: none; color: inherit; }
 .hb-linux { border-color: var(--orange); color: var(--orange); background: rgba(247,129,102,.08); }
 .hb-network { border-color: var(--blue); color: var(--blue); background: rgba(121,192,255,.08); }
 .hb-security { border-color: var(--purple); color: var(--purple); background: rgba(210,168,255,.08); }
+.hb-docker { border-color: var(--blue); color: var(--blue); background: rgba(121,192,255,.08); }
 
 /* ===== SEARCH ===== */
 .search-wrap {
@@ -204,6 +205,7 @@ a { text-decoration: none; color: inherit; }
 .tag-protocols { border-color: #1a5276; color: #7ec8e3; background: rgba(26,82,118,.15); }
 .tag-tools { border-color: #4a235a; color: #e8b4f8; background: rgba(74,35,90,.15); }
 .tag-docker { border-color: #0e4d8a; color: #7ab8f5; background: rgba(14,77,138,.15); }
+.tag-podman { border-color: #5a2d82; color: #d4b8ff; background: rgba(90,45,130,.15); }
 .tag-bgp { border-color: #7a0e0e; color: #f5a0a0; background: rgba(122,14,14,.15); }
 .card-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 4px; }
 .coming-badge {
@@ -297,6 +299,7 @@ footer a:hover { text-decoration: underline; }
     <span class="hero-badge hb-network">Networking</span>
     <span class="hero-badge hb-security">Security</span>
     <span class="hero-badge hb-linux">Linux</span>
+    <span class="hero-badge hb-docker">Docker</span>
   </div>
 </section>
 
@@ -357,23 +360,25 @@ footer a:hover { text-decoration: underline; }
         </div>
       </div>
 
-      <!-- Docker (Coming Soon) -->
-      <div class="sheet-card coming-soon" style="--card-accent: var(--blue);" data-tags="docker container image volume compose dockerfile cli">
+      <!-- Docker & Podman -->
+      <div class="sheet-card" style="--card-accent: var(--blue);" data-tags="docker podman container containers image volume compose dockerfile cli networking registry security">
         <div class="card-header-row">
           <div class="card-icon">🐳</div>
           <div>
-            <div class="card-title">Docker Cheat Sheet</div>
-            <div class="card-subtitle">Containers, images, volumes, networking</div>
+            <div class="card-title">Docker & Podman Reference</div>
+            <div class="card-subtitle">Containers, images, volumes, networking, Compose</div>
           </div>
         </div>
-        <div class="card-desc">Docker CLI essentials: images, containers, volumes, networks, Compose, Dockerfile best practices, debugging, and registry operations.</div>
+        <div class="card-desc">Complete Docker & Podman CLI reference: images, containers, volumes, networking, Compose (CLI + YAML directives), registry, security, one-liners, and 26 step-by-step procedures.</div>
         <div class="card-tags">
           <span class="card-tag tag-docker">Docker</span>
+          <span class="card-tag tag-podman">Podman</span>
           <span class="card-tag tag-docker">Compose</span>
           <span class="card-tag tag-tools">CLI</span>
         </div>
         <div class="card-footer">
-          <span class="coming-badge">Coming Soon</span>
+          <span style="font-size:11px;color:var(--green);font-weight:600;">● Available</span>
+          <a href="containers-reference-sheet.html" class="card-btn">Open Sheet <span class="arrow">→</span></a>
         </div>
       </div>
 

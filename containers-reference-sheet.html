@@ -1,0 +1,2037 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Docker &amp; Podman Reference</title>
+<style>
+/* ===== VARIABLES ===== */
+:root {
+  --bg: #0d1117;
+  --sidebar-bg: #161b22;
+  --border: #30363d;
+  --text: #e6edf3;
+  --muted: #8b949e;
+  --cmd-color: #79c0ff;
+  --concept-color: #58a6ff;
+  --ol-color: #f78166;
+  --proc-color: #58a6ff;
+  --param-color: #ffa657;
+  --optional-color: #a5d6ff;
+  --choice-color: #d2a8ff;
+  --keyword-color: #e6edf3;
+  --badge-docker: #0e4d8a;
+  --badge-podman: #5a2d82;
+  --badge-all: #5a3e8a;
+  --topbar-bg: #010409;
+  --topbar-h: 52px;
+  --sidebar-w: 260px;
+  --table-head: #1c2128;
+  --table-row-alt: #161b22;
+  --table-row: #0d1117;
+  --card-bg: #161b22;
+  --shadow: 0 1px 3px rgba(0,0,0,.5);
+  --radius: 6px;
+  --toast-bg: #238636;
+  --search-bg: #21262d;
+  --search-border: #30363d;
+  --focus-ring: #1f6feb;
+  --shortcut-bg: #21262d;
+}
+[data-theme="light"] {
+  --bg: #ffffff;
+  --sidebar-bg: #f6f8fa;
+  --border: #d0d7de;
+  --text: #1f2328;
+  --muted: #57606a;
+  --topbar-bg: #24292f;
+  --table-head: #f6f8fa;
+  --table-row-alt: #f6f8fa;
+  --table-row: #ffffff;
+  --card-bg: #f6f8fa;
+  --search-bg: #ffffff;
+  --search-border: #d0d7de;
+  --shortcut-bg: #eaeef2;
+  --shadow: 0 1px 3px rgba(0,0,0,.12);
+}
+
+/* ===== RESET ===== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  font-size: 14px; line-height: 1.6;
+  background: var(--bg); color: var(--text);
+  transition: background .2s, color .2s;
+}
+a { color: var(--cmd-color); text-decoration: none; }
+a:hover { text-decoration: underline; }
+code, pre, .mono {
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 12px;
+}
+
+/* ===== TOP BAR ===== */
+#topbar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  height: var(--topbar-h); background: var(--topbar-bg);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 12px; padding: 0 16px;
+}
+#topbar .brand {
+  font-size: 15px; font-weight: 600; white-space: nowrap;
+  color: var(--text); flex-shrink: 0;
+}
+#topbar .brand span { color: var(--cmd-color); }
+#search-wrap { flex: 1; max-width: 380px; position: relative; }
+#search-input {
+  width: 100%; padding: 6px 12px 6px 32px;
+  background: var(--search-bg); border: 1px solid var(--search-border);
+  border-radius: var(--radius); color: var(--text);
+  font-size: 13px; outline: none; transition: border-color .15s;
+}
+#search-input:focus { border-color: var(--focus-ring); }
+#search-wrap .search-icon {
+  position: absolute; left: 9px; top: 50%; transform: translateY(-50%);
+  color: var(--muted); pointer-events: none; font-size: 13px;
+}
+#search-kbd {
+  position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+  font-size: 10px; color: var(--muted);
+  background: var(--shortcut-bg); border-radius: 3px; padding: 1px 5px;
+  pointer-events: none;
+}
+#engine-filter { display: flex; gap: 4px; flex-shrink: 0; }
+.filter-btn {
+  padding: 4px 10px; border-radius: var(--radius); border: 1px solid var(--border);
+  background: transparent; color: var(--muted); cursor: pointer; font-size: 12px;
+  transition: background .15s, color .15s, border-color .15s;
+}
+.filter-btn:hover { background: var(--card-bg); color: var(--text); }
+.filter-btn.active { background: var(--focus-ring); border-color: var(--focus-ring); color: #fff; }
+#theme-btn {
+  padding: 5px 8px; border-radius: var(--radius); border: 1px solid var(--border);
+  background: transparent; color: var(--muted); cursor: pointer; font-size: 15px;
+  transition: background .15s; flex-shrink: 0;
+}
+#theme-btn:hover { background: var(--card-bg); color: var(--text); }
+#help-btn {
+  padding: 4px 8px; border-radius: var(--radius); border: 1px solid var(--border);
+  background: transparent; color: var(--muted); cursor: pointer; font-size: 12px;
+  flex-shrink: 0;
+}
+#help-btn:hover { background: var(--card-bg); color: var(--text); }
+#sidebar-toggle {
+  padding: 5px 8px; border-radius: var(--radius); border: 1px solid var(--border);
+  background: transparent; color: var(--muted); cursor: pointer; font-size: 15px;
+  flex-shrink: 0; line-height: 1; transition: background .15s, color .15s;
+}
+#sidebar-toggle:hover { background: var(--card-bg); color: var(--text); }
+
+/* ===== LAYOUT ===== */
+#layout {
+  display: flex; margin-top: var(--topbar-h);
+  min-height: calc(100vh - var(--topbar-h));
+}
+
+/* ===== SIDEBAR ===== */
+#sidebar {
+  width: var(--sidebar-w); flex-shrink: 0;
+  background: var(--sidebar-bg); border-right: 1px solid var(--border);
+  position: sticky; top: var(--topbar-h);
+  height: calc(100vh - var(--topbar-h));
+  overflow-y: auto; overflow-x: hidden;
+  padding: 12px 0 24px;
+  transition: width .2s ease, padding .2s ease, border-color .2s ease;
+}
+body.sidebar-collapsed #sidebar {
+  width: 0; padding: 0; border-right-color: transparent; overflow: hidden;
+}
+body.sidebar-collapsed #main { max-width: 100vw; }
+#sidebar::-webkit-scrollbar { width: 4px; }
+#sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+.toc-group { margin-bottom: 4px; }
+.toc-group-title {
+  display: block; padding: 6px 16px;
+  font-size: 10px; font-weight: 700; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--muted);
+}
+.toc-group-title.commands { color: var(--cmd-color); }
+.toc-group-title.concepts { color: var(--concept-color); }
+.toc-group-title.oneliners { color: var(--ol-color); }
+.toc-group-title.procedure { color: var(--proc-color); }
+.toc-link {
+  display: block; padding: 4px 16px 4px 24px;
+  font-size: 12px; color: var(--muted);
+  cursor: pointer; border-left: 2px solid transparent;
+  transition: color .15s, border-color .15s, background .15s;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.toc-link:hover { color: var(--text); background: var(--bg); }
+.toc-link.active { color: var(--text); border-left-color: var(--cmd-color); background: var(--bg); }
+
+/* ===== MAIN ===== */
+#main {
+  flex: 1; padding: 24px 24px 64px; min-width: 0;
+  max-width: calc(100vw - var(--sidebar-w));
+  transition: max-width .2s ease;
+}
+
+/* ===== LEGEND ===== */
+#legend {
+  background: var(--card-bg); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 12px 16px; margin-bottom: 24px;
+}
+#legend summary {
+  cursor: pointer; font-size: 12px; font-weight: 600;
+  color: var(--muted); user-select: none;
+  list-style: none; display: flex; align-items: center; gap: 6px;
+}
+#legend summary::before { content: "▶"; font-size: 9px; transition: transform .2s; }
+#legend[open] summary::before { transform: rotate(90deg); }
+#legend .legend-grid {
+  display: flex; flex-wrap: wrap; gap: 16px; margin-top: 10px;
+}
+.legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; }
+.legend-item code { font-size: 12px; }
+
+/* ===== CATEGORY SECTION ===== */
+.cat-section { margin-bottom: 40px; }
+.cat-header {
+  display: flex; align-items: center; gap: 12px;
+  cursor: pointer; user-select: none;
+  padding: 10px 0; border-bottom: 2px solid var(--border);
+  margin-bottom: 20px;
+}
+.cat-header h2 { font-size: 20px; font-weight: 700; letter-spacing: .03em; }
+.cat-header.commands h2 { color: var(--cmd-color); }
+.cat-header.concepts h2 { color: var(--concept-color); }
+.cat-header.oneliners h2 { color: var(--ol-color); }
+.cat-header.procedure h2 { color: var(--proc-color); }
+.cat-chevron {
+  margin-left: auto; font-size: 12px; color: var(--muted);
+  transition: transform .2s;
+}
+.cat-section.collapsed .cat-chevron { transform: rotate(-90deg); }
+.cat-section.collapsed .cat-body { display: none; }
+
+/* ===== SUBSECTION ===== */
+.subsection { margin-bottom: 28px; }
+.subsection-header {
+  display: flex; align-items: center; gap: 8px;
+  cursor: pointer; user-select: none;
+  padding: 6px 0; margin-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+.subsection-header h3 { font-size: 14px; font-weight: 600; color: var(--text); }
+.sub-chevron {
+  margin-left: auto; font-size: 10px; color: var(--muted);
+  transition: transform .2s;
+}
+.subsection.collapsed .sub-chevron { transform: rotate(-90deg); }
+.subsection.collapsed .sub-body { display: none; }
+.cmd-count {
+  font-size: 10px; background: var(--card-bg); color: var(--muted);
+  border: 1px solid var(--border); border-radius: 10px; padding: 1px 7px;
+}
+
+/* ===== COMMAND TABLE ===== */
+.cmd-table-wrap { overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--border); }
+.cmd-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.cmd-table thead th {
+  background: var(--table-head); padding: 8px 12px;
+  text-align: left; font-size: 11px; font-weight: 600;
+  color: var(--muted); text-transform: uppercase; letter-spacing: .06em;
+  border-bottom: 1px solid var(--border); white-space: nowrap;
+}
+.cmd-table tbody tr {
+  border-bottom: 1px solid var(--border);
+  background: var(--table-row); transition: background .1s;
+}
+.cmd-table tbody tr:nth-child(even) { background: var(--table-row-alt); }
+.cmd-table tbody tr:hover { background: var(--card-bg); }
+.cmd-table tbody tr.hidden { display: none; }
+.cmd-table td { padding: 8px 12px; vertical-align: top; }
+.cmd-table .td-cmd { white-space: nowrap; }
+.cmd-table .td-syntax { min-width: 220px; }
+.cmd-table .td-args { min-width: 160px; }
+.cmd-table .td-desc { min-width: 200px; color: var(--text); }
+.cmd-table .td-engines { white-space: nowrap; }
+
+/* ===== COMMAND NAME ===== */
+.cmd-name {
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 12px; color: var(--cmd-color); font-weight: 600;
+}
+.cmd-name.oneliners { color: var(--ol-color); }
+
+/* ===== SYNTAX HIGHLIGHTING ===== */
+.syntax {
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 12px; white-space: pre-wrap; word-break: break-all; line-height: 1.5;
+}
+.syn-keyword { color: var(--keyword-color); }
+.syn-required { color: var(--param-color); }
+.syn-optional { color: var(--optional-color); }
+.syn-choice { color: var(--choice-color); }
+.syn-pipe { color: var(--muted); }
+
+/* ===== SYNTAX CELL ===== */
+.syntax-cell { display: flex; align-items: flex-start; gap: 6px; }
+.copy-btn {
+  flex-shrink: 0; background: none; border: none; cursor: pointer;
+  color: var(--muted); padding: 2px 4px; border-radius: 4px;
+  font-size: 11px; opacity: 0; transition: opacity .15s, background .15s;
+  margin-top: 1px;
+}
+.cmd-table tbody tr:hover .copy-btn { opacity: 1; }
+.copy-btn:hover { background: var(--card-bg); color: var(--text); }
+
+/* ===== ARGS DETAILS ===== */
+.args-details summary {
+  cursor: pointer; font-size: 11px; color: var(--muted);
+  list-style: none; display: flex; align-items: center; gap: 4px;
+  white-space: nowrap;
+}
+.args-details summary::before { content: "▶"; font-size: 8px; transition: transform .2s; }
+.args-details[open] summary::before { transform: rotate(90deg); }
+.args-table {
+  margin-top: 6px; border-collapse: collapse; font-size: 11px; width: 100%;
+}
+.args-table th {
+  color: var(--muted); font-weight: 600; padding: 2px 8px 2px 0;
+  text-align: left; white-space: nowrap; border-bottom: 1px solid var(--border);
+}
+.args-table td {
+  padding: 3px 8px 3px 0; vertical-align: top; border-bottom: 1px solid var(--border);
+}
+.args-table tr:last-child td { border-bottom: none; }
+.arg-name { color: var(--param-color); font-family: monospace; }
+.arg-req { color: #3fb950; font-size: 10px; font-weight: 700; }
+.arg-opt { color: var(--muted); font-size: 10px; }
+
+/* ===== ENGINE BADGES ===== */
+.badge {
+  display: inline-block; padding: 1px 6px; border-radius: 10px;
+  font-size: 10px; font-weight: 600; margin: 1px 2px; white-space: nowrap;
+}
+.badge-docker { background: var(--badge-docker); color: #7ab8f5; }
+.badge-podman { background: var(--badge-podman); color: #d4b8ff; }
+.badge-all { background: var(--badge-all); color: #d4b8ff; }
+
+/* ===== SEARCH RESULTS OVERLAY ===== */
+#search-results {
+  position: fixed; top: calc(var(--topbar-h) + 4px); left: 0; right: 0;
+  z-index: 200; display: none;
+  justify-content: center; pointer-events: none;
+}
+#search-results.visible { display: flex; }
+#search-results-inner {
+  background: var(--sidebar-bg); border: 1px solid var(--border);
+  border-radius: var(--radius); box-shadow: 0 8px 24px rgba(0,0,0,.4);
+  width: 600px; max-height: 400px; overflow-y: auto; pointer-events: all;
+}
+.sr-header {
+  padding: 8px 12px; font-size: 11px; color: var(--muted);
+  border-bottom: 1px solid var(--border);
+  background: var(--sidebar-bg); position: sticky; top: 0;
+}
+.sr-item {
+  padding: 8px 12px; cursor: pointer; border-bottom: 1px solid var(--border);
+  display: flex; flex-direction: column; gap: 2px; transition: background .1s;
+}
+.sr-item:hover, .sr-item.focused { background: var(--card-bg); }
+.sr-item:last-child { border-bottom: none; }
+.sr-cmd { font-size: 12px; color: var(--cmd-color); font-family: monospace; font-weight: 600; }
+.sr-desc { font-size: 11px; color: var(--muted); }
+.sr-section { font-size: 10px; color: var(--muted); margin-left: auto; white-space: nowrap; }
+.sr-top { display: flex; align-items: baseline; gap: 8px; }
+mark { background: #e3b34133; color: var(--param-color); border-radius: 2px; padding: 0 1px; }
+
+/* ===== TOAST ===== */
+#toast {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px);
+  background: var(--toast-bg); color: #fff;
+  padding: 8px 16px; border-radius: var(--radius);
+  font-size: 13px; font-weight: 500; pointer-events: none;
+  opacity: 0; transition: opacity .2s, transform .2s; z-index: 300;
+}
+#toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ===== SHORTCUTS MODAL ===== */
+#shortcuts-modal {
+  display: none; position: fixed; inset: 0; z-index: 400;
+  background: rgba(0,0,0,.6); align-items: center; justify-content: center;
+}
+#shortcuts-modal.visible { display: flex; }
+#shortcuts-box {
+  background: var(--sidebar-bg); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 24px; width: 360px;
+  box-shadow: 0 8px 32px rgba(0,0,0,.5);
+}
+#shortcuts-box h3 { font-size: 15px; margin-bottom: 16px; }
+.shortcut-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 5px 0; border-bottom: 1px solid var(--border); font-size: 13px;
+}
+.shortcut-row:last-child { border-bottom: none; }
+.shortcut-key {
+  background: var(--shortcut-bg); border: 1px solid var(--border);
+  border-radius: 4px; padding: 2px 8px; font-family: monospace; font-size: 12px;
+}
+#shortcuts-box .close-btn {
+  display: block; margin-top: 16px; text-align: center; cursor: pointer;
+  color: var(--muted); font-size: 12px;
+}
+
+/* ===== PROCEDURES ===== */
+.proc-card {
+  background: var(--card-bg); border: 1px solid var(--border);
+  border-radius: var(--radius); margin-bottom: 20px; overflow: hidden;
+}
+.proc-card .proc-card-header {
+  background: var(--table-head); padding: 10px 16px;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer; user-select: none;
+  display: flex; align-items: center; gap: 8px;
+}
+.proc-card .proc-card-header h3 { font-size: 14px; font-weight: 600; color: var(--text); }
+.proc-desc { padding: 10px 16px 0; font-size: 12px; color: var(--muted); font-style: italic; }
+.proc-steps { padding: 8px 16px 16px; }
+.proc-step { display: flex; gap: 14px; margin-top: 16px; }
+.proc-step-num {
+  flex-shrink: 0; width: 22px; height: 22px; border-radius: 50%;
+  background: var(--focus-ring); color: #fff;
+  font-size: 11px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center; margin-top: 1px;
+}
+.proc-step-body { flex: 1; min-width: 0; }
+.proc-step-title { font-size: 13px; font-weight: 600; margin-bottom: 4px; color: var(--text); }
+.proc-step-desc { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+.proc-code-wrap { position: relative; }
+.proc-code {
+  background: #010409; border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 10px 14px;
+  font-size: 12px; font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  overflow-x: auto; white-space: pre; line-height: 1.7; color: var(--text); margin: 0;
+}
+.proc-code .pc { color: var(--cmd-color); }
+.proc-code .cc { color: var(--muted); font-style: italic; }
+.proc-copy-btn {
+  position: absolute; top: 5px; right: 5px;
+  background: var(--card-bg); border: 1px solid var(--border);
+  border-radius: 4px; padding: 2px 7px;
+  font-size: 10px; cursor: pointer; color: var(--muted);
+  transition: background .15s, color .15s; opacity: 0;
+}
+.proc-code-wrap:hover .proc-copy-btn { opacity: 1; }
+.proc-copy-btn:hover { background: var(--search-bg); color: var(--text); }
+
+/* ===== ONE-LINERS ===== */
+.ol-card {
+  background: var(--card-bg); border: 1px solid var(--border);
+  border-radius: var(--radius); margin-bottom: 14px; overflow: hidden;
+}
+.ol-card-header {
+  background: var(--table-head); padding: 8px 14px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+}
+.ol-card-title { font-size: 13px; font-weight: 600; color: var(--text); }
+.ol-card-tag {
+  font-size: 10px; font-weight: 600; color: var(--ol-color);
+  background: rgba(247,129,102,.1); border: 1px solid rgba(247,129,102,.3);
+  border-radius: 10px; padding: 1px 8px;
+}
+.ol-cmd-wrap { position: relative; }
+.ol-cmd {
+  padding: 10px 14px; font-size: 12px;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  color: var(--ol-color); overflow-x: auto; white-space: pre; line-height: 1.7;
+  margin: 0; background: transparent;
+}
+.ol-copy-btn {
+  position: absolute; top: 6px; right: 6px;
+  background: var(--card-bg); border: 1px solid var(--border);
+  border-radius: 4px; padding: 2px 8px;
+  font-size: 10px; cursor: pointer; color: var(--muted);
+  transition: background .15s, color .15s; opacity: 0;
+}
+.ol-cmd-wrap:hover .ol-copy-btn { opacity: 1; }
+.ol-copy-btn:hover { background: var(--search-bg); color: var(--text); }
+.ol-desc {
+  padding: 8px 14px; font-size: 12px; color: var(--muted);
+  border-top: 1px solid var(--border); line-height: 1.5;
+}
+
+/* ===== CONCEPTS ===== */
+.concept-content { padding: 4px 0 8px; }
+.concept-content p {
+  font-size: 13px; line-height: 1.7; margin-bottom: 12px; color: var(--text);
+}
+.concept-terms { margin: 12px 0 16px; }
+.concept-terms dt {
+  color: var(--cmd-color); font-weight: 600; font-size: 13px;
+  margin-top: 10px; padding: 2px 0;
+}
+.concept-terms dd {
+  color: var(--muted); font-size: 12px; margin-left: 16px; line-height: 1.6;
+  padding-bottom: 6px; border-bottom: 1px solid var(--border);
+}
+.concept-terms dd:last-child { border-bottom: none; }
+.concept-diagram {
+  background: #010409; border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 14px 18px;
+  font-size: 12px; font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  overflow-x: auto; white-space: pre; line-height: 1.6; color: var(--text);
+  margin-bottom: 16px;
+}
+.comparison-table td:first-child {
+  font-weight: 600; color: var(--text); white-space: nowrap;
+}
+
+/* ===== HOME LINK ===== */
+#home-link {
+  display: flex; align-items: center; gap: 5px;
+  color: var(--muted); font-size: 12px; font-weight: 500;
+  padding: 4px 10px; border-radius: var(--radius); border: 1px solid var(--border);
+  transition: color .15s, background .15s; flex-shrink: 0; text-decoration: none;
+}
+#home-link:hover { color: var(--text); background: var(--card-bg); text-decoration: none; }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 900px) {
+  #sidebar { display: none; }
+  body.sidebar-collapsed #sidebar { display: none; }
+  #main { max-width: 100vw; }
+  #topbar { gap: 8px; padding: 0 10px; }
+  #search-wrap { max-width: 200px; }
+  #engine-filter { display: none; }
+}
+@media (max-width: 640px) {
+  #main { padding: 16px 12px 48px; }
+  .cmd-table { font-size: 12px; }
+  .cat-header h2 { font-size: 16px; }
+}
+
+/* ===== PRINT ===== */
+@media print {
+  #topbar, #sidebar, #shortcuts-modal, #toast, #search-results { display: none !important; }
+  #layout { margin-top: 0; }
+  #main { max-width: 100%; padding: 0; }
+  .cat-section.collapsed .cat-body,
+  .subsection.collapsed .sub-body { display: block !important; }
+  .cat-header, .subsection-header { cursor: default; }
+  .copy-btn, .proc-copy-btn, .ol-copy-btn { display: none; }
+  body { background: #fff; color: #000; font-size: 11px; }
+  .cmd-table { font-size: 10px; }
+  .badge { border: 1px solid #ccc; }
+}
+
+/* ===== SCROLLBAR ===== */
+#main::-webkit-scrollbar { width: 6px; }
+#main::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div id="topbar">
+  <button id="sidebar-toggle" title="Toggle sidebar (B)">☰</button>
+  <a href="index.html" id="home-link" title="Back to home">⌂ Home</a>
+  <div class="brand">Docker &amp; Podman <span>Reference</span></div>
+  <div id="search-wrap">
+    <span class="search-icon">⌕</span>
+    <input type="text" id="search-input" placeholder="Search commands…" autocomplete="off" spellcheck="false">
+    <span id="search-kbd">/</span>
+  </div>
+  <div id="engine-filter">
+    <button class="filter-btn active" data-filter="all">All</button>
+    <button class="filter-btn" data-filter="docker">Docker</button>
+    <button class="filter-btn" data-filter="podman">Podman</button>
+  </div>
+  <button id="theme-btn" title="Toggle theme (T)">☀</button>
+  <button id="help-btn" title="Keyboard shortcuts (?)">?</button>
+</div>
+
+<!-- SEARCH OVERLAY -->
+<div id="search-results">
+  <div id="search-results-inner">
+    <div class="sr-header" id="sr-header">No results</div>
+    <div id="sr-list"></div>
+  </div>
+</div>
+
+<!-- LAYOUT -->
+<div id="layout">
+  <nav id="sidebar">
+    <div id="toc"></div>
+  </nav>
+  <main id="main">
+    <details id="legend">
+      <summary>Syntax Notation &amp; Badge Legend</summary>
+      <div class="legend-grid">
+        <div class="legend-item"><code class="syn-required">&lt;param&gt;</code> Required variable</div>
+        <div class="legend-item"><code class="syn-optional">[param]</code> Optional parameter</div>
+        <div class="legend-item"><code class="syn-choice">{a|b}</code> Choose one value</div>
+        <div class="legend-item"><code class="syn-keyword">keyword</code> Literal keyword</div>
+        <div class="legend-item"><span class="badge badge-docker">Docker</span> Docker only</div>
+        <div class="legend-item"><span class="badge badge-podman">Podman</span> Podman only</div>
+        <div class="legend-item"><span class="badge badge-all">All</span> Both engines</div>
+      </div>
+    </details>
+    <div id="sections-root"></div>
+  </main>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- SHORTCUTS MODAL -->
+<div id="shortcuts-modal">
+  <div id="shortcuts-box">
+    <h3>Keyboard Shortcuts</h3>
+    <div class="shortcut-row"><span>Focus search</span><span class="shortcut-key">/</span></div>
+    <div class="shortcut-row"><span>Close search / modal</span><span class="shortcut-key">Esc</span></div>
+    <div class="shortcut-row"><span>Toggle theme</span><span class="shortcut-key">T</span></div>
+    <div class="shortcut-row"><span>Expand all sections</span><span class="shortcut-key">E</span></div>
+    <div class="shortcut-row"><span>Collapse all sections</span><span class="shortcut-key">C</span></div>
+    <div class="shortcut-row"><span>Toggle sidebar</span><span class="shortcut-key">B</span></div>
+    <div class="shortcut-row"><span>Show shortcuts</span><span class="shortcut-key">?</span></div>
+    <div class="shortcut-row"><span>Navigate search results</span><span class="shortcut-key">↑ / ↓</span></div>
+    <div class="shortcut-row"><span>Select search result</span><span class="shortcut-key">Enter</span></div>
+    <span class="close-btn" id="shortcuts-close">Close</span>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   RENDERING ENGINE
+   ============================================================ */
+
+const SECTIONS = [];
+
+/* ----- Syntax tokenizer ----- */
+function tokenizeSyntax(raw) {
+  const out = [];
+  let i = 0;
+  while (i < raw.length) {
+    if (raw[i] === '<') {
+      const end = raw.indexOf('>', i);
+      if (end !== -1) {
+        out.push('<span class="syn-required">' + esc(raw.slice(i, end+1)) + '</span>');
+        i = end + 1; continue;
+      }
+    }
+    if (raw[i] === '[') {
+      const end = raw.indexOf(']', i);
+      if (end !== -1) {
+        out.push('<span class="syn-optional">' + esc(raw.slice(i, end+1)) + '</span>');
+        i = end + 1; continue;
+      }
+    }
+    if (raw[i] === '{') {
+      const end = raw.indexOf('}', i);
+      if (end !== -1) {
+        const inner = raw.slice(i+1, end);
+        const formatted = inner.split('|').map((p,idx,arr) =>
+          '<span class="syn-choice">' + esc(p) + '</span>' + (idx<arr.length-1?'<span class="syn-pipe">|</span>':'')
+        ).join('');
+        out.push('{' + formatted + '}');
+        i = end + 1; continue;
+      }
+    }
+    let j = i;
+    while (j < raw.length && raw[j] !== '<' && raw[j] !== '[' && raw[j] !== '{') j++;
+    if (j > i) {
+      out.push('<span class="syn-keyword">' + esc(raw.slice(i, j)) + '</span>');
+      i = j;
+    } else { out.push(esc(raw[i])); i++; }
+  }
+  return out.join('');
+}
+
+function esc(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+/* ----- Badge builder ----- */
+function buildBadges(engines) {
+  return engines.map(e => {
+    if (e==='docker') return '<span class="badge badge-docker">Docker</span>';
+    if (e==='podman') return '<span class="badge badge-podman">Podman</span>';
+    if (e==='all')    return '<span class="badge badge-all">All</span>';
+    return '';
+  }).join('');
+}
+
+/* ----- Args table builder ----- */
+function buildArgs(args) {
+  if (!args || args.length === 0) return '<span style="color:var(--muted);font-size:11px;">—</span>';
+  const rows = args.map(a => `
+    <tr>
+      <td class="arg-name">${esc(a.name)}</td>
+      <td>${esc(a.type||'')}</td>
+      <td>${esc(a.range||'')}</td>
+      <td>${a.req ? '<span class="arg-req">REQ</span>' : '<span class="arg-opt">opt</span>'}</td>
+      <td>${esc(a.def||'')}</td>
+      <td>${esc(a.desc||'')}</td>
+    </tr>`).join('');
+  return `<details class="args-details">
+    <summary>${args.length} argument${args.length>1?'s':''}</summary>
+    <table class="args-table">
+      <thead><tr><th>Name</th><th>Type</th><th>Range</th><th>Req?</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+  </details>`;
+}
+
+/* ----- Command row builder ----- */
+let rowIndex = 0;
+function buildRow(cmd, sectionType) {
+  rowIndex++;
+  const id = 'row-' + rowIndex;
+  const engineList = cmd.engines || ['all'];
+  const engineClasses = engineList.join(' ');
+  const rawSyntax = cmd.syntax || cmd.cmd;
+  return `<tr class="cmd-row ${engineClasses}" data-engines="${engineList.join(',')}" data-id="${id}"
+            data-cmd="${esc(cmd.cmd)}" data-desc="${esc(cmd.desc||'')}" data-syntax="${esc(rawSyntax)}">
+    <td class="td-cmd">
+      <span class="cmd-name ${sectionType}">${esc(cmd.cmd)}</span>
+    </td>
+    <td class="td-syntax">
+      <div class="syntax-cell">
+        <code class="syntax">${tokenizeSyntax(rawSyntax)}</code>
+        <button class="copy-btn" title="Copy syntax" onclick="copySyntax(this,'${esc(rawSyntax).replace(/'/g,"\\'")}')">⎘</button>
+      </div>
+    </td>
+    <td class="td-args">${buildArgs(cmd.args)}</td>
+    <td class="td-desc">${esc(cmd.desc||'')}</td>
+    <td class="td-engines">${buildBadges(engineList)}</td>
+  </tr>`;
+}
+
+/* ----- Commands subsection builder ----- */
+function buildSubsection(sub, sectionType) {
+  const rows = sub.commands.map(c => buildRow(c, sectionType)).join('');
+  return `<div class="subsection" id="${sub.id}">
+    <div class="subsection-header" onclick="toggleSub(this)">
+      <h3>${esc(sub.title)}</h3>
+      <span class="cmd-count">${sub.commands.length} commands</span>
+      <span class="sub-chevron">▼</span>
+    </div>
+    <div class="sub-body">
+      <div class="cmd-table-wrap">
+        <table class="cmd-table">
+          <thead><tr>
+            <th style="width:160px">Command</th>
+            <th>Syntax</th>
+            <th style="width:160px">Arguments</th>
+            <th>Description</th>
+            <th style="width:100px">Engine</th>
+          </tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ----- Concepts section renderer ----- */
+function buildConceptBody(text) {
+  return text.split('\n\n').map(p => '<p>' + esc(p.trim()) + '</p>').join('');
+}
+function buildTermsList(terms) {
+  const items = terms.map(t =>
+    `<dt>${esc(t.term)}</dt><dd>${esc(t.def)}</dd>`
+  ).join('');
+  return `<dl class="concept-terms">${items}</dl>`;
+}
+function buildComparisonTable(rows) {
+  const head = '<thead><tr><th>Feature</th><th>Docker</th><th>Podman</th></tr></thead>';
+  const body = rows.map(r =>
+    `<tr><td>${esc(r.feature)}</td><td>${esc(r.docker)}</td><td>${esc(r.podman)}</td></tr>`
+  ).join('');
+  return `<div class="cmd-table-wrap"><table class="cmd-table comparison-table">${head}<tbody>${body}</tbody></table></div>`;
+}
+function buildConceptSubsection(sub) {
+  let inner = '';
+  if (sub.body) inner += buildConceptBody(sub.body);
+  if (sub.terms) inner += buildTermsList(sub.terms);
+  if (sub.diagram) inner += '<pre class="concept-diagram">' + esc(sub.diagram) + '</pre>';
+  if (sub.comparison) inner += buildComparisonTable(sub.comparison);
+  return `<div class="subsection" id="${sub.id}">
+    <div class="subsection-header" onclick="toggleSub(this)">
+      <h3>${esc(sub.title)}</h3>
+      <span class="sub-chevron">▼</span>
+    </div>
+    <div class="sub-body concept-content">${inner}</div>
+  </div>`;
+}
+
+/* ----- One-liners subsection renderer ----- */
+let olCopyIdx = 0;
+function buildOnelinersSubsection(sub) {
+  const cards = sub.items.map(item => {
+    const cid = 'ol-' + (++olCopyIdx);
+    return `<div class="ol-card">
+      <div class="ol-card-header">
+        <span class="ol-card-title">${esc(item.title)}</span>
+        ${item.tag ? `<span class="ol-card-tag">${esc(item.tag)}</span>` : ''}
+      </div>
+      <div class="ol-cmd-wrap">
+        <pre class="ol-cmd" id="${cid}">${esc(item.cmd)}</pre>
+        <button class="ol-copy-btn" onclick="copyProc('${cid}')">⎘ Copy</button>
+      </div>
+      ${item.desc ? `<div class="ol-desc">${esc(item.desc)}</div>` : ''}
+    </div>`;
+  }).join('');
+  return `<div class="subsection" id="${sub.id}">
+    <div class="subsection-header" onclick="toggleSub(this)">
+      <h3>${esc(sub.title)}</h3>
+      <span class="cmd-count">${sub.items.length} one-liners</span>
+      <span class="sub-chevron">▼</span>
+    </div>
+    <div class="sub-body">${cards}</div>
+  </div>`;
+}
+
+/* ----- Procedure renderer ----- */
+function fmtProcCode(code) {
+  return code.split('\n').map(line => {
+    const t = line.trimStart();
+    if (t.startsWith('#')) return '<span class="cc">' + esc(line) + '</span>';
+    return '<span class="pc">' + esc(line) + '</span>';
+  }).join('\n');
+}
+let procCopyIdx = 0;
+function buildProcStep(step, idx) {
+  const cid = 'pc-' + (++procCopyIdx);
+  const code = step.code ? `<div class="proc-code-wrap">
+    <pre class="proc-code" id="${cid}">${fmtProcCode(step.code)}</pre>
+    <button class="proc-copy-btn" onclick="copyProc('${cid}')">⎘ Copy</button>
+  </div>` : '';
+  return `<div class="proc-step">
+    <div class="proc-step-num">${idx+1}</div>
+    <div class="proc-step-body">
+      <div class="proc-step-title">${esc(step.title)}</div>
+      ${step.desc ? `<div class="proc-step-desc">${esc(step.desc)}</div>` : ''}
+      ${code}
+    </div>
+  </div>`;
+}
+function buildProcCard(sub) {
+  const steps = sub.steps.map((s,i) => buildProcStep(s,i)).join('');
+  return `<div class="proc-card subsection" id="${sub.id}">
+    <div class="proc-card-header subsection-header" onclick="toggleSub(this)">
+      <h3>${esc(sub.title)}</h3>
+      <span class="sub-chevron">▼</span>
+    </div>
+    ${sub.desc ? `<div class="proc-desc">${esc(sub.desc)}</div>` : ''}
+    <div class="sub-body proc-steps">${steps}</div>
+  </div>`;
+}
+function copyProc(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const text = el.textContent;
+  navigator.clipboard.writeText(text).then(() => showToast('Copied!')).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = text; ta.style.position='fixed'; ta.style.opacity='0';
+    document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta);
+    showToast('Copied!');
+  });
+}
+
+/* ----- Main section dispatcher ----- */
+function buildSection(sec) {
+  if (sec.type === 'concepts') {
+    const subs = sec.subsections.map(s => buildConceptSubsection(s)).join('');
+    return `<section class="cat-section" id="${sec.id}">
+      <div class="cat-header concepts" onclick="toggleCat(this)">
+        <h2>${esc(sec.title)}</h2>
+        <span class="cat-chevron">▼</span>
+      </div>
+      <div class="cat-body">${subs}</div>
+    </section>`;
+  }
+  if (sec.type === 'procedure') {
+    const cards = sec.subsections.map(s => buildProcCard(s)).join('');
+    return `<section class="cat-section" id="${sec.id}">
+      <div class="cat-header procedure" onclick="toggleCat(this)">
+        <h2>${esc(sec.title)}</h2>
+        <span class="cat-chevron">▼</span>
+      </div>
+      <div class="cat-body">${cards}</div>
+    </section>`;
+  }
+  if (sec.type === 'oneliners') {
+    const subs = sec.subsections.map(s => buildOnelinersSubsection(s)).join('');
+    return `<section class="cat-section" id="${sec.id}">
+      <div class="cat-header oneliners" onclick="toggleCat(this)">
+        <h2>${esc(sec.title)}</h2>
+        <span class="cat-chevron">▼</span>
+      </div>
+      <div class="cat-body">${subs}</div>
+    </section>`;
+  }
+  const subs = sec.subsections.map(s => buildSubsection(s, sec.type)).join('');
+  return `<section class="cat-section" id="${sec.id}">
+    <div class="cat-header ${sec.type}" onclick="toggleCat(this)">
+      <h2>${esc(sec.title)}</h2>
+      <span class="cat-chevron">▼</span>
+    </div>
+    <div class="cat-body">${subs}</div>
+  </section>`;
+}
+
+/* ----- Render everything ----- */
+function render() {
+  const root = document.getElementById('sections-root');
+  root.innerHTML = SECTIONS.map(buildSection).join('');
+  buildTOC();
+  restoreCollapseState();
+  initSearch();
+  initTOCObserver();
+}
+
+/* ----- TOC builder ----- */
+function buildTOC() {
+  const toc = document.getElementById('toc');
+  let html = '';
+  SECTIONS.forEach(sec => {
+    html += `<div class="toc-group">
+      <span class="toc-group-title ${sec.type}">${sec.title}</span>`;
+    if (sec.subsections) {
+      sec.subsections.forEach(sub => {
+        html += `<a class="toc-link" data-target="${sub.id}" onclick="scrollToSection('${sub.id}')">${esc(sub.title)}</a>`;
+      });
+    }
+    html += '</div>';
+  });
+  toc.innerHTML = html;
+}
+
+function scrollToSection(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.classList.remove('collapsed');
+  const cat = el.closest('.cat-section');
+  if (cat) cat.classList.remove('collapsed');
+  saveSectionState();
+  const top = el.getBoundingClientRect().top + window.scrollY - 70;
+  window.scrollTo({ top, behavior: 'smooth' });
+}
+
+/* ============================================================
+   INTERACTIVITY
+   ============================================================ */
+
+function toggleCat(header) {
+  const sec = header.closest('.cat-section');
+  sec.classList.toggle('collapsed');
+  saveSectionState();
+}
+function toggleSub(header) {
+  const sub = header.closest('.subsection');
+  sub.classList.toggle('collapsed');
+  saveSectionState();
+}
+function expandAll() {
+  document.querySelectorAll('.cat-section,.subsection').forEach(el => el.classList.remove('collapsed'));
+  saveSectionState();
+}
+function collapseAll() {
+  document.querySelectorAll('.cat-section,.subsection').forEach(el => el.classList.add('collapsed'));
+  saveSectionState();
+}
+function saveSectionState() {
+  const state = {};
+  document.querySelectorAll('.cat-section[id],.subsection[id]').forEach(el => {
+    state[el.id] = el.classList.contains('collapsed');
+  });
+  try { localStorage.setItem('containers-ref-collapse', JSON.stringify(state)); } catch(e){}
+}
+function restoreCollapseState() {
+  try {
+    const state = JSON.parse(localStorage.getItem('containers-ref-collapse') || '{}');
+    Object.entries(state).forEach(([id, collapsed]) => {
+      const el = document.getElementById(id);
+      if (el) el.classList.toggle('collapsed', collapsed);
+    });
+  } catch(e) {}
+}
+
+/* ----- Engine filter ----- */
+let activeFilter = 'all';
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    activeFilter = btn.dataset.filter;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    applyFilter();
+  });
+});
+function applyFilter() {
+  document.querySelectorAll('.cmd-row').forEach(row => {
+    if (activeFilter === 'all') {
+      row.classList.remove('hidden');
+    } else {
+      const engines = (row.dataset.engines||'').split(',');
+      const visible = engines.includes(activeFilter) || engines.includes('all');
+      row.classList.toggle('hidden', !visible);
+    }
+  });
+  document.querySelectorAll('.subsection').forEach(sub => {
+    if (!sub.querySelector('.cmd-row')) return;
+    const visible = sub.querySelectorAll('.cmd-row:not(.hidden)').length > 0;
+    sub.style.display = visible ? '' : 'none';
+  });
+  document.querySelectorAll('.cat-section').forEach(sec => {
+    if (!sec.querySelector('.cmd-row')) return;
+    const subs = sec.querySelectorAll('.subsection:not([style*="none"])');
+    sec.style.display = subs.length > 0 ? '' : 'none';
+  });
+}
+
+/* ----- Theme toggle ----- */
+const themeBtn = document.getElementById('theme-btn');
+function applyTheme(theme) {
+  document.body.dataset.theme = theme;
+  themeBtn.textContent = theme === 'dark' ? '☀' : '☾';
+  try { localStorage.setItem('containers-ref-theme', theme); } catch(e){}
+}
+(function initTheme() {
+  const saved = localStorage.getItem('containers-ref-theme') || 'dark';
+  applyTheme(saved);
+})();
+themeBtn.addEventListener('click', () => {
+  applyTheme(document.body.dataset.theme === 'dark' ? 'light' : 'dark');
+});
+
+/* ----- Copy to clipboard ----- */
+function copySyntax(btn, syntax) {
+  const plain = syntax.replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&');
+  navigator.clipboard.writeText(plain).then(() => showToast('Copied!')).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = plain; ta.style.position='fixed'; ta.style.opacity='0';
+    document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta);
+    showToast('Copied!');
+  });
+}
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+/* ----- Search ----- */
+let searchIndex = [];
+function initSearch() {
+  searchIndex = [];
+  SECTIONS.forEach(sec => {
+    if (sec.type === 'procedure' || sec.type === 'concepts') return;
+    if (!sec.subsections) return;
+    sec.subsections.forEach(sub => {
+      if (sub.commands) {
+        sub.commands.forEach(cmd => {
+          searchIndex.push({
+            cmd: cmd.cmd, syntax: cmd.syntax || cmd.cmd,
+            desc: cmd.desc || '', section: sub.title,
+            sectionId: sub.id, sectionType: sec.type
+          });
+        });
+      } else if (sub.items) {
+        sub.items.forEach(item => {
+          searchIndex.push({
+            cmd: item.title, syntax: item.cmd || '',
+            desc: item.desc || '', section: sub.title,
+            sectionId: sub.id, sectionType: sec.type
+          });
+        });
+      }
+    });
+  });
+}
+
+const searchInput = document.getElementById('search-input');
+const searchResults = document.getElementById('search-results');
+const srList = document.getElementById('sr-list');
+const srHeader = document.getElementById('sr-header');
+let focusedIdx = -1;
+
+function highlight(text, query) {
+  if (!query) return esc(text);
+  const re = new RegExp('(' + query.replace(/[.*+?^${}()|[\]\\]/g,'\\$&') + ')', 'gi');
+  return esc(text).replace(re, '<mark>$1</mark>');
+}
+
+searchInput.addEventListener('input', () => {
+  const q = searchInput.value.trim().toLowerCase();
+  if (!q) { closeSearch(); return; }
+  const results = searchIndex.filter(item =>
+    item.cmd.toLowerCase().includes(q) ||
+    item.syntax.toLowerCase().includes(q) ||
+    item.desc.toLowerCase().includes(q)
+  ).slice(0, 30);
+  focusedIdx = -1;
+  if (results.length === 0) {
+    srHeader.textContent = 'No results for "' + searchInput.value + '"';
+    srList.innerHTML = '';
+  } else {
+    srHeader.textContent = results.length + ' result' + (results.length !== 1 ? 's' : '');
+    srList.innerHTML = results.map((r, i) => `
+      <div class="sr-item" data-idx="${i}" data-section-id="${r.sectionId}" onclick="goToResult('${r.sectionId}')">
+        <div class="sr-top">
+          <span class="sr-cmd">${highlight(r.cmd, searchInput.value.trim())}</span>
+          <span class="sr-section">${esc(r.section)}</span>
+        </div>
+        <div class="sr-desc">${highlight(r.desc.slice(0,100), searchInput.value.trim())}</div>
+      </div>`).join('');
+  }
+  searchResults.classList.add('visible');
+});
+
+function goToResult(sectionId) {
+  closeSearch();
+  const sub = document.getElementById(sectionId);
+  if (sub) {
+    sub.classList.remove('collapsed');
+    const cat = sub.closest('.cat-section');
+    if (cat) cat.classList.remove('collapsed');
+    saveSectionState();
+    setTimeout(() => scrollToSection(sectionId), 50);
+  }
+}
+function closeSearch() {
+  searchResults.classList.remove('visible');
+  focusedIdx = -1;
+}
+searchInput.addEventListener('keydown', e => {
+  const items = srList.querySelectorAll('.sr-item');
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    focusedIdx = Math.min(focusedIdx + 1, items.length - 1);
+    updateFocus(items);
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    focusedIdx = Math.max(focusedIdx - 1, 0);
+    updateFocus(items);
+  } else if (e.key === 'Enter' && focusedIdx >= 0) {
+    const focused = items[focusedIdx];
+    if (focused) focused.click();
+  } else if (e.key === 'Escape') {
+    closeSearch(); searchInput.blur();
+  }
+});
+function updateFocus(items) {
+  items.forEach((item, i) => item.classList.toggle('focused', i === focusedIdx));
+  if (items[focusedIdx]) items[focusedIdx].scrollIntoView({ block: 'nearest' });
+}
+document.addEventListener('click', e => {
+  if (!e.target.closest('#search-wrap') && !e.target.closest('#search-results')) closeSearch();
+});
+
+/* ----- TOC IntersectionObserver ----- */
+function initTOCObserver() {
+  const tocLinks = document.querySelectorAll('.toc-link');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.id;
+        tocLinks.forEach(l => l.classList.toggle('active', l.dataset.target === id));
+      }
+    });
+  }, { rootMargin: '-60px 0px -70% 0px', threshold: 0 });
+  document.querySelectorAll('.subsection[id],.cat-section[id]').forEach(el => observer.observe(el));
+}
+
+/* ----- Keyboard shortcuts ----- */
+document.addEventListener('keydown', e => {
+  const tag = document.activeElement.tagName;
+  const inInput = tag === 'INPUT' || tag === 'TEXTAREA';
+  if (e.key === '/' && !inInput) {
+    e.preventDefault(); searchInput.focus(); searchInput.select();
+  }
+  if (e.key === 'Escape') {
+    closeSearch();
+    document.getElementById('shortcuts-modal').classList.remove('visible');
+  }
+  if (!inInput) {
+    if (e.key === 't' || e.key === 'T') {
+      applyTheme(document.body.dataset.theme === 'dark' ? 'light' : 'dark');
+    }
+    if (e.key === 'e' || e.key === 'E') expandAll();
+    if (e.key === 'c' || e.key === 'C') collapseAll();
+    if (e.key === 'b' || e.key === 'B') toggleSidebar();
+    if (e.key === '?') {
+      document.getElementById('shortcuts-modal').classList.toggle('visible');
+    }
+  }
+});
+function toggleSidebar() {
+  document.body.classList.toggle('sidebar-collapsed');
+}
+document.getElementById('sidebar-toggle').addEventListener('click', toggleSidebar);
+document.getElementById('help-btn').addEventListener('click', () => {
+  document.getElementById('shortcuts-modal').classList.toggle('visible');
+});
+document.getElementById('shortcuts-close').addEventListener('click', () => {
+  document.getElementById('shortcuts-modal').classList.remove('visible');
+});
+document.getElementById('shortcuts-modal').addEventListener('click', e => {
+  if (e.target === document.getElementById('shortcuts-modal'))
+    document.getElementById('shortcuts-modal').classList.remove('visible');
+});
+</script>
+
+<script>
+/* ============================================================
+   SECTION DATA
+   ============================================================ */
+
+/* ==================== 1. CONCEPTS & ARCHITECTURE ==================== */
+SECTIONS.push({
+  id: 'concepts', title: 'CONCEPTS & ARCHITECTURE', type: 'concepts',
+  subsections: [
+    {
+      id: 'cpt-fundamentals',
+      title: '1. Container Fundamentals',
+      body: 'A container is an isolated user-space instance executing on a shared host kernel. Containers do not emulate hardware or run a separate kernel — they rely on Linux kernel primitives for process isolation and resource control.\n\nTwo kernel subsystems enable containers: namespaces partition visibility of system resources per-process group, and cgroups enforce quantitative resource limits (CPU time, memory, I/O bandwidth, process count). Together they provide the isolation and resource guarantees that define a container.\n\nThe Open Container Initiative (OCI) standardizes container formats and runtimes through three specifications: image-spec (image layout and manifest format), runtime-spec (container execution environment and lifecycle), and distribution-spec (registry push/pull API). Both Docker and Podman are OCI-compliant, ensuring image and runtime interoperability.',
+      terms: [
+        { term: 'PID Namespace', def: 'Isolates process ID number space. PID 1 inside the container is not PID 1 on the host. Each container sees only its own process tree.' },
+        { term: 'NET Namespace', def: 'Isolates the network stack: interfaces, routing tables, iptables/nftables rules, and socket port space. Containers get a virtual ethernet pair (veth) bridged to the host.' },
+        { term: 'MNT Namespace', def: 'Isolates mount points. The container has its own filesystem view assembled from image layers via a union filesystem (overlay2).' },
+        { term: 'UTS Namespace', def: 'Isolates hostname and NIS domain name. Each container can set its own hostname independently.' },
+        { term: 'IPC Namespace', def: 'Isolates System V IPC objects and POSIX message queues. Shared memory segments are container-private.' },
+        { term: 'USER Namespace', def: 'Maps UID/GID ranges between container and host. UID 0 inside the container can map to an unprivileged UID on the host (rootless containers).' },
+        { term: 'CGROUP Namespace', def: 'Isolates the cgroup hierarchy view. The container sees its own cgroup as the root, preventing visibility of host cgroup structure.' },
+        { term: 'cgroups v2', def: 'Unified control group hierarchy for resource limits: cpu.max (CPU quota), memory.max (memory limit), io.max (I/O bandwidth), pids.max (process count limit).' },
+        { term: 'OCI Image', def: 'A content-addressable filesystem bundle: a manifest listing layer digests, a config JSON (entrypoint, env, labels), and one or more compressed tar layer archives.' },
+        { term: 'Union Filesystem', def: 'overlay2 (default) stacks read-only image layers with a read-write container layer on top. Writes are copy-on-write — modified files are copied to the upper layer.' }
+      ]
+    },
+    {
+      id: 'cpt-docker-arch',
+      title: '2. Docker Architecture',
+      body: 'Docker uses a client-server architecture. The docker CLI sends REST API requests over a Unix socket to dockerd, the Docker daemon. dockerd is a long-running root process responsible for image management, container lifecycle, networking (libnetwork), and volume management.\n\ndockerd delegates container execution to containerd, which manages container lifecycle (create, start, stop, delete) and image transfers. containerd invokes runc (the OCI reference runtime) to create the actual container process via clone(2) with namespace flags.\n\nBuildKit is the default build subsystem in modern Docker. It provides parallel stage execution, efficient layer caching, build secrets, and multi-platform build support.',
+      diagram: '┌──────────────┐       REST / Unix Socket        ┌───────────────────────────────┐\n│  docker CLI  │ ──────────────────────────────▶ │          dockerd              │\n└──────────────┘                                 │  ┌─────────┐ ┌────┐ ┌─────┐  │\n                                                 │  │ images  │ │net │ │ vol │  │\n                                                 │  └─────────┘ └────┘ └─────┘  │\n                                                 │        │                     │\n                                                 │   ┌────▼──────┐              │\n                                                 │   │containerd │              │\n                                                 │   └────┬──────┘              │\n                                                 │        │  OCI runtime         │\n                                                 │   ┌────▼──────┐              │\n                                                 │   │   runc    │              │\n                                                 │   └───────────┘              │\n                                                 └───────────────────────────────┘\n\nSocket: /var/run/docker.sock (root-owned by default)'
+    },
+    {
+      id: 'cpt-podman-arch',
+      title: '3. Podman Architecture',
+      body: 'Podman uses a daemonless, fork/exec model. There is no long-running daemon process. When podman run is invoked, the podman process directly fork/execs the OCI runtime (crun by default, or runc) to create the container.\n\nA small per-container monitor process called conmon is spawned alongside each container. conmon holds the container\'s stdin/stdout/stderr file descriptors, records the exit code, and enables detach/reattach. conmon is the direct parent of the container process.\n\nThis architecture eliminates the single point of failure inherent in a daemon-based design — if the podman process exits after container creation, the container continues running under conmon. Podman natively supports rootless execution via user namespaces and slirp4netns/pasta for unprivileged networking.\n\nFor Docker API compatibility, Podman can optionally run a REST API socket (podman system service) that emulates the Docker API, enabling docker-compose and other Docker-native tools to work with Podman.',
+      diagram: '┌──────────────┐    fork/exec     ┌───────────┐    exec     ┌───────────┐\n│  podman CLI  │ ───────────────▶ │  conmon    │ ─────────▶ │ crun/runc │\n└──────────────┘                  │ (monitor)  │            │ (runtime) │\n                                  └─────┬──────┘            └─────┬─────┘\n      No daemon.                        │                         │\n      No socket required.               │  holds stdio fds        │  clone(2)\n                                        │  records exit code      │  + namespaces\n                                        ▼                         ▼\n                                  ┌──────────────────────────────────┐\n                                  │       container process          │\n                                  └──────────────────────────────────┘\n\nOptional socket: /run/user/$UID/podman/podman.sock'
+    },
+    {
+      id: 'cpt-comparison',
+      title: '4. Docker vs Podman Comparison',
+      body: 'The following table summarizes the key architectural and operational differences between Docker and Podman. For most CLI operations, Podman is a drop-in replacement: alias docker=podman works for the vast majority of commands.',
+      comparison: [
+        { feature: 'Architecture', docker: 'Client-server (dockerd daemon)', podman: 'Daemonless (fork/exec)' },
+        { feature: 'Root requirement', docker: 'Daemon runs as root by default', podman: 'Rootless by default (user namespaces)' },
+        { feature: 'Socket', docker: '/var/run/docker.sock', podman: 'Optional: /run/user/$UID/podman/podman.sock' },
+        { feature: 'OCI runtime', docker: 'runc (via containerd)', podman: 'crun (default) or runc (direct)' },
+        { feature: 'Container monitor', docker: 'containerd-shim', podman: 'conmon' },
+        { feature: 'Build tool', docker: 'BuildKit (integrated)', podman: 'buildah (integrated)' },
+        { feature: 'Compose', docker: 'docker compose (v2 plugin)', podman: 'podman compose or docker-compose via socket' },
+        { feature: 'Pod support', docker: 'No (Swarm services instead)', podman: 'Native pods (Kubernetes-style)' },
+        { feature: 'Systemd integration', docker: 'Manual unit files', podman: 'podman generate systemd / Quadlet' },
+        { feature: 'CLI compatibility', docker: 'Reference implementation', podman: 'Drop-in replacement (alias docker=podman)' },
+        { feature: 'Image format', docker: 'OCI / Docker v2', podman: 'OCI / Docker v2' },
+        { feature: 'Registry auth', docker: '~/.docker/config.json', podman: '${XDG_RUNTIME_DIR}/containers/auth.json' },
+        { feature: 'Default storage driver', docker: 'overlay2', podman: 'overlay (fuse-overlayfs for rootless)' },
+        { feature: 'Auto-update', docker: 'Watchtower (third-party)', podman: 'podman auto-update (built-in)' }
+      ]
+    }
+  ]
+});
+
+/* ==================== 2. IMAGE MANAGEMENT ==================== */
+SECTIONS.push({
+  id: 'images', title: 'IMAGE MANAGEMENT', type: 'commands',
+  subsections: [
+    {
+      id: 'img-build', title: '1. Building Images',
+      commands: [
+        { cmd: 'docker build', syntax: 'docker build [OPTIONS] <path>', engines: ['all'], desc: 'Build an image from a Dockerfile/Containerfile in the given context directory.', args: [
+          { name: '-t', type: 'string', range: '-', req: false, def: '-', desc: 'Name and optionally tag the image (name:tag)' },
+          { name: '-f', type: 'path', range: '-', req: false, def: 'Dockerfile', desc: 'Path to Dockerfile (default: <path>/Dockerfile)' },
+          { name: '--no-cache', type: 'flag', range: '-', req: false, def: '-', desc: 'Do not use cache when building' },
+          { name: '--build-arg', type: 'string', range: '-', req: false, def: '-', desc: 'Set build-time variable (key=value)' },
+          { name: '--target', type: 'string', range: '-', req: false, def: '-', desc: 'Build specific stage in multi-stage Dockerfile' },
+          { name: '--platform', type: 'string', range: '-', req: false, def: 'host', desc: 'Target platform (linux/amd64, linux/arm64)' }
+        ]},
+        { cmd: 'docker buildx build', syntax: 'docker buildx build --platform <platforms> -t <name>:<tag> <path>', engines: ['docker'], desc: 'Build with BuildKit. Supports multi-platform builds, advanced caching, and build secrets.', args: [] },
+        { cmd: 'docker buildx bake', syntax: 'docker buildx bake [OPTIONS] [TARGET...]', engines: ['docker'], desc: 'Build multiple targets defined in a docker-bake.json or docker-bake.hcl file.', args: [] },
+        { cmd: 'podman build', syntax: 'podman build [OPTIONS] <path>', engines: ['podman'], desc: 'Build image using buildah backend. Supports Dockerfile and Containerfile.', args: [] },
+        { cmd: 'docker build --target', syntax: 'docker build --target <stage> -t <name>:<tag> <path>', engines: ['all'], desc: 'Build only up to a specific stage in a multi-stage Dockerfile.', args: [] },
+        { cmd: 'docker build --build-arg', syntax: 'docker build --build-arg <key>=<value> <path>', engines: ['all'], desc: 'Pass build-time variables. Use ARG in Dockerfile to declare them.', args: [] },
+        { cmd: 'docker build --no-cache', syntax: 'docker build --no-cache -t <name>:<tag> <path>', engines: ['all'], desc: 'Force a full rebuild without using any cached layers.', args: [] }
+      ]
+    },
+    {
+      id: 'img-ops', title: '2. Image Operations',
+      commands: [
+        { cmd: 'docker images', syntax: 'docker images [OPTIONS] [REPOSITORY[:TAG]]', engines: ['all'], desc: 'List local images. Alias for docker image ls.', args: [] },
+        { cmd: 'docker pull', syntax: 'docker pull [OPTIONS] <name>[:<tag>|@<digest>]', engines: ['all'], desc: 'Download an image from a registry. Defaults to Docker Hub for unqualified names.', args: [
+          { name: 'name', type: 'string', range: '-', req: true, def: '-', desc: 'Image name (e.g., nginx, ubuntu:22.04, ghcr.io/org/app:v1)' },
+          { name: '--platform', type: 'string', range: '-', req: false, def: 'host', desc: 'Pull image for specific platform (linux/amd64, linux/arm64)' },
+          { name: '--all-tags', type: 'flag', range: '-', req: false, def: '-', desc: 'Pull all tagged images from the repository' }
+        ]},
+        { cmd: 'docker push', syntax: 'docker push <name>[:<tag>]', engines: ['all'], desc: 'Upload an image to a registry. Requires prior docker login.', args: [] },
+        { cmd: 'docker tag', syntax: 'docker tag <source> <target>[:<tag>]', engines: ['all'], desc: 'Create a new tag (alias) pointing to an existing image. Does not copy data.', args: [] },
+        { cmd: 'docker rmi', syntax: 'docker rmi [OPTIONS] <image> [<image>...]', engines: ['all'], desc: 'Remove one or more images. Fails if a container references the image (use -f to force).', args: [] },
+        { cmd: 'docker image prune', syntax: 'docker image prune [OPTIONS]', engines: ['all'], desc: 'Remove dangling images (untagged, unreferenced layers). Use -a to remove all unused images.', args: [] },
+        { cmd: 'docker save', syntax: 'docker save -o <file>.tar <image>[:<tag>]', engines: ['all'], desc: 'Export image (with all layers and tags) to a tar archive for offline transfer.', args: [] },
+        { cmd: 'docker load', syntax: 'docker load -i <file>.tar', engines: ['all'], desc: 'Import image from a tar archive created by docker save.', args: [] },
+        { cmd: 'docker import', syntax: 'docker import <file|URL> [<repository>[:<tag>]]', engines: ['all'], desc: 'Create an image from a tarball filesystem snapshot. Unlike load, creates a single-layer image.', args: [] },
+        { cmd: 'docker commit', syntax: 'docker commit [OPTIONS] <container> [<repository>[:<tag>]]', engines: ['all'], desc: 'Create a new image from a container\'s current filesystem state. Avoid for reproducible builds — use Dockerfiles.', args: [] },
+        { cmd: 'docker history', syntax: 'docker history [OPTIONS] <image>', engines: ['all'], desc: 'Show the build history (layer-by-layer) of an image, including each layer\'s size and command.', args: [] }
+      ]
+    },
+    {
+      id: 'img-inspect', title: '3. Image Inspection',
+      commands: [
+        { cmd: 'docker image inspect', syntax: 'docker image inspect <image>', engines: ['all'], desc: 'Display detailed JSON metadata: config, layers, creation date, architecture, OS.', args: [] },
+        { cmd: 'docker inspect --format', syntax: 'docker inspect --format <template> <image>', engines: ['all'], desc: 'Extract specific fields using Go templates. E.g., \'{{.Config.Env}}\' for environment variables.', args: [] },
+        { cmd: 'docker manifest inspect', syntax: 'docker manifest inspect <image>[:<tag>]', engines: ['docker'], desc: 'Inspect a multi-architecture manifest list to see platform variants.', args: [] },
+        { cmd: 'skopeo inspect', syntax: 'skopeo inspect docker://<image>[:<tag>]', engines: ['podman'], desc: 'Inspect a remote image without pulling it. Part of the containers/skopeo toolset.', args: [] }
+      ]
+    }
+  ]
+});
+
+/* ==================== 3. CONTAINER LIFECYCLE ==================== */
+SECTIONS.push({
+  id: 'containers', title: 'CONTAINER LIFECYCLE', type: 'commands',
+  subsections: [
+    {
+      id: 'ct-run', title: '1. Running Containers',
+      commands: [
+        { cmd: 'docker run', syntax: 'docker run [OPTIONS] <image> [COMMAND] [ARG...]', engines: ['all'], desc: 'Create and start a container from an image. Combines docker create + docker start.', args: [
+          { name: '-d', type: 'flag', range: '-', req: false, def: '-', desc: 'Detached mode: run container in background' },
+          { name: '-it', type: 'flag', range: '-', req: false, def: '-', desc: 'Interactive + TTY: allocate a pseudo-terminal for shell access' },
+          { name: '--rm', type: 'flag', range: '-', req: false, def: '-', desc: 'Automatically remove container when it exits' },
+          { name: '--name', type: 'string', range: '-', req: false, def: 'random', desc: 'Assign a name to the container' },
+          { name: '-p', type: 'string', range: '-', req: false, def: '-', desc: 'Publish port: hostPort:containerPort' },
+          { name: '-v', type: 'string', range: '-', req: false, def: '-', desc: 'Mount volume: name:path or /host/path:/container/path' },
+          { name: '-e', type: 'string', range: '-', req: false, def: '-', desc: 'Set environment variable (KEY=VALUE)' },
+          { name: '--env-file', type: 'path', range: '-', req: false, def: '-', desc: 'Read environment variables from a file' },
+          { name: '--network', type: 'string', range: '-', req: false, def: 'bridge', desc: 'Connect to a network (bridge/host/none/custom)' },
+          { name: '--restart', type: 'string', range: '-', req: false, def: 'no', desc: 'Restart policy: no, on-failure[:max], always, unless-stopped' }
+        ]},
+        { cmd: 'docker run -d', syntax: 'docker run -d <image>', engines: ['all'], desc: 'Start container in detached mode. Returns the container ID. Use docker logs to view output.', args: [] },
+        { cmd: 'docker run -it', syntax: 'docker run -it <image> {/bin/bash|/bin/sh}', engines: ['all'], desc: 'Run with interactive terminal. Use for debugging or running shell commands inside a new container.', args: [] },
+        { cmd: 'docker run --rm', syntax: 'docker run --rm <image> <command>', engines: ['all'], desc: 'Run a one-off command. Container is automatically removed after exit. Ideal for build steps or utilities.', args: [] },
+        { cmd: 'docker run -p', syntax: 'docker run -p <hostPort>:<containerPort> <image>', engines: ['all'], desc: 'Map a host port to a container port. Use -p 8080:80 to expose container port 80 on host port 8080.', args: [] },
+        { cmd: 'docker run -v', syntax: 'docker run -v <volume|hostPath>:<containerPath>[:<opts>] <image>', engines: ['all'], desc: 'Mount a named volume or host directory. Options: ro (read-only), z/Z (SELinux labels, Podman).', args: [] },
+        { cmd: 'docker create', syntax: 'docker create [OPTIONS] <image> [COMMAND]', engines: ['all'], desc: 'Create a container without starting it. Use docker start to run it later.', args: [] }
+      ]
+    },
+    {
+      id: 'ct-manage', title: '2. Container Management',
+      commands: [
+        { cmd: 'docker ps', syntax: 'docker ps [OPTIONS]', engines: ['all'], desc: 'List running containers. Use -a to include stopped containers.', args: [
+          { name: '-a', type: 'flag', range: '-', req: false, def: '-', desc: 'Show all containers (default shows only running)' },
+          { name: '-q', type: 'flag', range: '-', req: false, def: '-', desc: 'Only display container IDs' },
+          { name: '--filter', type: 'string', range: '-', req: false, def: '-', desc: 'Filter output (status=exited, name=web, ancestor=nginx)' },
+          { name: '--format', type: 'string', range: '-', req: false, def: '-', desc: 'Pretty-print using Go template' }
+        ]},
+        { cmd: 'docker start', syntax: 'docker start <container> [<container>...]', engines: ['all'], desc: 'Start one or more stopped containers.', args: [] },
+        { cmd: 'docker stop', syntax: 'docker stop [OPTIONS] <container> [<container>...]', engines: ['all'], desc: 'Graceful stop: sends SIGTERM, waits timeout (default 10s), then SIGKILL.', args: [] },
+        { cmd: 'docker kill', syntax: 'docker kill [OPTIONS] <container>', engines: ['all'], desc: 'Immediately send a signal (default SIGKILL) to a container. No graceful shutdown.', args: [] },
+        { cmd: 'docker restart', syntax: 'docker restart <container>', engines: ['all'], desc: 'Stop and start a container. Equivalent to docker stop + docker start.', args: [] },
+        { cmd: 'docker pause', syntax: 'docker pause <container>', engines: ['all'], desc: 'Freeze all processes in a container using cgroup freezer. No CPU time consumed while paused.', args: [] },
+        { cmd: 'docker unpause', syntax: 'docker unpause <container>', engines: ['all'], desc: 'Resume a paused container. Processes continue from where they were frozen.', args: [] },
+        { cmd: 'docker rm', syntax: 'docker rm [OPTIONS] <container> [<container>...]', engines: ['all'], desc: 'Remove stopped container(s). Use -f to force-remove running containers. Use -v to remove associated anonymous volumes.', args: [] },
+        { cmd: 'docker container prune', syntax: 'docker container prune [-f]', engines: ['all'], desc: 'Remove all stopped containers. Use -f to skip confirmation prompt.', args: [] },
+        { cmd: 'docker rename', syntax: 'docker rename <container> <new_name>', engines: ['all'], desc: 'Rename an existing container.', args: [] },
+        { cmd: 'docker update', syntax: 'docker update [OPTIONS] <container>', engines: ['all'], desc: 'Update resource limits on a running container (--memory, --cpus, --restart).', args: [] },
+        { cmd: 'docker wait', syntax: 'docker wait <container>', engines: ['all'], desc: 'Block until the container stops, then print its exit code.', args: [] }
+      ]
+    },
+    {
+      id: 'ct-interact', title: '3. Interacting with Containers',
+      commands: [
+        { cmd: 'docker exec', syntax: 'docker exec [OPTIONS] <container> <command> [ARG...]', engines: ['all'], desc: 'Execute a command inside a running container. Does not restart the container.', args: [
+          { name: '-it', type: 'flag', range: '-', req: false, def: '-', desc: 'Interactive + TTY for shell access' },
+          { name: '-d', type: 'flag', range: '-', req: false, def: '-', desc: 'Run command in background (detached)' },
+          { name: '-u', type: 'string', range: '-', req: false, def: '-', desc: 'Run as specific user (uid or name)' },
+          { name: '-w', type: 'path', range: '-', req: false, def: '-', desc: 'Working directory inside the container' },
+          { name: '-e', type: 'string', range: '-', req: false, def: '-', desc: 'Set environment variable for this exec' }
+        ]},
+        { cmd: 'docker attach', syntax: 'docker attach <container>', engines: ['all'], desc: 'Attach local stdin/stdout/stderr to a running container. Ctrl+P, Ctrl+Q to detach without stopping.', args: [] },
+        { cmd: 'docker cp', syntax: 'docker cp <src> <dest>', engines: ['all'], desc: 'Copy files between container and host. Syntax: container:path or host path.', args: [] },
+        { cmd: 'docker logs', syntax: 'docker logs [OPTIONS] <container>', engines: ['all'], desc: 'Fetch stdout/stderr output from a container.', args: [
+          { name: '-f', type: 'flag', range: '-', req: false, def: '-', desc: 'Follow (tail) log output in real time' },
+          { name: '--tail', type: 'integer', range: '0-∞', req: false, def: 'all', desc: 'Show only last N lines' },
+          { name: '--since', type: 'string', range: '-', req: false, def: '-', desc: 'Show logs since timestamp or relative (10m, 2h)' },
+          { name: '--timestamps', type: 'flag', range: '-', req: false, def: '-', desc: 'Prepend timestamp to each log line' }
+        ]},
+        { cmd: 'docker top', syntax: 'docker top <container> [ps OPTIONS]', engines: ['all'], desc: 'Display running processes inside a container. Accepts ps format options.', args: [] },
+        { cmd: 'docker diff', syntax: 'docker diff <container>', engines: ['all'], desc: 'Show filesystem changes in a container relative to its image. A=added, C=changed, D=deleted.', args: [] }
+      ]
+    },
+    {
+      id: 'ct-resources', title: '4. Resource Constraints',
+      commands: [
+        { cmd: 'docker run --memory', syntax: 'docker run --memory=<limit> <image>', engines: ['all'], desc: 'Set hard memory limit (e.g., 512m, 2g). Container is OOM-killed if it exceeds this.', args: [] },
+        { cmd: 'docker run --cpus', syntax: 'docker run --cpus=<number> <image>', engines: ['all'], desc: 'Limit CPU cores (e.g., 1.5 = one and a half cores). Maps to cpu.max in cgroup v2.', args: [] },
+        { cmd: 'docker run --cpu-shares', syntax: 'docker run --cpu-shares=<weight> <image>', engines: ['all'], desc: 'Set relative CPU weight (default 1024). Only effective under CPU contention.', args: [] },
+        { cmd: 'docker run --memory-swap', syntax: 'docker run --memory-swap=<limit> <image>', engines: ['all'], desc: 'Total memory + swap limit. Set equal to --memory to disable swap. Set -1 for unlimited swap.', args: [] },
+        { cmd: 'docker run --pids-limit', syntax: 'docker run --pids-limit=<n> <image>', engines: ['all'], desc: 'Limit the number of PIDs (processes) inside the container. Prevents fork bombs.', args: [] },
+        { cmd: 'docker run --device', syntax: 'docker run --device=<host>:<container>[:<perms>] <image>', engines: ['all'], desc: 'Expose a host device to the container (e.g., /dev/sda, /dev/video0).', args: [] },
+        { cmd: 'docker run --gpus', syntax: 'docker run --gpus {all|<count>} <image>', engines: ['docker'], desc: 'Expose GPU devices. Requires nvidia-container-toolkit. Use --gpus all or --gpus 2.', args: [] },
+        { cmd: 'docker stats', syntax: 'docker stats [OPTIONS] [<container>...]', engines: ['all'], desc: 'Live resource usage: CPU%, memory, network I/O, block I/O, PIDs. Use --no-stream for a snapshot.', args: [] }
+      ]
+    }
+  ]
+});
+
+/* ==================== 4. NETWORKING ==================== */
+SECTIONS.push({
+  id: 'networking', title: 'NETWORKING', type: 'commands',
+  subsections: [
+    {
+      id: 'net-manage', title: '1. Network Management',
+      commands: [
+        { cmd: 'docker network create', syntax: 'docker network create [OPTIONS] <name>', engines: ['all'], desc: 'Create a user-defined network. Containers on the same network can resolve each other by name (built-in DNS).', args: [
+          { name: '--driver', type: 'string', range: '-', req: false, def: 'bridge', desc: 'Network driver: bridge, overlay, macvlan, host, none' },
+          { name: '--subnet', type: 'string', range: '-', req: false, def: 'auto', desc: 'Subnet in CIDR format (e.g., 172.20.0.0/16)' },
+          { name: '--gateway', type: 'ip', range: '-', req: false, def: 'auto', desc: 'Gateway IP for the subnet' },
+          { name: '--ip-range', type: 'string', range: '-', req: false, def: '-', desc: 'Allocate container IPs from a sub-range' }
+        ]},
+        { cmd: 'docker network ls', syntax: 'docker network ls [OPTIONS]', engines: ['all'], desc: 'List all networks. Default networks: bridge, host, none.', args: [] },
+        { cmd: 'docker network inspect', syntax: 'docker network inspect <network>', engines: ['all'], desc: 'Display detailed network config: driver, subnet, gateway, connected containers, and their IPs.', args: [] },
+        { cmd: 'docker network rm', syntax: 'docker network rm <network> [<network>...]', engines: ['all'], desc: 'Remove one or more networks. Fails if containers are still connected.', args: [] },
+        { cmd: 'docker network prune', syntax: 'docker network prune [-f]', engines: ['all'], desc: 'Remove all unused networks (not referenced by any container).', args: [] },
+        { cmd: 'docker network connect', syntax: 'docker network connect [OPTIONS] <network> <container>', engines: ['all'], desc: 'Attach a running container to an additional network. Container gets a new IP on that network.', args: [] },
+        { cmd: 'docker network disconnect', syntax: 'docker network disconnect <network> <container>', engines: ['all'], desc: 'Detach a container from a network.', args: [] }
+      ]
+    },
+    {
+      id: 'net-ports', title: '2. Port Mapping & DNS',
+      commands: [
+        { cmd: '-p host:container', syntax: 'docker run -p <hostPort>:<containerPort> <image>', engines: ['all'], desc: 'Map host port to container port. E.g., -p 8080:80 exposes container port 80 on host 8080.', args: [] },
+        { cmd: '-p ip:host:container', syntax: 'docker run -p <hostIP>:<hostPort>:<containerPort> <image>', engines: ['all'], desc: 'Bind to a specific host IP. E.g., -p 127.0.0.1:8080:80 only listens on localhost.', args: [] },
+        { cmd: '-P (publish all)', syntax: 'docker run -P <image>', engines: ['all'], desc: 'Publish all EXPOSE\'d ports to random high host ports. Use docker port to see mappings.', args: [] },
+        { cmd: 'docker port', syntax: 'docker port <container> [<containerPort>]', engines: ['all'], desc: 'List port mappings for a container, or lookup the host port for a specific container port.', args: [] },
+        { cmd: '--dns', syntax: 'docker run --dns=<ip> <image>', engines: ['all'], desc: 'Set custom DNS server(s) for the container. Overrides host DNS configuration.', args: [] },
+        { cmd: '--hostname', syntax: 'docker run --hostname=<name> <image>', engines: ['all'], desc: 'Set the container hostname (visible inside the container via /etc/hostname).', args: [] }
+      ]
+    },
+    {
+      id: 'net-advanced', title: '3. Advanced Networking',
+      commands: [
+        { cmd: '--network=host', syntax: 'docker run --network=host <image>', engines: ['all'], desc: 'Container shares the host network namespace. No isolation — container binds directly to host ports.', args: [] },
+        { cmd: '--network=none', syntax: 'docker run --network=none <image>', engines: ['all'], desc: 'No networking. Container only has a loopback interface. Use for security-sensitive workloads.', args: [] },
+        { cmd: '--network=container:', syntax: 'docker run --network=container:<name> <image>', engines: ['all'], desc: 'Share network namespace with another container. Both containers share IP and port space.', args: [] },
+        { cmd: 'macvlan network', syntax: 'docker network create -d macvlan --subnet=<cidr> -o parent=<iface> <name>', engines: ['all'], desc: 'Create macvlan network. Containers get IPs directly on the physical LAN. Requires promiscuous mode.', args: [] },
+        { cmd: 'overlay network', syntax: 'docker network create -d overlay <name>', engines: ['docker'], desc: 'Create overlay network for multi-host communication in Docker Swarm.', args: [] },
+        { cmd: 'podman pod create', syntax: 'podman pod create --name <name> [-p <hostPort>:<podPort>]', engines: ['podman'], desc: 'Create a pod (shared network namespace). All containers in the pod share localhost. Ports are mapped at pod level.', args: [] },
+        { cmd: 'podman pod ps', syntax: 'podman pod ps', engines: ['podman'], desc: 'List all pods with their status and container count.', args: [] },
+        { cmd: 'podman pod rm', syntax: 'podman pod rm [-f] <pod>', engines: ['podman'], desc: 'Remove a pod and all its containers. Use -f to force-remove running pods.', args: [] }
+      ]
+    }
+  ]
+});
+
+/* ==================== 5. VOLUMES & STORAGE ==================== */
+SECTIONS.push({
+  id: 'volumes', title: 'VOLUMES & STORAGE', type: 'commands',
+  subsections: [
+    {
+      id: 'vol-manage', title: '1. Volume Management',
+      commands: [
+        { cmd: 'docker volume create', syntax: 'docker volume create [OPTIONS] [<name>]', engines: ['all'], desc: 'Create a named volume. Data persists independently of container lifecycle.', args: [
+          { name: '--driver', type: 'string', range: '-', req: false, def: 'local', desc: 'Volume driver (local, nfs, etc.)' },
+          { name: '-o', type: 'string', range: '-', req: false, def: '-', desc: 'Driver-specific options (e.g., type=nfs,o=addr=server,device=:/path)' }
+        ]},
+        { cmd: 'docker volume ls', syntax: 'docker volume ls [OPTIONS]', engines: ['all'], desc: 'List all volumes. Use --filter dangling=true to find unused volumes.', args: [] },
+        { cmd: 'docker volume inspect', syntax: 'docker volume inspect <volume>', engines: ['all'], desc: 'Display volume details: driver, mountpoint on host, creation date, options.', args: [] },
+        { cmd: 'docker volume rm', syntax: 'docker volume rm <volume> [<volume>...]', engines: ['all'], desc: 'Remove one or more volumes. Fails if a container references the volume.', args: [] },
+        { cmd: 'docker volume prune', syntax: 'docker volume prune [-f]', engines: ['all'], desc: 'Remove all volumes not referenced by any container. Use -f to skip confirmation.', args: [] },
+        { cmd: '-v name:path', syntax: 'docker run -v <volume_name>:<container_path> <image>', engines: ['all'], desc: 'Mount a named volume. Created automatically if it does not exist.', args: [] },
+        { cmd: '--mount type=volume', syntax: 'docker run --mount type=volume,src=<name>,dst=<path> <image>', engines: ['all'], desc: 'Verbose volume mount syntax. Supports additional options (readonly, volume-driver).', args: [] }
+      ]
+    },
+    {
+      id: 'vol-bind', title: '2. Bind Mounts',
+      commands: [
+        { cmd: '-v /host:/container', syntax: 'docker run -v <host_path>:<container_path> <image>', engines: ['all'], desc: 'Bind mount: map a host directory into the container. Changes are bidirectional and immediate.', args: [] },
+        { cmd: '-v host:container:ro', syntax: 'docker run -v <host_path>:<container_path>:ro <image>', engines: ['all'], desc: 'Read-only bind mount. Container cannot write to the mounted path.', args: [] },
+        { cmd: '--mount type=bind', syntax: 'docker run --mount type=bind,src=<host_path>,dst=<container_path>[,readonly] <image>', engines: ['all'], desc: 'Verbose bind mount syntax. Fails (instead of creating) if source does not exist — safer than -v.', args: [] },
+        { cmd: '-v host:container:z', syntax: 'docker run -v <host_path>:<container_path>:z <image>', engines: ['podman'], desc: 'SELinux: apply shared label (svirt_sandbox_file_t). Multiple containers can access the mount.', args: [] },
+        { cmd: '-v host:container:Z', syntax: 'docker run -v <host_path>:<container_path>:Z <image>', engines: ['podman'], desc: 'SELinux: apply private label. Only this container can access the mount.', args: [] }
+      ]
+    },
+    {
+      id: 'vol-tmpfs', title: '3. tmpfs & Other Mounts',
+      commands: [
+        { cmd: '--tmpfs', syntax: 'docker run --tmpfs <container_path> <image>', engines: ['all'], desc: 'Mount a tmpfs (RAM-backed, ephemeral). Data lost when container stops. Fast for temp files.', args: [] },
+        { cmd: '--mount type=tmpfs', syntax: 'docker run --mount type=tmpfs,dst=<path>,tmpfs-size=<bytes> <image>', engines: ['all'], desc: 'tmpfs with options: size limit (tmpfs-size) and file mode (tmpfs-mode).', args: [] },
+        { cmd: 'docker cp', syntax: 'docker cp <container>:<path> <host_path>', engines: ['all'], desc: 'Copy files/dirs from container to host (or vice versa). Works on stopped containers too.', args: [] },
+        { cmd: 'docker export', syntax: 'docker export -o <file>.tar <container>', engines: ['all'], desc: 'Export the entire container filesystem as a flat tar archive (no image metadata or layers).', args: [] }
+      ]
+    }
+  ]
+});
+
+/* ==================== 6. COMPOSE ==================== */
+SECTIONS.push({
+  id: 'compose', title: 'COMPOSE', type: 'commands',
+  subsections: [
+    {
+      id: 'comp-cli', title: '1. Compose CLI Commands',
+      commands: [
+        { cmd: 'docker compose up', syntax: 'docker compose up [OPTIONS] [SERVICE...]', engines: ['all'], desc: 'Create and start all services defined in compose.yaml. Builds images if needed.', args: [
+          { name: '-d', type: 'flag', range: '-', req: false, def: '-', desc: 'Detached mode: run services in background' },
+          { name: '--build', type: 'flag', range: '-', req: false, def: '-', desc: 'Rebuild images before starting' },
+          { name: '--force-recreate', type: 'flag', range: '-', req: false, def: '-', desc: 'Recreate containers even if config unchanged' },
+          { name: '--scale', type: 'string', range: '-', req: false, def: '-', desc: 'Scale service to N replicas (service=N)' },
+          { name: '--wait', type: 'flag', range: '-', req: false, def: '-', desc: 'Wait for services to be healthy before returning' },
+          { name: '--remove-orphans', type: 'flag', range: '-', req: false, def: '-', desc: 'Remove containers for services not defined in compose file' }
+        ]},
+        { cmd: 'docker compose down', syntax: 'docker compose down [OPTIONS]', engines: ['all'], desc: 'Stop and remove containers, networks created by up. Images and volumes are preserved by default.', args: [
+          { name: '-v', type: 'flag', range: '-', req: false, def: '-', desc: 'Also remove named volumes declared in the volumes section' },
+          { name: '--rmi', type: 'string', range: '-', req: false, def: '-', desc: 'Remove images: all (all images) or local (only untagged)' },
+          { name: '--remove-orphans', type: 'flag', range: '-', req: false, def: '-', desc: 'Remove orphan containers' }
+        ]},
+        { cmd: 'docker compose ps', syntax: 'docker compose ps [OPTIONS] [SERVICE...]', engines: ['all'], desc: 'List containers for the current Compose project with status and ports.', args: [] },
+        { cmd: 'docker compose logs', syntax: 'docker compose logs [OPTIONS] [SERVICE...]', engines: ['all'], desc: 'View aggregated log output from all or specific services.', args: [] },
+        { cmd: 'docker compose logs -f', syntax: 'docker compose logs -f [--timestamps] [SERVICE...]', engines: ['all'], desc: 'Follow (tail) logs in real time. Add --timestamps for log timestamps.', args: [] },
+        { cmd: 'docker compose exec', syntax: 'docker compose exec [OPTIONS] <service> <command>', engines: ['all'], desc: 'Execute a command in a running service container. Use -it for interactive shell.', args: [] },
+        { cmd: 'docker compose run', syntax: 'docker compose run [OPTIONS] <service> <command>', engines: ['all'], desc: 'Run a one-off command in a new container for a service. Does not start dependencies by default.', args: [] },
+        { cmd: 'docker compose build', syntax: 'docker compose build [OPTIONS] [SERVICE...]', engines: ['all'], desc: 'Build or rebuild images for services that have a build: section.', args: [] },
+        { cmd: 'docker compose pull', syntax: 'docker compose pull [SERVICE...]', engines: ['all'], desc: 'Pull the latest images for all or specified services.', args: [] },
+        { cmd: 'docker compose restart', syntax: 'docker compose restart [SERVICE...]', engines: ['all'], desc: 'Restart running service containers. Does not rebuild or recreate.', args: [] },
+        { cmd: 'docker compose stop', syntax: 'docker compose stop [SERVICE...]', engines: ['all'], desc: 'Stop services without removing containers or networks. Use start to resume.', args: [] },
+        { cmd: 'docker compose start', syntax: 'docker compose start [SERVICE...]', engines: ['all'], desc: 'Start previously stopped services (created by up, then stopped).', args: [] },
+        { cmd: 'docker compose config', syntax: 'docker compose config [OPTIONS]', engines: ['all'], desc: 'Validate and display the resolved compose file with all variables substituted. Useful for debugging.', args: [] },
+        { cmd: 'docker compose top', syntax: 'docker compose top [SERVICE...]', engines: ['all'], desc: 'Display running processes for each service container.', args: [] },
+        { cmd: 'docker compose cp', syntax: 'docker compose cp <service>:<src> <dest>', engines: ['all'], desc: 'Copy files between a service container and the host filesystem.', args: [] },
+        { cmd: 'docker compose watch', syntax: 'docker compose watch', engines: ['docker'], desc: 'Watch for file changes and automatically sync/rebuild services. Requires watch: config in compose file.', args: [] },
+        { cmd: 'docker compose kill', syntax: 'docker compose kill [OPTIONS] [SERVICE...]', engines: ['all'], desc: 'Send a signal (default SIGKILL) to service containers. No graceful shutdown.', args: [] }
+      ]
+    },
+    {
+      id: 'comp-services', title: '2. Compose YAML — Service Configuration',
+      commands: [
+        { cmd: 'image:', syntax: 'image: <name>[:<tag>]', engines: ['all'], desc: 'Container image for the service. Pulled from registry if not available locally.', args: [] },
+        { cmd: 'build:', syntax: 'build: <path>', engines: ['all'], desc: 'Build context path (directory containing Dockerfile). Shorthand for build.context.', args: [] },
+        { cmd: 'build: (extended)', syntax: 'build:\n  context: <path>\n  dockerfile: <file>\n  args: {<key>: <val>}\n  target: <stage>', engines: ['all'], desc: 'Extended build config: context dir, Dockerfile path, build args, and multi-stage target.', args: [] },
+        { cmd: 'command:', syntax: 'command: <cmd> [<args>...]', engines: ['all'], desc: 'Override the default CMD from the image. Accepts string or list format.', args: [] },
+        { cmd: 'entrypoint:', syntax: 'entrypoint: [<exec>, <arg>...]', engines: ['all'], desc: 'Override the image ENTRYPOINT. Use list form for exec format (preferred).', args: [] },
+        { cmd: 'ports:', syntax: 'ports:\n  - "<host>:<container>[/<proto>]"', engines: ['all'], desc: 'Publish ports. Short syntax: "8080:80", "8080:80/udp". Long syntax available for complex mappings.', args: [] },
+        { cmd: 'expose:', syntax: 'expose:\n  - "<port>"', engines: ['all'], desc: 'Expose ports to other services on the same network only. Not published to the host.', args: [] },
+        { cmd: 'environment:', syntax: 'environment:\n  <KEY>: <value>\n  <KEY>:', engines: ['all'], desc: 'Set environment variables. Map or list format. Unset values are passed from host shell.', args: [] },
+        { cmd: 'env_file:', syntax: 'env_file:\n  - <path>', engines: ['all'], desc: 'Load environment variables from file(s). Each line: KEY=value. Comments with #.', args: [] },
+        { cmd: 'volumes:', syntax: 'volumes:\n  - <name>:<path>\n  - <host_path>:<path>', engines: ['all'], desc: 'Mount volumes into the service. Named volumes, bind mounts, or tmpfs.', args: [] },
+        { cmd: 'networks:', syntax: 'networks:\n  - <network_name>', engines: ['all'], desc: 'Attach service to specific networks. Services on different networks cannot communicate.', args: [] },
+        { cmd: 'depends_on:', syntax: 'depends_on:\n  <service>:\n    condition: {service_started|service_healthy|service_completed_successfully}', engines: ['all'], desc: 'Define startup dependencies. With condition: service_healthy, waits for health check to pass.', args: [] },
+        { cmd: 'restart:', syntax: 'restart: {no|always|on-failure|unless-stopped}', engines: ['all'], desc: 'Container restart policy. "unless-stopped" restarts on daemon restart unless manually stopped.', args: [] },
+        { cmd: 'container_name:', syntax: 'container_name: <name>', engines: ['all'], desc: 'Set an explicit container name. Prevents scaling (only one container can have a given name).', args: [] }
+      ]
+    },
+    {
+      id: 'comp-netvol', title: '3. Compose YAML — Networking & Volumes',
+      commands: [
+        { cmd: 'networks: (top-level)', syntax: 'networks:\n  <name>:\n    driver: {bridge|overlay}', engines: ['all'], desc: 'Define project networks. Services are placed on a default network if none specified.', args: [] },
+        { cmd: 'networks: ipam:', syntax: 'networks:\n  <name>:\n    ipam:\n      config:\n        - subnet: <cidr>', engines: ['all'], desc: 'Configure IP address management: custom subnets, gateways, and IP ranges.', args: [] },
+        { cmd: 'networks: external:', syntax: 'networks:\n  <name>:\n    external: true', engines: ['all'], desc: 'Reference a pre-existing network (not created/removed by Compose).', args: [] },
+        { cmd: 'volumes: (top-level)', syntax: 'volumes:\n  <name>:\n    driver: local', engines: ['all'], desc: 'Define named volumes. Data persists across compose up/down cycles (unless -v is used).', args: [] },
+        { cmd: 'volumes: driver_opts:', syntax: 'volumes:\n  <name>:\n    driver_opts:\n      type: nfs\n      o: "addr=<server>,rw"\n      device: ":<path>"', engines: ['all'], desc: 'Driver-specific volume options. Example shows NFS mount configuration.', args: [] },
+        { cmd: 'volumes: external:', syntax: 'volumes:\n  <name>:\n    external: true', engines: ['all'], desc: 'Reference a pre-existing volume (not created/removed by Compose).', args: [] },
+        { cmd: 'extra_hosts:', syntax: 'extra_hosts:\n  - "<hostname>:<ip>"', engines: ['all'], desc: 'Add entries to /etc/hosts inside the container. Useful for service discovery overrides.', args: [] },
+        { cmd: 'dns:', syntax: 'dns:\n  - <ip>', engines: ['all'], desc: 'Custom DNS servers for the service. Overrides the default DNS resolution.', args: [] }
+      ]
+    },
+    {
+      id: 'comp-advanced', title: '4. Compose YAML — Advanced Directives',
+      commands: [
+        { cmd: 'deploy: replicas:', syntax: 'deploy:\n  replicas: <n>', engines: ['all'], desc: 'Number of container instances for the service. Works with docker compose up --scale.', args: [] },
+        { cmd: 'deploy: resources:', syntax: 'deploy:\n  resources:\n    limits:\n      cpus: "<n>"\n      memory: <size>\n    reservations:\n      cpus: "<n>"\n      memory: <size>', engines: ['all'], desc: 'Set CPU/memory limits and reservations. Limits are hard caps; reservations are guaranteed minimums.', args: [] },
+        { cmd: 'healthcheck:', syntax: 'healthcheck:\n  test: [CMD, <cmd>]\n  interval: <duration>\n  timeout: <duration>\n  retries: <n>\n  start_period: <duration>', engines: ['all'], desc: 'Container health check. test runs periodically; container marked unhealthy after retries failures.', args: [] },
+        { cmd: 'logging:', syntax: 'logging:\n  driver: {json-file|syslog|journald}\n  options:\n    max-size: "<size>"\n    max-file: "<n>"', engines: ['all'], desc: 'Configure logging driver and options. json-file with max-size/max-file prevents unbounded log growth.', args: [] },
+        { cmd: 'secrets:', syntax: 'secrets:\n  - <secret_name>\nsecrets:\n  <name>:\n    file: <path>', engines: ['all'], desc: 'Mount secrets into the container at /run/secrets/<name>. Defined at top-level from files or external sources.', args: [] },
+        { cmd: 'configs:', syntax: 'configs:\n  <name>:\n    file: <path>', engines: ['all'], desc: 'Mount config files into the container. Similar to secrets but not encrypted.', args: [] },
+        { cmd: 'profiles:', syntax: 'profiles:\n  - <profile_name>', engines: ['all'], desc: 'Assign service to named profiles. Service only starts when its profile is explicitly activated.', args: [] },
+        { cmd: 'extends:', syntax: 'extends:\n  file: <path>\n  service: <name>', engines: ['all'], desc: 'Extend another service definition (from same or external compose file). Inherits all config.', args: [] },
+        { cmd: 'labels:', syntax: 'labels:\n  <key>: "<value>"', engines: ['all'], desc: 'Add metadata labels to containers. Used by monitoring tools, reverse proxies (Traefik), and orchestrators.', args: [] }
+      ]
+    },
+    {
+      id: 'comp-overrides', title: '5. Overrides, Profiles & Scaling',
+      commands: [
+        { cmd: '-f (compose file)', syntax: 'docker compose -f <file> up', engines: ['all'], desc: 'Specify an alternate compose file. Default: compose.yaml, compose.yml, docker-compose.yml.', args: [] },
+        { cmd: '-f (merge files)', syntax: 'docker compose -f docker-compose.yml -f docker-compose.prod.yml up', engines: ['all'], desc: 'Merge multiple compose files. Later files override earlier ones. Use for environment-specific config.', args: [] },
+        { cmd: '--profile', syntax: 'docker compose --profile <name> up', engines: ['all'], desc: 'Activate a named profile. Only services with matching profiles: entry (or no profile) are started.', args: [] },
+        { cmd: '--scale', syntax: 'docker compose up --scale <service>=<n>', engines: ['all'], desc: 'Scale a service to N replicas at startup. Service must not have container_name or host port conflicts.', args: [] },
+        { cmd: '--env-file', syntax: 'docker compose --env-file <path> up', engines: ['all'], desc: 'Specify environment file for variable substitution in compose file. Default: .env in project dir.', args: [] },
+        { cmd: 'include:', syntax: 'include:\n  - path: <compose_file>', engines: ['all'], desc: 'Include other compose files as sub-projects (Compose v2.20+). Each included file is its own project.', args: [] },
+        { cmd: 'COMPOSE_FILE', syntax: 'COMPOSE_FILE=a.yml:b.yml docker compose up', engines: ['all'], desc: 'Environment variable to set default compose file path(s). Separator: colon (Linux) or semicolon (Windows).', args: [] },
+        { cmd: 'COMPOSE_PROJECT_NAME', syntax: 'COMPOSE_PROJECT_NAME=<name> docker compose up', engines: ['all'], desc: 'Override the project name (default: parent directory name). Affects container names and network prefixes.', args: [] }
+      ]
+    }
+  ]
+});
+
+/* ==================== 7. REGISTRY & SECURITY ==================== */
+SECTIONS.push({
+  id: 'registry', title: 'REGISTRY & SECURITY', type: 'commands',
+  subsections: [
+    {
+      id: 'reg-ops', title: '1. Registry Operations',
+      commands: [
+        { cmd: 'docker login', syntax: 'docker login [OPTIONS] [<registry>]', engines: ['all'], desc: 'Authenticate to a registry. Default: Docker Hub. Credentials stored in auth config file.', args: [] },
+        { cmd: 'docker logout', syntax: 'docker logout [<registry>]', engines: ['all'], desc: 'Remove stored credentials for a registry.', args: [] },
+        { cmd: 'docker search', syntax: 'docker search [OPTIONS] <term>', engines: ['all'], desc: 'Search Docker Hub for images. Use --filter is-official=true for official images.', args: [] },
+        { cmd: 'docker pull (registry)', syntax: 'docker pull <registry>/<image>:<tag>', engines: ['all'], desc: 'Pull from a specific registry. E.g., ghcr.io/org/app:v1 or registry.example.com/myapp:latest.', args: [] },
+        { cmd: 'docker push (registry)', syntax: 'docker push <registry>/<image>:<tag>', engines: ['all'], desc: 'Push to a specific registry. Image must be tagged with the registry prefix first.', args: [] },
+        { cmd: 'docker tag (registry)', syntax: 'docker tag <local_image> <registry>/<image>:<tag>', engines: ['all'], desc: 'Tag a local image for a specific registry prior to pushing.', args: [] },
+        { cmd: 'podman login --authfile', syntax: 'podman login --authfile <path> <registry>', engines: ['podman'], desc: 'Authenticate using a specific auth file instead of the default containers auth.json.', args: [] },
+        { cmd: 'docker manifest create', syntax: 'docker manifest create <name> <image1> <image2>', engines: ['docker'], desc: 'Create a multi-architecture manifest list from platform-specific images.', args: [] }
+      ]
+    },
+    {
+      id: 'reg-security', title: '2. Security & Permissions',
+      commands: [
+        { cmd: '--user', syntax: 'docker run --user <uid>[:<gid>] <image>', engines: ['all'], desc: 'Run the container process as a specific UID:GID. Never run production workloads as root.', args: [] },
+        { cmd: '--cap-drop=ALL', syntax: 'docker run --cap-drop=ALL <image>', engines: ['all'], desc: 'Drop all Linux capabilities. Then add back only what is needed with --cap-add.', args: [] },
+        { cmd: '--cap-add', syntax: 'docker run --cap-add=<capability> <image>', engines: ['all'], desc: 'Add a specific Linux capability (NET_BIND_SERVICE, SYS_PTRACE, etc.).', args: [] },
+        { cmd: '--read-only', syntax: 'docker run --read-only <image>', engines: ['all'], desc: 'Mount the container root filesystem as read-only. Use tmpfs or volumes for writable paths.', args: [] },
+        { cmd: '--security-opt', syntax: 'docker run --security-opt <option> <image>', engines: ['all'], desc: 'Set security options: no-new-privileges, seccomp=profile.json, apparmor=profile, label=disable.', args: [] },
+        { cmd: '--privileged', syntax: 'docker run --privileged <image>', engines: ['all'], desc: 'Give full host capabilities to the container. Disables all security restrictions. Avoid in production.', args: [] },
+        { cmd: 'podman unshare', syntax: 'podman unshare <command>', engines: ['podman'], desc: 'Enter the user namespace used by rootless Podman. Useful for fixing file ownership in volumes.', args: [] },
+        { cmd: 'docker scout cves', syntax: 'docker scout cves <image>', engines: ['docker'], desc: 'Scan an image for known CVEs (vulnerabilities). Requires Docker Scout subscription.', args: [] },
+        { cmd: '--no-new-privileges', syntax: 'docker run --security-opt=no-new-privileges <image>', engines: ['all'], desc: 'Prevent processes from gaining additional privileges via setuid/setgid binaries.', args: [] }
+      ]
+    },
+    {
+      id: 'reg-trust', title: '3. Secrets & Systemd Integration',
+      commands: [
+        { cmd: 'docker secret create', syntax: 'docker secret create <name> <file>', engines: ['docker'], desc: 'Create a Docker secret from a file (Swarm mode). Stored encrypted in the Raft log.', args: [] },
+        { cmd: 'DOCKER_CONTENT_TRUST', syntax: 'DOCKER_CONTENT_TRUST=1 docker pull <image>', engines: ['docker'], desc: 'Enable content trust: only pull/push signed images. Uses Notary for signature verification.', args: [] },
+        { cmd: 'podman secret create', syntax: 'podman secret create <name> <file>', engines: ['podman'], desc: 'Create a Podman secret. Mounted at /run/secrets/<name> when used with --secret flag.', args: [] },
+        { cmd: 'podman generate systemd', syntax: 'podman generate systemd --new --name <container>', engines: ['podman'], desc: 'Generate systemd unit files for a container. --new creates fresh container on service start.', args: [] },
+        { cmd: 'podman generate kube', syntax: 'podman generate kube <pod|container>', engines: ['podman'], desc: 'Generate Kubernetes YAML from a running pod or container. Export for deployment to K8s clusters.', args: [] },
+        { cmd: 'podman auto-update', syntax: 'podman auto-update [OPTIONS]', engines: ['podman'], desc: 'Check for and apply newer images to running containers with io.containers.autoupdate label.', args: [] }
+      ]
+    }
+  ]
+});
+
+/* ==================== 8. SYSTEM & TROUBLESHOOTING ==================== */
+SECTIONS.push({
+  id: 'system', title: 'SYSTEM & TROUBLESHOOTING', type: 'commands',
+  subsections: [
+    {
+      id: 'sys-info', title: '1. System Information',
+      commands: [
+        { cmd: 'docker info', syntax: 'docker info', engines: ['all'], desc: 'Display system-wide information: storage driver, runtime, kernel version, CPUs, memory, registries.', args: [] },
+        { cmd: 'docker version', syntax: 'docker version', engines: ['all'], desc: 'Show client and server version, API version, Go version, OS/arch.', args: [] },
+        { cmd: 'docker system df', syntax: 'docker system df', engines: ['all'], desc: 'Show disk usage: images, containers, volumes, and build cache sizes.', args: [] },
+        { cmd: 'docker system df -v', syntax: 'docker system df -v', engines: ['all'], desc: 'Verbose disk usage: per-image, per-container, and per-volume breakdown.', args: [] },
+        { cmd: 'docker context ls', syntax: 'docker context ls', engines: ['docker'], desc: 'List available Docker contexts (local, remote Docker hosts, cloud integrations).', args: [] },
+        { cmd: 'docker context use', syntax: 'docker context use <name>', engines: ['docker'], desc: 'Switch to a different Docker context (e.g., remote Docker host via SSH).', args: [] }
+      ]
+    },
+    {
+      id: 'sys-cleanup', title: '2. Cleanup',
+      commands: [
+        { cmd: 'docker system prune', syntax: 'docker system prune [OPTIONS]', engines: ['all'], desc: 'Remove unused containers, networks, and dangling images. Does not remove volumes by default.', args: [] },
+        { cmd: 'docker system prune -a', syntax: 'docker system prune -a', engines: ['all'], desc: 'Remove all unused images (not just dangling), plus containers and networks.', args: [] },
+        { cmd: 'docker system prune -a --volumes', syntax: 'docker system prune -a --volumes -f', engines: ['all'], desc: 'Nuclear cleanup: remove all unused images, containers, networks, AND volumes. Use with caution.', args: [] },
+        { cmd: 'docker builder prune', syntax: 'docker builder prune', engines: ['all'], desc: 'Remove BuildKit build cache. Use --all to remove all cache (not just dangling).', args: [] },
+        { cmd: 'docker container prune', syntax: 'docker container prune [-f]', engines: ['all'], desc: 'Remove all stopped containers.', args: [] },
+        { cmd: 'docker image prune -a', syntax: 'docker image prune -a [-f]', engines: ['all'], desc: 'Remove all images not referenced by any container (not just dangling/untagged).', args: [] }
+      ]
+    },
+    {
+      id: 'sys-debug', title: '3. Debugging',
+      commands: [
+        { cmd: 'docker inspect', syntax: 'docker inspect <name|id>', engines: ['all'], desc: 'Return full JSON metadata for any Docker object (container, image, network, volume).', args: [] },
+        { cmd: 'docker inspect --format', syntax: 'docker inspect --format \'<template>\' <name|id>', engines: ['all'], desc: 'Query specific fields with Go templates. E.g., \'{{.State.Status}}\' or \'{{.NetworkSettings.IPAddress}}\'.', args: [] },
+        { cmd: 'docker events', syntax: 'docker events [OPTIONS]', engines: ['all'], desc: 'Stream real-time events from the engine: container start/stop/die, image pull, network connect.', args: [] },
+        { cmd: 'docker logs --since', syntax: 'docker logs --since <time> <container>', engines: ['all'], desc: 'Show logs since a timestamp (2024-01-01T00:00:00) or relative time (10m, 1h).', args: [] },
+        { cmd: 'docker logs --tail', syntax: 'docker logs --tail <n> <container>', engines: ['all'], desc: 'Show only the last N lines of logs.', args: [] },
+        { cmd: 'docker diff', syntax: 'docker diff <container>', engines: ['all'], desc: 'List all filesystem changes vs the image. A=added, C=changed, D=deleted. Useful for debugging state.', args: [] },
+        { cmd: 'docker run --entrypoint', syntax: 'docker run --entrypoint {/bin/sh|/bin/bash} -it <image>', engines: ['all'], desc: 'Override entrypoint to get a shell in a container that normally runs a service. Key debugging technique.', args: [] },
+        { cmd: 'docker run --init', syntax: 'docker run --init <image>', engines: ['all'], desc: 'Run with tini as PID 1. Ensures proper signal handling and zombie process reaping.', args: [] }
+      ]
+    }
+  ]
+});
+
+/* ==================== 9. ONE-LINERS ==================== */
+SECTIONS.push({
+  id: 'oneliners', title: 'ONE-LINERS', type: 'oneliners',
+  subsections: [
+    {
+      id: 'ol-cleanup', title: '1. Container Cleanup',
+      items: [
+        { title: 'Remove all stopped containers', tag: 'prune', cmd: 'docker container prune -f', desc: 'Remove all containers with status=exited. The -f flag skips the confirmation prompt.' },
+        { title: 'Remove all containers (including running)', tag: 'force', cmd: 'docker rm -f $(docker ps -aq)', desc: 'Force-remove every container. Sends SIGKILL to running containers first.' },
+        { title: 'Remove dangling images', tag: 'prune', cmd: 'docker image prune -f', desc: 'Remove untagged images that are not referenced by any container.' },
+        { title: 'Remove all unused images', tag: 'prune', cmd: 'docker image prune -a -f', desc: 'Remove all images not used by any existing container, not just dangling ones.' },
+        { title: 'Remove all unused volumes', tag: 'prune', cmd: 'docker volume prune -f', desc: 'Remove volumes not mounted by any container. WARNING: data loss if volumes are needed.' },
+        { title: 'Remove all unused networks', tag: 'prune', cmd: 'docker network prune -f', desc: 'Remove networks not connected to any container.' },
+        { title: 'Nuclear cleanup — remove everything unused', tag: 'prune', cmd: 'docker system prune -a --volumes -f', desc: 'Remove all unused containers, images, networks, AND volumes. The most aggressive cleanup.' },
+        { title: 'Remove images matching a pattern', tag: 'grep', cmd: 'docker images --format \'{{.Repository}}:{{.Tag}} {{.ID}}\' | grep "pattern" | awk \'{print $2}\' | xargs docker rmi', desc: 'Filter images by name pattern and remove them. Replace "pattern" with your search term.' }
+      ]
+    },
+    {
+      id: 'ol-images', title: '2. Image Management',
+      items: [
+        { title: 'List images sorted by size (largest first)', tag: 'sort', cmd: 'docker images --format \'{{.Size}}\\t{{.Repository}}:{{.Tag}}\' | sort -rh', desc: 'Quickly identify the largest images consuming disk space.' },
+        { title: 'List dangling (untagged) images', tag: 'filter', cmd: 'docker images -f dangling=true', desc: 'Show images with <none> tag — leftover layers from rebuilds.' },
+        { title: 'Show image layer sizes', tag: 'history', cmd: 'docker history --no-trunc --format \'{{.Size}}\\t{{.CreatedBy}}\' <image>', desc: 'Inspect each layer\'s size and the Dockerfile instruction that created it.' },
+        { title: 'Export all images to tar files', tag: 'backup', cmd: 'docker images --format \'{{.Repository}}:{{.Tag}}\' | grep -v \'<none>\' | xargs -I{} sh -c \'docker save {} -o $(echo {} | tr /: _).tar\'', desc: 'Save every tagged image to a separate tar file. Useful for offline migration.' },
+        { title: 'Pull and retag for private registry', tag: 'registry', cmd: 'docker pull <source_image> && docker tag <source_image> <registry>/<target>:<tag> && docker push <registry>/<target>:<tag>', desc: 'One-liner to pull, retag, and push an image to your private registry.' }
+      ]
+    },
+    {
+      id: 'ol-compose', title: '3. Compose Operations',
+      items: [
+        { title: 'Rebuild and restart a single service', tag: 'compose', cmd: 'docker compose up -d --build <service>', desc: 'Rebuild the image for one service and recreate its container without affecting others.' },
+        { title: 'View fully resolved compose config', tag: 'compose', cmd: 'docker compose config', desc: 'Show the final compose file after variable substitution and file merges. Essential for debugging.' },
+        { title: 'Scale a service to N replicas', tag: 'compose', cmd: 'docker compose up -d --scale <service>=3', desc: 'Run multiple instances of a service. Ensure no container_name or fixed host port conflicts.' },
+        { title: 'Follow all logs with timestamps', tag: 'compose', cmd: 'docker compose logs -f --timestamps', desc: 'Tail aggregated logs from all services with ISO timestamps for correlation.' },
+        { title: 'Stop and remove everything including orphans and volumes', tag: 'compose', cmd: 'docker compose down --remove-orphans -v', desc: 'Full teardown: containers, networks, orphans, and named volumes. Clean slate.' },
+        { title: 'Force recreate all containers', tag: 'compose', cmd: 'docker compose up -d --force-recreate', desc: 'Recreate all containers even if config has not changed. Useful after manual container modifications.' },
+        { title: 'Run one-off command in service', tag: 'compose', cmd: 'docker compose run --rm <service> <command>', desc: 'Spin up a temporary container for a service, run a command, and remove it. E.g., run migrations.' },
+        { title: 'List all compose projects on host', tag: 'compose', cmd: 'docker compose ls', desc: 'Show all active Compose projects and their status.' }
+      ]
+    },
+    {
+      id: 'ol-debug', title: '4. Monitoring & Debugging',
+      items: [
+        { title: 'Watch container resource usage live', tag: 'stats', cmd: 'docker stats --format \'table {{.Name}}\\t{{.CPUPerc}}\\t{{.MemUsage}}\\t{{.NetIO}}\\t{{.BlockIO}}\'', desc: 'Live-updating resource usage table. Ctrl+C to stop.' },
+        { title: 'Get container IP address', tag: 'inspect', cmd: 'docker inspect -f \'{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}\' <container>', desc: 'Extract the container IP from its network settings using Go template.' },
+        { title: 'Check container exit code', tag: 'inspect', cmd: 'docker inspect -f \'{{.State.ExitCode}}\' <container>', desc: 'Get the exit code of a stopped container. 0=success, 137=SIGKILL, 143=SIGTERM.' },
+        { title: 'Show container environment variables', tag: 'inspect', cmd: 'docker inspect -f \'{{range .Config.Env}}{{println .}}{{end}}\' <container>', desc: 'List all environment variables set in a container.' },
+        { title: 'Check container health status', tag: 'inspect', cmd: 'docker inspect -f \'{{.State.Health.Status}}\' <container>', desc: 'Returns: healthy, unhealthy, starting, or none (if no healthcheck defined).' },
+        { title: 'Show all mounted volumes for a container', tag: 'inspect', cmd: 'docker inspect -f \'{{range .Mounts}}{{.Source}} -> {{.Destination}}{{\"\\n\"}}{{end}}\' <container>', desc: 'List source and destination paths for all mounts (volumes, binds, tmpfs).' },
+        { title: 'Stream daemon events', tag: 'events', cmd: 'docker events --format \'{{.Time}} {{.Type}} {{.Action}} {{.Actor.Attributes.name}}\'', desc: 'Watch real-time events: container start/stop/die, image pull/push, network connect/disconnect.' },
+        { title: 'One-shot resource snapshot (no streaming)', tag: 'stats', cmd: 'docker stats --no-stream --format \'table {{.Name}}\\t{{.CPUPerc}}\\t{{.MemUsage}}\'', desc: 'Print current resource usage once and exit. Good for scripts and monitoring.' }
+      ]
+    },
+    {
+      id: 'ol-network', title: '5. Network One-Liners',
+      items: [
+        { title: 'List all container IPs', tag: 'inspect', cmd: 'docker ps -q | xargs -I{} docker inspect -f \'{{.Name}} {{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}\' {}', desc: 'Show name and IP address for every running container.' },
+        { title: 'Show containers on a specific network', tag: 'inspect', cmd: 'docker network inspect <network> -f \'{{range .Containers}}{{.Name}} {{.IPv4Address}}{{\"\\n\"}}{{end}}\'', desc: 'List all containers attached to a network with their IPs.' },
+        { title: 'Show published ports for all containers', tag: 'ps', cmd: 'docker ps --format \'table {{.Names}}\\t{{.Ports}}\'', desc: 'Quick overview of all port mappings across running containers.' },
+        { title: 'Find which container uses a specific port', tag: 'filter', cmd: 'docker ps --filter publish=<port>', desc: 'Find the container publishing a specific host port.' },
+        { title: 'Test connectivity between containers', tag: 'exec', cmd: 'docker exec <container> ping -c2 <other_container_name>', desc: 'Verify DNS resolution and network connectivity between two containers on the same network.' },
+        { title: 'List all networks with drivers', tag: 'format', cmd: 'docker network ls --format \'table {{.Name}}\\t{{.Driver}}\\t{{.Scope}}\'', desc: 'Show network name, driver type (bridge/overlay/host), and scope (local/swarm).' }
+      ]
+    },
+    {
+      id: 'ol-volumes', title: '6. Volume One-Liners',
+      items: [
+        { title: 'Backup a named volume to tar', tag: 'backup', cmd: 'docker run --rm -v <volume>:/data -v $(pwd):/backup alpine tar czf /backup/volume-backup.tar.gz -C /data .', desc: 'Mount the volume into an alpine container, tar its contents, and save to the current directory.' },
+        { title: 'Restore a volume from tar', tag: 'restore', cmd: 'docker run --rm -v <volume>:/data -v $(pwd):/backup alpine tar xzf /backup/volume-backup.tar.gz -C /data', desc: 'Extract a tar backup into a named volume.' },
+        { title: 'Find containers using a volume', tag: 'filter', cmd: 'docker ps -a --filter volume=<volume_name>', desc: 'List all containers (running and stopped) that mount a specific volume.' },
+        { title: 'Copy data between volumes', tag: 'cp', cmd: 'docker run --rm -v src_vol:/src -v dst_vol:/dst alpine sh -c \'cp -a /src/. /dst/\'', desc: 'Use an intermediate container to copy all data from one volume to another.' },
+        { title: 'Show disk usage per volume', tag: 'df', cmd: 'docker system df -v 2>/dev/null | sed -n \'/Local Volumes/,/Build Cache/p\'', desc: 'Display volume sizes from the verbose disk usage output.' }
+      ]
+    }
+  ]
+});
+
+/* ==================== 10. PROCEDURES ==================== */
+SECTIONS.push({
+  id: 'procedures', title: 'PROCEDURES', type: 'procedure',
+  subsections: [
+    /* ---- Core Procedures ---- */
+    {
+      id: 'proc-docker-ubuntu', title: '1. Install Docker Engine — Ubuntu/Debian',
+      desc: 'Install Docker CE from the official repository on Ubuntu or Debian.',
+      steps: [
+        { title: 'Remove conflicting packages', code: '# Remove old or distro-packaged Docker versions\nsudo apt-get remove -y docker.io docker-doc docker-compose podman-docker containerd runc 2>/dev/null' },
+        { title: 'Install prerequisites', code: 'sudo apt-get update\nsudo apt-get install -y ca-certificates curl gnupg' },
+        { title: 'Add Docker GPG key and repository', code: '# Add Docker official GPG key\nsudo install -m 0755 -d /etc/apt/keyrings\ncurl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg\nsudo chmod a+r /etc/apt/keyrings/docker.gpg\n\n# Add the repository\necho "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo $VERSION_CODENAME) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null' },
+        { title: 'Install Docker packages', code: 'sudo apt-get update\nsudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin' },
+        { title: 'Start Docker and add user to docker group', code: 'sudo systemctl enable --now docker\n\n# Run docker without sudo (requires re-login)\nsudo usermod -aG docker $USER\nnewgrp docker' },
+        { title: 'Verify installation', code: 'docker run hello-world\ndocker compose version' }
+      ]
+    },
+    {
+      id: 'proc-docker-fedora', title: '2. Install Docker Engine — Fedora/RHEL',
+      desc: 'Install Docker CE from the official repository on Fedora or RHEL-based systems.',
+      steps: [
+        { title: 'Remove conflicting packages', code: 'sudo dnf remove -y docker docker-client docker-client-latest docker-common docker-latest docker-latest-logrotate docker-logrotate docker-engine podman buildah 2>/dev/null' },
+        { title: 'Add Docker repository', code: 'sudo dnf -y install dnf-plugins-core\nsudo dnf config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo' },
+        { title: 'Install Docker packages', code: 'sudo dnf install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin' },
+        { title: 'Start Docker and add user', code: 'sudo systemctl enable --now docker\nsudo usermod -aG docker $USER\nnewgrp docker' },
+        { title: 'Verify installation', code: 'docker run hello-world' }
+      ]
+    },
+    {
+      id: 'proc-podman-ubuntu', title: '3. Install Podman — Ubuntu/Debian',
+      desc: 'Install Podman from the official repositories on Ubuntu or Debian.',
+      steps: [
+        { title: 'Install Podman', code: 'sudo apt-get update\nsudo apt-get install -y podman' },
+        { title: 'Configure default registries', desc: 'Podman does not default to Docker Hub. Configure unqualified search registries.', code: '# Edit /etc/containers/registries.conf\nsudo tee -a /etc/containers/registries.conf.d/shortnames.conf <<EOF\n[aliases]\n  "ubuntu" = "docker.io/library/ubuntu"\n  "nginx" = "docker.io/library/nginx"\n  "alpine" = "docker.io/library/alpine"\nEOF\n\n# Or add Docker Hub to unqualified search\nsudo sed -i \'s/^unqualified-search-registries.*/unqualified-search-registries = ["docker.io"]/\' /etc/containers/registries.conf' },
+        { title: 'Verify installation', code: 'podman run docker.io/library/hello-world\npodman info | grep -i rootless' }
+      ]
+    },
+    {
+      id: 'proc-podman-fedora', title: '4. Install Podman — Fedora/RHEL/Arch',
+      desc: 'Install Podman on Fedora, RHEL, or Arch Linux.',
+      steps: [
+        { title: 'Install Podman', code: '# Fedora/RHEL (pre-installed on most Fedora versions)\nsudo dnf install -y podman\n\n# Arch Linux\nsudo pacman -S podman' },
+        { title: 'Enable Docker-compatible socket (optional)', desc: 'Enable the Podman socket so Docker-native tools (docker-compose, VS Code) can connect.', code: 'systemctl --user enable --now podman.socket\nexport DOCKER_HOST=unix:///run/user/$(id -u)/podman/podman.sock' },
+        { title: 'Verify installation', code: 'podman run hello-world\npodman version' }
+      ]
+    },
+    {
+      id: 'proc-rootless-podman', title: '5. Rootless Podman Setup',
+      desc: 'Configure Podman for fully rootless operation with user namespaces.',
+      steps: [
+        { title: 'Verify subuid/subgid allocation', desc: 'Each user needs subordinate UID/GID ranges for user namespace mapping.', code: '# Check if ranges exist for your user\ngrep $USER /etc/subuid /etc/subgid\n\n# If not present, add ranges (65536 IDs starting at 100000)\nsudo usermod --add-subuids 100000-165535 --add-subgids 100000-165535 $USER' },
+        { title: 'Migrate storage after subuid changes', code: 'podman system migrate' },
+        { title: 'Configure rootless storage', desc: 'Rootless Podman uses fuse-overlayfs or native overlay (kernel 5.11+).', code: '# Check current storage driver\npodman info --format \'{{.Store.GraphDriverName}}\'\n\n# For systems with kernel < 5.11, install fuse-overlayfs\nsudo apt-get install -y fuse-overlayfs  # Debian/Ubuntu\nsudo dnf install -y fuse-overlayfs      # Fedora' },
+        { title: 'Enable lingering for user services', desc: 'Allows user systemd services (and containers) to persist after logout.', code: 'sudo loginctl enable-linger $USER' },
+        { title: 'Test rootless container', code: '# Should run without sudo\npodman run --rm alpine id\n\n# Verify rootless mode\npodman info | grep rootless' }
+      ]
+    },
+    {
+      id: 'proc-multistage', title: '6. Multi-Stage Dockerfile Build',
+      desc: 'Reduce image size by separating build dependencies from the runtime image.',
+      steps: [
+        { title: 'Write multi-stage Dockerfile', code: '# Stage 1: Build\nFROM golang:1.22-alpine AS builder\nWORKDIR /app\nCOPY go.mod go.sum ./\nRUN go mod download\nCOPY . .\nRUN CGO_ENABLED=0 go build -o /app/server .\n\n# Stage 2: Runtime (minimal image)\nFROM alpine:3.19\nRUN apk --no-cache add ca-certificates\nCOPY --from=builder /app/server /usr/local/bin/server\nUSER 65534:65534\nEXPOSE 8080\nENTRYPOINT ["server"]' },
+        { title: 'Build the image', code: 'docker build -t myapp:latest .' },
+        { title: 'Verify size reduction', code: '# Compare builder stage vs final image\ndocker images myapp\n\n# Inspect layers\ndocker history myapp:latest' },
+        { title: 'Build a specific stage only (for debugging)', code: '# Build only the builder stage\ndocker build --target builder -t myapp:builder .' }
+      ]
+    },
+
+    /* ---- Compose Procedures ---- */
+    {
+      id: 'proc-compose-dev', title: '7. Compose — Development Environment Setup',
+      desc: 'Set up a local development stack with app, database, and cache using Compose.',
+      steps: [
+        { title: 'Create project structure', code: 'mkdir -p myapp && cd myapp\ntouch Dockerfile compose.yaml .env .dockerignore' },
+        { title: 'Write Dockerfile for the app', code: 'FROM node:20-alpine\nWORKDIR /app\nCOPY package*.json ./\nRUN npm ci\nCOPY . .\nEXPOSE 3000\nCMD ["npm", "run", "dev"]' },
+        { title: 'Write compose.yaml', code: 'services:\n  app:\n    build: .\n    ports:\n      - "3000:3000"\n    volumes:\n      - .:/app          # Bind mount for hot-reload\n      - /app/node_modules  # Anonymous volume to preserve node_modules\n    environment:\n      - DATABASE_URL=postgres://dev:devpass@db:5432/myapp\n      - REDIS_URL=redis://cache:6379\n    depends_on:\n      db:\n        condition: service_healthy\n      cache:\n        condition: service_started\n\n  db:\n    image: postgres:16-alpine\n    environment:\n      POSTGRES_USER: dev\n      POSTGRES_PASSWORD: devpass\n      POSTGRES_DB: myapp\n    volumes:\n      - pgdata:/var/lib/postgresql/data\n    ports:\n      - "5432:5432"\n    healthcheck:\n      test: ["CMD-SHELL", "pg_isready -U dev"]\n      interval: 5s\n      timeout: 3s\n      retries: 5\n\n  cache:\n    image: redis:7-alpine\n    ports:\n      - "6379:6379"\n\nvolumes:\n  pgdata:' },
+        { title: 'Create .env file', code: 'NODE_ENV=development\nDEBUG=true' },
+        { title: 'Start the development stack', code: 'docker compose up -d\n\n# Watch logs\ndocker compose logs -f app' },
+        { title: 'Verify all services are running', code: 'docker compose ps\n\n# Test database connectivity\ndocker compose exec db psql -U dev -d myapp -c "SELECT 1;"' }
+      ]
+    },
+    {
+      id: 'proc-compose-prod', title: '8. Compose — Production Deployment',
+      desc: 'Deploy a production-ready stack using compose file overrides, resource limits, and health checks.',
+      steps: [
+        { title: 'Create production override file', desc: 'compose.prod.yaml overrides development settings with production values.', code: '# compose.prod.yaml\nservices:\n  app:\n    build:\n      context: .\n      target: production\n    volumes: []    # Remove bind mounts\n    restart: unless-stopped\n    deploy:\n      resources:\n        limits:\n          cpus: "1.0"\n          memory: 512M\n        reservations:\n          memory: 256M\n    environment:\n      - NODE_ENV=production\n    logging:\n      driver: json-file\n      options:\n        max-size: "10m"\n        max-file: "3"\n\n  db:\n    restart: unless-stopped\n    deploy:\n      resources:\n        limits:\n          memory: 1G\n    volumes:\n      - pgdata:/var/lib/postgresql/data\n\n  cache:\n    restart: unless-stopped\n    deploy:\n      resources:\n        limits:\n          memory: 256M' },
+        { title: 'Create production environment file', code: '# .env.production\nNODE_ENV=production\nDATABASE_URL=postgres://prod:${DB_PASSWORD}@db:5432/myapp\nREDIS_URL=redis://cache:6379' },
+        { title: 'Deploy with merged compose files', code: 'docker compose -f compose.yaml -f compose.prod.yaml --env-file .env.production up -d' },
+        { title: 'Verify health and resource usage', code: 'docker compose ps\ndocker compose logs --tail 50\ndocker stats --no-stream' }
+      ]
+    },
+    {
+      id: 'proc-compose-network', title: '9. Compose — Service Networking',
+      desc: 'Isolate services using multiple networks and configure DNS aliases.',
+      steps: [
+        { title: 'Define multiple networks in compose.yaml', code: 'services:\n  frontend:\n    image: nginx:alpine\n    networks:\n      - frontend\n    ports:\n      - "80:80"\n\n  api:\n    build: ./api\n    networks:\n      - frontend  # Reachable by frontend\n      - backend   # Reachable by database\n    environment:\n      DB_HOST: db\n\n  db:\n    image: postgres:16-alpine\n    networks:\n      - backend   # Only reachable by API, not frontend\n    volumes:\n      - pgdata:/var/lib/postgresql/data\n\nnetworks:\n  frontend:\n    driver: bridge\n  backend:\n    driver: bridge\n    internal: true  # No external internet access\n\nvolumes:\n  pgdata:' },
+        { title: 'Start and verify network isolation', code: 'docker compose up -d\n\n# Frontend can reach API\ndocker compose exec frontend ping -c2 api\n\n# Frontend CANNOT reach db (different network)\ndocker compose exec frontend ping -c2 db  # Should fail\n\n# API can reach db\ndocker compose exec api ping -c2 db' },
+        { title: 'Inspect network details', code: 'docker network ls | grep myapp\ndocker network inspect myapp_backend' }
+      ]
+    },
+    {
+      id: 'proc-compose-volumes', title: '10. Compose — Persistent Volumes',
+      desc: 'Configure, backup, and restore named volumes in Compose.',
+      steps: [
+        { title: 'Define named volumes', code: 'services:\n  db:\n    image: postgres:16-alpine\n    volumes:\n      - pgdata:/var/lib/postgresql/data\n      - dbbackups:/backups\n\nvolumes:\n  pgdata:\n    driver: local\n  dbbackups:\n    driver: local' },
+        { title: 'Backup volume data', code: '# Stop the service to ensure data consistency\ndocker compose stop db\n\n# Backup pgdata volume to a tar file\ndocker run --rm -v myapp_pgdata:/data -v $(pwd):/backup alpine \\\n  tar czf /backup/pgdata-$(date +%Y%m%d).tar.gz -C /data .\n\n# Restart the service\ndocker compose start db' },
+        { title: 'Restore volume from backup', code: '# Stop service and clear volume\ndocker compose stop db\ndocker run --rm -v myapp_pgdata:/data alpine sh -c "rm -rf /data/*"\n\n# Restore from tar\ndocker run --rm -v myapp_pgdata:/data -v $(pwd):/backup alpine \\\n  tar xzf /backup/pgdata-20240101.tar.gz -C /data\n\ndocker compose start db' },
+        { title: 'Use external (pre-existing) volume', code: '# Create volume manually\ndocker volume create shared-data\n\n# Reference in compose.yaml\nvolumes:\n  shared-data:\n    external: true' }
+      ]
+    },
+    {
+      id: 'proc-compose-env', title: '11. Compose — Environment Variables & Secrets',
+      desc: 'Manage configuration across environments using .env files, env_file, and secrets.',
+      steps: [
+        { title: 'Create .env file for variable substitution', desc: 'Variables in .env are substituted into compose.yaml with ${VAR} syntax.', code: '# .env (auto-loaded from project directory)\nPOSTGRES_VERSION=16-alpine\nAPP_PORT=3000\nDB_PASSWORD=secret123' },
+        { title: 'Use variables in compose.yaml', code: 'services:\n  db:\n    image: postgres:${POSTGRES_VERSION}\n    environment:\n      POSTGRES_PASSWORD: ${DB_PASSWORD}\n  app:\n    ports:\n      - "${APP_PORT}:3000"\n    env_file:\n      - ./app.env  # Additional vars loaded into container' },
+        { title: 'Create service-specific env file', code: '# app.env (loaded into container, not used for compose substitution)\nNODE_ENV=production\nLOG_LEVEL=info\nAPI_KEY=abc123' },
+        { title: 'Use file-based secrets (non-Swarm)', code: 'services:\n  app:\n    secrets:\n      - db_password\n    environment:\n      DB_PASSWORD_FILE: /run/secrets/db_password\n\nsecrets:\n  db_password:\n    file: ./secrets/db_password.txt' },
+        { title: 'Verify resolved configuration', code: '# Show the final compose config with all variables resolved\ndocker compose config\n\n# Check specific variable\ndocker compose config | grep -A5 "environment"' }
+      ]
+    },
+    {
+      id: 'proc-compose-overrides', title: '12. Compose — Overrides & Profiles',
+      desc: 'Use override files for environment-specific config and profiles for optional services.',
+      steps: [
+        { title: 'Create base compose.yaml', code: '# compose.yaml — shared base configuration\nservices:\n  app:\n    build: .\n    ports:\n      - "3000:3000"\n  db:\n    image: postgres:16-alpine\n    volumes:\n      - pgdata:/var/lib/postgresql/data\nvolumes:\n  pgdata:' },
+        { title: 'Create auto-loaded override for development', desc: 'compose.override.yaml is automatically loaded when present.', code: '# compose.override.yaml — auto-loaded in dev\nservices:\n  app:\n    volumes:\n      - .:/app\n    environment:\n      - DEBUG=true\n  db:\n    ports:\n      - "5432:5432"  # Expose DB port for local tools' },
+        { title: 'Create explicit production override', code: '# compose.prod.yaml — must be specified with -f\nservices:\n  app:\n    restart: unless-stopped\n    volumes: []\n    environment:\n      - NODE_ENV=production' },
+        { title: 'Use profiles for optional services', code: '# Add to compose.yaml\nservices:\n  debug:\n    image: nicolaka/netshoot\n    profiles: ["debug"]\n    network_mode: "service:app"\n\n  prometheus:\n    image: prom/prometheus\n    profiles: ["monitoring"]\n    ports:\n      - "9090:9090"' },
+        { title: 'Start with specific profile or override', code: '# Development (auto-loads compose.override.yaml)\ndocker compose up -d\n\n# Production (explicit override file)\ndocker compose -f compose.yaml -f compose.prod.yaml up -d\n\n# Development with debug tools\ndocker compose --profile debug up -d\n\n# Development with monitoring\ndocker compose --profile monitoring up -d' }
+      ]
+    },
+    {
+      id: 'proc-compose-health', title: '13. Compose — Health Checks & Dependencies',
+      desc: 'Configure health checks and service startup ordering with dependency conditions.',
+      steps: [
+        { title: 'Add health checks to services', code: 'services:\n  db:\n    image: postgres:16-alpine\n    healthcheck:\n      test: ["CMD-SHELL", "pg_isready -U postgres"]\n      interval: 10s\n      timeout: 5s\n      retries: 5\n      start_period: 30s\n\n  cache:\n    image: redis:7-alpine\n    healthcheck:\n      test: ["CMD", "redis-cli", "ping"]\n      interval: 10s\n      timeout: 3s\n      retries: 3\n\n  app:\n    build: .\n    healthcheck:\n      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]\n      interval: 30s\n      timeout: 10s\n      retries: 3\n      start_period: 15s' },
+        { title: 'Configure dependency conditions', code: 'services:\n  app:\n    depends_on:\n      db:\n        condition: service_healthy\n      cache:\n        condition: service_healthy\n\n  migration:\n    build: .\n    command: npm run migrate\n    depends_on:\n      db:\n        condition: service_healthy\n\n  tests:\n    build: .\n    command: npm test\n    depends_on:\n      migration:\n        condition: service_completed_successfully' },
+        { title: 'Start and verify health status', code: 'docker compose up -d\n\n# Watch health status\ndocker compose ps\n\n# Check detailed health for a service\ndocker inspect --format \'{{json .State.Health}}\' myapp-db-1 | jq' },
+        { title: 'Debug unhealthy services', code: '# Check health check logs\ndocker inspect --format \'{{range .State.Health.Log}}{{.Output}}{{end}}\' <container>\n\n# Run health check manually\ndocker compose exec db pg_isready -U postgres' }
+      ]
+    },
+    {
+      id: 'proc-compose-scale', title: '14. Compose — Scaling & Load Balancing',
+      desc: 'Scale services to multiple replicas and load balance with a reverse proxy.',
+      steps: [
+        { title: 'Configure service for scaling', desc: 'Services must not use container_name or fixed host ports to be scalable.', code: 'services:\n  web:\n    build: .\n    expose:\n      - "3000"  # Internal port only, no host mapping\n    deploy:\n      replicas: 3\n      resources:\n        limits:\n          cpus: "0.5"\n          memory: 256M\n\n  nginx:\n    image: nginx:alpine\n    ports:\n      - "80:80"\n    volumes:\n      - ./nginx.conf:/etc/nginx/nginx.conf:ro\n    depends_on:\n      - web' },
+        { title: 'Write nginx.conf for load balancing', code: 'events { worker_connections 1024; }\nhttp {\n  upstream web_backend {\n    server web:3000;  # Compose DNS resolves to all replicas\n  }\n  server {\n    listen 80;\n    location / {\n      proxy_pass http://web_backend;\n      proxy_set_header Host $host;\n      proxy_set_header X-Real-IP $remote_addr;\n    }\n  }\n}' },
+        { title: 'Start and verify scaling', code: '# Start with defined replicas\ndocker compose up -d\n\n# Or scale dynamically\ndocker compose up -d --scale web=5\n\n# Verify replicas\ndocker compose ps' },
+        { title: 'Scale up/down dynamically', code: '# Scale up\ndocker compose up -d --scale web=5\n\n# Scale down\ndocker compose up -d --scale web=2' }
+      ]
+    },
+    {
+      id: 'proc-compose-monitoring', title: '15. Compose — Monitoring Stack',
+      desc: 'Deploy Prometheus + Grafana + cAdvisor for container monitoring using Compose.',
+      steps: [
+        { title: 'Write compose.yaml for monitoring stack', code: 'services:\n  prometheus:\n    image: prom/prometheus:latest\n    volumes:\n      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro\n      - prometheus_data:/prometheus\n    ports:\n      - "9090:9090"\n    restart: unless-stopped\n\n  grafana:\n    image: grafana/grafana:latest\n    volumes:\n      - grafana_data:/var/lib/grafana\n    ports:\n      - "3001:3000"\n    environment:\n      GF_SECURITY_ADMIN_PASSWORD: admin\n    restart: unless-stopped\n\n  cadvisor:\n    image: gcr.io/cadvisor/cadvisor:latest\n    volumes:\n      - /:/rootfs:ro\n      - /var/run:/var/run:ro\n      - /sys:/sys:ro\n      - /var/lib/docker/:/var/lib/docker:ro\n    ports:\n      - "8080:8080"\n    restart: unless-stopped\n\nvolumes:\n  prometheus_data:\n  grafana_data:' },
+        { title: 'Create Prometheus configuration', code: '# prometheus.yml\nglobal:\n  scrape_interval: 15s\n\nscrape_configs:\n  - job_name: "prometheus"\n    static_configs:\n      - targets: ["localhost:9090"]\n\n  - job_name: "cadvisor"\n    static_configs:\n      - targets: ["cadvisor:8080"]' },
+        { title: 'Start the monitoring stack', code: 'docker compose up -d\n\n# Access:\n# Prometheus: http://localhost:9090\n# Grafana:    http://localhost:3001 (admin/admin)\n# cAdvisor:   http://localhost:8080' },
+        { title: 'Add Prometheus as Grafana data source', desc: 'In Grafana: Configuration > Data Sources > Add Prometheus > URL: http://prometheus:9090' }
+      ]
+    },
+    {
+      id: 'proc-compose-yaml', title: '16. Compose YAML Quick Reference',
+      desc: 'Complete annotated compose.yaml template showing all major directives.',
+      steps: [
+        { title: 'Full compose.yaml template', code: '# compose.yaml — complete reference template\n\nservices:\n  app:\n    image: myapp:latest          # OR build: .\n    build:\n      context: .                 # Build context directory\n      dockerfile: Dockerfile     # Dockerfile path\n      args:                      # Build arguments\n        NODE_ENV: production\n      target: production         # Multi-stage target\n    container_name: myapp        # Explicit name (prevents scaling)\n    hostname: myapp              # Container hostname\n    restart: unless-stopped      # no | always | on-failure | unless-stopped\n    ports:\n      - "8080:3000"              # host:container\n      - "8443:3000/udp"          # With protocol\n    expose:\n      - "3000"                   # Internal only (inter-service)\n    environment:                 # Inline variables\n      NODE_ENV: production\n      DB_HOST: db\n    env_file:                    # Variables from file\n      - ./app.env\n    volumes:\n      - app_data:/data           # Named volume\n      - ./config:/etc/app:ro     # Bind mount (read-only)\n      - type: tmpfs              # tmpfs mount\n        target: /tmp\n    networks:\n      - frontend\n      - backend\n    depends_on:\n      db:\n        condition: service_healthy\n    healthcheck:\n      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]\n      interval: 30s\n      timeout: 10s\n      retries: 3\n      start_period: 15s\n    deploy:\n      replicas: 2\n      resources:\n        limits:\n          cpus: "1.0"\n          memory: 512M\n    logging:\n      driver: json-file\n      options:\n        max-size: "10m"\n        max-file: "3"\n    profiles:\n      - production\n    labels:\n      com.example.team: "backend"\n    secrets:\n      - db_password\n\nnetworks:\n  frontend:\n    driver: bridge\n  backend:\n    driver: bridge\n    internal: true\n\nvolumes:\n  app_data:\n    driver: local\n\nsecrets:\n  db_password:\n    file: ./secrets/db_password.txt' }
+      ]
+    },
+
+    /* ---- Operational Procedures ---- */
+    {
+      id: 'proc-custom-network', title: '17. Custom Bridge Network',
+      desc: 'Create an isolated bridge network with custom subnet and test inter-container DNS.',
+      steps: [
+        { title: 'Create network with custom subnet', code: 'docker network create \\\n  --driver bridge \\\n  --subnet 172.20.0.0/16 \\\n  --gateway 172.20.0.1 \\\n  mynet' },
+        { title: 'Run containers on the custom network', code: 'docker run -d --name web --network mynet nginx:alpine\ndocker run -d --name api --network mynet alpine sleep 3600' },
+        { title: 'Test DNS resolution between containers', code: '# Containers on user-defined networks resolve each other by name\ndocker exec api ping -c2 web\ndocker exec api wget -qO- http://web:80' },
+        { title: 'Clean up', code: 'docker rm -f web api\ndocker network rm mynet' }
+      ]
+    },
+    {
+      id: 'proc-podman-systemd', title: '18. Container-to-Systemd with Podman',
+      desc: 'Generate systemd unit files to manage Podman containers as system services.',
+      steps: [
+        { title: 'Create and test a container', code: 'podman run -d --name mywebapp -p 8080:80 nginx:alpine\ncurl http://localhost:8080' },
+        { title: 'Generate systemd unit file', code: '# --new: recreates the container on each service start (preferred)\npodman generate systemd --new --name mywebapp --files\n\n# This creates container-mywebapp.service' },
+        { title: 'Install and enable the unit file', code: '# For rootless (user service)\nmkdir -p ~/.config/systemd/user\ncp container-mywebapp.service ~/.config/systemd/user/\nsystemctl --user daemon-reload\nsystemctl --user enable --now container-mywebapp\n\n# For rootful (system service)\n# sudo cp container-mywebapp.service /etc/systemd/system/\n# sudo systemctl daemon-reload\n# sudo systemctl enable --now container-mywebapp' },
+        { title: 'Stop the original container (systemd manages it now)', code: 'podman stop mywebapp\npodman rm mywebapp\n\n# Verify systemd is running the container\nsystemctl --user status container-mywebapp' },
+        { title: 'Enable auto-update (optional)', code: '# Add label to container for auto-update\npodman run -d --name mywebapp \\\n  --label io.containers.autoupdate=registry \\\n  -p 8080:80 nginx:alpine\n\n# Check for updates\npodman auto-update --dry-run\n\n# Enable auto-update timer\nsystemctl --user enable --now podman-auto-update.timer' }
+      ]
+    },
+    {
+      id: 'proc-private-registry', title: '19. Build and Push to Private Registry',
+      desc: 'Set up a local registry, tag images, and push/pull from private registries.',
+      steps: [
+        { title: 'Deploy a local registry (for testing)', code: 'docker run -d -p 5000:5000 --name registry --restart unless-stopped registry:2' },
+        { title: 'Tag and push an image', code: '# Build or pull an image\ndocker build -t myapp:v1 .\n\n# Tag for the local registry\ndocker tag myapp:v1 localhost:5000/myapp:v1\n\n# Push\ndocker push localhost:5000/myapp:v1' },
+        { title: 'Pull from the registry', code: 'docker pull localhost:5000/myapp:v1' },
+        { title: 'Configure insecure registry (for HTTP/self-signed)', desc: 'Docker requires TLS by default. For testing, allow insecure registries.', code: '# Docker: edit /etc/docker/daemon.json\nsudo tee /etc/docker/daemon.json <<EOF\n{\n  "insecure-registries": ["registry.example.com:5000"]\n}\nEOF\nsudo systemctl restart docker\n\n# Podman: edit /etc/containers/registries.conf\n# [[registry]]\n# location = "registry.example.com:5000"\n# insecure = true' },
+        { title: 'Authenticate to external registries', code: '# Docker Hub\ndocker login\n\n# GitHub Container Registry\ndocker login ghcr.io -u USERNAME --password-stdin <<< "$GITHUB_TOKEN"\n\n# AWS ECR\naws ecr get-login-password | docker login --username AWS --password-stdin <account>.dkr.ecr.<region>.amazonaws.com' }
+      ]
+    },
+    {
+      id: 'proc-backup-restore', title: '20. Container Backup & Restore',
+      desc: 'Export container filesystems and backup named volumes for disaster recovery.',
+      steps: [
+        { title: 'Export a container filesystem', code: '# Export running or stopped container as tar\ndocker export -o container-backup.tar <container>\n\n# Import as a new image\ndocker import container-backup.tar myapp:restored' },
+        { title: 'Backup a named volume', code: 'docker run --rm \\\n  -v <volume_name>:/source:ro \\\n  -v $(pwd):/backup \\\n  alpine tar czf /backup/volume-$(date +%Y%m%d%H%M).tar.gz -C /source .' },
+        { title: 'Restore volume from backup', code: '# Create fresh volume if needed\ndocker volume create restored_vol\n\n# Restore\ndocker run --rm \\\n  -v restored_vol:/dest \\\n  -v $(pwd):/backup \\\n  alpine tar xzf /backup/volume-20240101.tar.gz -C /dest' },
+        { title: 'Save and load images (for offline transfer)', code: '# Save image with all layers\ndocker save -o myapp-v1.tar myapp:v1\n\n# Transfer and load on target host\ndocker load -i myapp-v1.tar' }
+      ]
+    },
+    {
+      id: 'proc-dockerfile-best', title: '21. Dockerfile Best Practices',
+      desc: 'Optimize Dockerfiles for security, size, and build performance.',
+      steps: [
+        { title: 'Pin base image versions', desc: 'Never use :latest in production. Pin to specific tags or digests for reproducibility.', code: '# Bad\nFROM node:latest\n\n# Good — pinned tag\nFROM node:20.11-alpine\n\n# Best — pinned digest (immutable)\nFROM node:20.11-alpine@sha256:abc123...' },
+        { title: 'Order instructions by change frequency', desc: 'Place rarely-changing instructions first to maximize layer cache hits.', code: '# Dependencies change less often than source code\nCOPY package.json package-lock.json ./\nRUN npm ci --production\n\n# Source code changes frequently — put last\nCOPY . .' },
+        { title: 'Use .dockerignore', code: '# .dockerignore — exclude from build context\n.git\nnode_modules\n*.md\n.env\n.env.*\nDockerfile\ndocker-compose*\n.dockerignore' },
+        { title: 'Run as non-root user', code: '# Create non-root user and switch\nRUN addgroup -S appgroup && adduser -S appuser -G appgroup\nUSER appuser\n\n# Or use numeric UID (works even without user in /etc/passwd)\nUSER 65534:65534' },
+        { title: 'Use COPY instead of ADD', desc: 'ADD has implicit tar extraction and URL fetch. Use COPY for simple file copying.', code: '# Prefer COPY (explicit, predictable)\nCOPY ./src /app/src\n\n# ADD only for tar extraction\nADD archive.tar.gz /app/' },
+        { title: 'Combine RUN statements and clean up', code: '# Bad: each RUN creates a layer, apt cache persists\nRUN apt-get update\nRUN apt-get install -y curl\n\n# Good: single layer, cache cleaned\nRUN apt-get update && \\\n    apt-get install -y --no-install-recommends curl && \\\n    rm -rf /var/lib/apt/lists/*' },
+        { title: 'Add HEALTHCHECK', code: 'HEALTHCHECK --interval=30s --timeout=10s --retries=3 --start-period=15s \\\n  CMD curl -f http://localhost:3000/health || exit 1' }
+      ]
+    },
+    {
+      id: 'proc-debug-container', title: '22. Debug a Failing Container',
+      desc: 'Systematic approach to diagnosing why a container fails to start or crashes.',
+      steps: [
+        { title: 'Check container status and exit code', code: 'docker ps -a --filter name=<container>\n\n# Exit codes: 0=success, 1=app error, 137=OOM/SIGKILL, 139=SIGSEGV, 143=SIGTERM' },
+        { title: 'Read container logs', code: 'docker logs <container>\n\n# Last 100 lines with timestamps\ndocker logs --tail 100 --timestamps <container>\n\n# Follow logs in real time\ndocker logs -f <container>' },
+        { title: 'Inspect container configuration', code: '# Full JSON\ndocker inspect <container>\n\n# Key fields\ndocker inspect -f \'State: {{.State.Status}}, Exit: {{.State.ExitCode}}, Error: {{.State.Error}}\' <container>\ndocker inspect -f \'Cmd: {{.Config.Cmd}}\' <container>\ndocker inspect -f \'Entrypoint: {{.Config.Entrypoint}}\' <container>' },
+        { title: 'Override entrypoint to get a shell', desc: 'If the container crashes immediately, override the entrypoint to inspect the environment.', code: '# Get a shell instead of running the app\ndocker run -it --entrypoint /bin/sh <image>\n\n# Or /bin/bash if available\ndocker run -it --entrypoint /bin/bash <image>' },
+        { title: 'Check filesystem changes', code: '# See what files were added/modified/deleted\ndocker diff <container>' },
+        { title: 'Check resource usage and events', code: '# Memory/CPU usage\ndocker stats --no-stream <container>\n\n# Recent events for this container\ndocker events --filter container=<container> --since 1h' },
+        { title: 'Exec into a running container', code: '# Interactive shell\ndocker exec -it <container> /bin/sh\n\n# Check network\ndocker exec <container> ss -tlnp\ndocker exec <container> cat /etc/resolv.conf\n\n# Check processes\ndocker exec <container> ps aux' }
+      ]
+    },
+    {
+      id: 'proc-podman-pods', title: '23. Podman Pods (Kubernetes-Style)',
+      desc: 'Create pods with shared network namespaces, generate and deploy Kubernetes YAML.',
+      steps: [
+        { title: 'Create a pod with port mappings', desc: 'Ports are mapped at the pod level, shared by all containers in the pod.', code: 'podman pod create --name webapp -p 8080:80 -p 5432:5432' },
+        { title: 'Add containers to the pod', code: 'podman run -d --pod webapp --name web nginx:alpine\npodman run -d --pod webapp --name db -e POSTGRES_PASSWORD=secret postgres:16-alpine' },
+        { title: 'Verify pod and containers', code: '# List pods\npodman pod ps\n\n# List containers in the pod\npodman ps --filter pod=webapp\n\n# Containers share localhost\npodman exec web curl -s http://localhost:5432 || echo "Port reachable (expected connection refused from HTTP to PG)"' },
+        { title: 'Generate Kubernetes YAML from pod', code: 'podman generate kube webapp > webapp.yaml\ncat webapp.yaml' },
+        { title: 'Deploy YAML back to Podman (or Kubernetes)', code: '# Tear down original pod\npodman pod rm -f webapp\n\n# Recreate from YAML\npodman play kube webapp.yaml\n\n# Or deploy to Kubernetes\n# kubectl apply -f webapp.yaml' }
+      ]
+    },
+    {
+      id: 'proc-docker-to-podman', title: '24. Migrate from Docker to Podman',
+      desc: 'Step-by-step migration path from Docker to Podman with compatibility checks.',
+      steps: [
+        { title: 'Install Podman', code: '# Ubuntu/Debian\nsudo apt-get install -y podman\n\n# Fedora\nsudo dnf install -y podman\n\n# Arch\nsudo pacman -S podman' },
+        { title: 'Set up Docker CLI compatibility', code: '# Option 1: alias (add to ~/.bashrc or ~/.zshrc)\nalias docker=podman\n\n# Option 2: Install podman-docker (provides /usr/bin/docker symlink)\nsudo apt-get install -y podman-docker  # Debian/Ubuntu\nsudo dnf install -y podman-docker      # Fedora' },
+        { title: 'Configure registries for Docker Hub default', code: '# Podman requires fully qualified image names by default\n# Add Docker Hub to unqualified search\nsudo sed -i \'s/^unqualified-search-registries.*/unqualified-search-registries = ["docker.io", "quay.io"]/\' /etc/containers/registries.conf' },
+        { title: 'Migrate images', code: '# Export from Docker\ndocker save -o images.tar myapp:v1 mydb:latest\n\n# Import into Podman\npodman load -i images.tar' },
+        { title: 'Set up Podman socket for docker-compose compatibility', code: '# Enable Podman socket (emulates Docker API)\nsystemctl --user enable --now podman.socket\n\n# Set DOCKER_HOST for docker-compose\nexport DOCKER_HOST=unix:///run/user/$(id -u)/podman/podman.sock\n\n# Test with docker-compose\ndocker-compose version' },
+        { title: 'Test and validate', code: '# Run existing containers\npodman run -d --name test -p 8080:80 nginx:alpine\ncurl http://localhost:8080\npodman rm -f test\n\n# Test compose files\npodman compose up -d\npodman compose ps' }
+      ]
+    },
+    {
+      id: 'proc-buildkit', title: '25. BuildKit Advanced Features',
+      desc: 'Leverage BuildKit cache mounts, secrets, SSH forwarding, and multi-platform builds.',
+      steps: [
+        { title: 'Enable BuildKit', code: '# Docker 23.0+: BuildKit is default\n# For older versions:\nexport DOCKER_BUILDKIT=1\n\n# Or configure in daemon.json\n# { "features": { "buildkit": true } }' },
+        { title: 'Use cache mounts for package managers', desc: 'Cache mounts persist build cache between builds without bloating image layers.', code: '# syntax=docker/dockerfile:1\nFROM golang:1.22\nWORKDIR /app\nCOPY go.mod go.sum ./\nRUN --mount=type=cache,target=/go/pkg/mod go mod download\nCOPY . .\nRUN --mount=type=cache,target=/root/.cache/go-build go build -o /app/server' },
+        { title: 'Use secrets in builds (never baked into layers)', code: '# Dockerfile\nRUN --mount=type=secret,id=npmrc,target=/root/.npmrc npm ci\n\n# Build command\ndocker build --secret id=npmrc,src=$HOME/.npmrc -t myapp .' },
+        { title: 'Build multi-platform images', code: '# Create a builder instance\ndocker buildx create --name multiarch --use\n\n# Build for multiple platforms and push\ndocker buildx build \\\n  --platform linux/amd64,linux/arm64 \\\n  -t myregistry/myapp:v1 \\\n  --push .' }
+      ]
+    },
+    {
+      id: 'proc-log-management', title: '26. Container Log Management',
+      desc: 'Configure logging drivers, rotation, and log forwarding for production containers.',
+      steps: [
+        { title: 'Configure default logging driver', code: '# Docker: /etc/docker/daemon.json\n{\n  "log-driver": "json-file",\n  "log-opts": {\n    "max-size": "10m",\n    "max-file": "3"\n  }\n}\n# Restart: sudo systemctl restart docker\n\n# Podman: /etc/containers/containers.conf or ~/.config/containers/containers.conf\n# [containers]\n# log_driver = "journald"' },
+        { title: 'Set per-container logging options', code: '# Docker\ndocker run -d \\\n  --log-driver json-file \\\n  --log-opt max-size=5m \\\n  --log-opt max-file=5 \\\n  nginx:alpine\n\n# In Compose\nservices:\n  app:\n    logging:\n      driver: json-file\n      options:\n        max-size: "10m"\n        max-file: "3"' },
+        { title: 'Forward logs to syslog', code: 'docker run -d \\\n  --log-driver syslog \\\n  --log-opt syslog-address=udp://logserver:514 \\\n  --log-opt syslog-facility=local0 \\\n  --log-opt tag="myapp" \\\n  myapp:latest' },
+        { title: 'Query logs with journald (Podman default)', code: '# Podman logs via journalctl\njournalctl --user CONTAINER_NAME=<name> --since "1 hour ago"\n\n# Follow\njournalctl --user CONTAINER_NAME=<name> -f' },
+        { title: 'Filter and search logs', code: '# Last 100 lines since 1 hour ago\ndocker logs --tail 100 --since 1h <container>\n\n# Grep for errors\ndocker logs <container> 2>&1 | grep -i error\n\n# Logs between two timestamps\ndocker logs --since 2024-01-01T10:00:00 --until 2024-01-01T11:00:00 <container>' }
+      ]
+    }
+  ]
+});
+
+render();
+</script>
+</body>
+</html>
