@@ -479,13 +479,12 @@ mark { background: #e3b34133; color: var(--param-color); border-radius: 2px; pad
   padding-bottom: 6px; border-bottom: 1px solid var(--border);
 }
 .concept-terms dd:last-child { border-bottom: none; }
-.concept-diagram {
+.diagram-wrap {
   background: #010409; border: 1px solid var(--border);
-  border-radius: var(--radius); padding: 14px 18px;
-  font-size: 12px; font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
-  overflow-x: auto; white-space: pre; line-height: 1.6; color: var(--text);
-  margin-bottom: 16px;
+  border-radius: var(--radius); padding: 18px;
+  margin-bottom: 16px; overflow-x: auto;
 }
+.diagram-wrap svg { display: block; max-width: 100%; }
 .comparison-table td:first-child {
   font-weight: 600; color: var(--text); white-space: nowrap;
 }
@@ -759,7 +758,7 @@ function buildConceptSubsection(sub) {
   let inner = '';
   if (sub.body) inner += buildConceptBody(sub.body);
   if (sub.terms) inner += buildTermsList(sub.terms);
-  if (sub.diagram) inner += '<pre class="concept-diagram">' + esc(sub.diagram) + '</pre>';
+  if (sub.diagram) inner += '<div class="diagram-wrap">' + sub.diagram + '</div>';
   if (sub.comparison) inner += buildComparisonTable(sub.comparison);
   return `<div class="subsection" id="${sub.id}">
     <div class="subsection-header" onclick="toggleSub(this)">
@@ -1221,13 +1220,90 @@ SECTIONS.push({
       id: 'cpt-docker-arch',
       title: '2. Docker Architecture',
       body: 'Docker uses a client-server architecture. The docker CLI sends REST API requests over a Unix socket to dockerd, the Docker daemon. dockerd is a long-running root process responsible for image management, container lifecycle, networking (libnetwork), and volume management.\n\ndockerd delegates container execution to containerd, which manages container lifecycle (create, start, stop, delete) and image transfers. containerd invokes runc (the OCI reference runtime) to create the actual container process via clone(2) with namespace flags.\n\nBuildKit is the default build subsystem in modern Docker. It provides parallel stage execution, efficient layer caching, build secrets, and multi-platform build support.',
-      diagram: '┌──────────────┐       REST / Unix Socket        ┌───────────────────────────────┐\n│  docker CLI  │ ──────────────────────────────▶ │          dockerd              │\n└──────────────┘                                 │  ┌─────────┐ ┌────┐ ┌─────┐  │\n                                                 │  │ images  │ │net │ │ vol │  │\n                                                 │  └─────────┘ └────┘ └─────┘  │\n                                                 │        │                     │\n                                                 │   ┌────▼──────┐              │\n                                                 │   │containerd │              │\n                                                 │   └────┬──────┘              │\n                                                 │        │  OCI runtime         │\n                                                 │   ┌────▼──────┐              │\n                                                 │   │   runc    │              │\n                                                 │   └───────────┘              │\n                                                 └───────────────────────────────┘\n\nSocket: /var/run/docker.sock (root-owned by default)'
+      diagram: `<svg viewBox="0 0 700 310" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="10">
+  <defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#58a6ff"/></marker></defs>
+  <!-- docker CLI -->
+  <rect x="10" y="85" width="140" height="55" rx="6" fill="rgba(121,192,255,0.1)" stroke="rgba(121,192,255,0.4)" stroke-width="1.5"/>
+  <text x="80" y="108" text-anchor="middle" fill="#79c0ff" font-weight="700" font-size="12">docker CLI</text>
+  <text x="80" y="125" text-anchor="middle" fill="#8b949e" font-size="9">User commands</text>
+  <!-- Arrow CLI to dockerd -->
+  <line x1="150" y1="112" x2="248" y2="112" stroke="#58a6ff" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="200" y="103" text-anchor="middle" fill="#8b949e" font-size="9">REST API</text>
+  <text x="200" y="127" text-anchor="middle" fill="#8b949e" font-size="9" font-style="italic">/var/run/docker.sock</text>
+  <!-- dockerd box -->
+  <rect x="250" y="10" width="440" height="290" rx="8" fill="#161b22" stroke="#30363d" stroke-width="1.5"/>
+  <text x="470" y="32" text-anchor="middle" fill="#8b949e" font-size="9" font-weight="600" letter-spacing="1">DOCKER DAEMON (dockerd)</text>
+  <!-- Sub-components row -->
+  <rect x="275" y="48" width="105" height="38" rx="5" fill="#1c2128" stroke="#30363d"/>
+  <text x="327" y="72" text-anchor="middle" fill="#e6edf3" font-weight="600" textLength="90" lengthAdjust="spacingAndGlyphs">Image Store</text>
+  <rect x="395" y="48" width="105" height="38" rx="5" fill="#1c2128" stroke="#30363d"/>
+  <text x="447" y="72" text-anchor="middle" fill="#e6edf3" font-weight="600" textLength="90" lengthAdjust="spacingAndGlyphs">libnetwork</text>
+  <rect x="515" y="48" width="105" height="38" rx="5" fill="#1c2128" stroke="#30363d"/>
+  <text x="567" y="72" text-anchor="middle" fill="#e6edf3" font-weight="600" textLength="90" lengthAdjust="spacingAndGlyphs">Volumes</text>
+  <!-- BuildKit -->
+  <rect x="275" y="98" width="105" height="38" rx="5" fill="rgba(63,185,80,0.1)" stroke="rgba(63,185,80,0.4)"/>
+  <text x="327" y="122" text-anchor="middle" fill="#3fb950" font-weight="600" textLength="90" lengthAdjust="spacingAndGlyphs">BuildKit</text>
+  <!-- containerd -->
+  <rect x="420" y="98" width="160" height="45" rx="6" fill="rgba(210,168,255,0.1)" stroke="rgba(210,168,255,0.4)" stroke-width="1.5"/>
+  <text x="500" y="118" text-anchor="middle" fill="#d2a8ff" font-weight="700" font-size="11">containerd</text>
+  <text x="500" y="133" text-anchor="middle" fill="#8b949e" font-size="9">Container lifecycle</text>
+  <!-- Arrow containerd to containerd-shim -->
+  <line x1="500" y1="143" x2="500" y2="165" stroke="#d2a8ff" stroke-width="1.5" marker-end="url(#arr)"/>
+  <!-- containerd-shim -->
+  <rect x="420" y="167" width="160" height="38" rx="5" fill="#1c2128" stroke="#30363d"/>
+  <text x="500" y="190" text-anchor="middle" fill="#e6edf3" font-weight="600" textLength="140" lengthAdjust="spacingAndGlyphs">containerd-shim</text>
+  <!-- Arrow shim to runc -->
+  <line x1="500" y1="205" x2="500" y2="228" stroke="#d2a8ff" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="543" y="220" fill="#8b949e" font-size="9">OCI runtime</text>
+  <!-- runc -->
+  <rect x="420" y="230" width="160" height="45" rx="6" fill="rgba(247,129,102,0.1)" stroke="rgba(247,129,102,0.4)" stroke-width="1.5"/>
+  <text x="500" y="250" text-anchor="middle" fill="#f78166" font-weight="700" font-size="11">runc</text>
+  <text x="500" y="265" text-anchor="middle" fill="#8b949e" font-size="9">clone(2) + namespaces</text>
+</svg>`
     },
     {
       id: 'cpt-podman-arch',
       title: '3. Podman Architecture',
       body: 'Podman uses a daemonless, fork/exec model. There is no long-running daemon process. When podman run is invoked, the podman process directly fork/execs the OCI runtime (crun by default, or runc) to create the container.\n\nA small per-container monitor process called conmon is spawned alongside each container. conmon holds the container\'s stdin/stdout/stderr file descriptors, records the exit code, and enables detach/reattach. conmon is the direct parent of the container process.\n\nThis architecture eliminates the single point of failure inherent in a daemon-based design — if the podman process exits after container creation, the container continues running under conmon. Podman natively supports rootless execution via user namespaces and slirp4netns/pasta for unprivileged networking.\n\nFor Docker API compatibility, Podman can optionally run a REST API socket (podman system service) that emulates the Docker API, enabling docker-compose and other Docker-native tools to work with Podman.',
-      diagram: '┌──────────────┐    fork/exec     ┌───────────┐    exec     ┌───────────┐\n│  podman CLI  │ ───────────────▶ │  conmon    │ ─────────▶ │ crun/runc │\n└──────────────┘                  │ (monitor)  │            │ (runtime) │\n                                  └─────┬──────┘            └─────┬─────┘\n      No daemon.                        │                         │\n      No socket required.               │  holds stdio fds        │  clone(2)\n                                        │  records exit code      │  + namespaces\n                                        ▼                         ▼\n                                  ┌──────────────────────────────────┐\n                                  │       container process          │\n                                  └──────────────────────────────────┘\n\nOptional socket: /run/user/$UID/podman/podman.sock'
+      diagram: `<svg viewBox="0 0 700 280" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="10">
+  <defs><marker id="arr2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#d2a8ff"/></marker></defs>
+  <!-- podman CLI -->
+  <rect x="10" y="30" width="145" height="55" rx="6" fill="rgba(210,168,255,0.1)" stroke="rgba(210,168,255,0.4)" stroke-width="1.5"/>
+  <text x="82" y="54" text-anchor="middle" fill="#d2a8ff" font-weight="700" font-size="12">podman CLI</text>
+  <text x="82" y="72" text-anchor="middle" fill="#8b949e" font-size="9">No daemon required</text>
+  <!-- Arrow CLI to conmon -->
+  <line x1="155" y1="57" x2="253" y2="57" stroke="#d2a8ff" stroke-width="1.5" marker-end="url(#arr2)"/>
+  <text x="204" y="48" text-anchor="middle" fill="#8b949e" font-size="9">fork/exec</text>
+  <!-- conmon -->
+  <rect x="255" y="25" width="160" height="65" rx="6" fill="rgba(63,185,80,0.1)" stroke="rgba(63,185,80,0.4)" stroke-width="1.5"/>
+  <text x="335" y="50" text-anchor="middle" fill="#3fb950" font-weight="700" font-size="12">conmon</text>
+  <text x="335" y="65" text-anchor="middle" fill="#8b949e" font-size="9">Holds stdio fds</text>
+  <text x="335" y="78" text-anchor="middle" fill="#8b949e" font-size="9">Records exit code</text>
+  <!-- Arrow conmon to crun -->
+  <line x1="415" y1="57" x2="503" y2="57" stroke="#3fb950" stroke-width="1.5" marker-end="url(#arr2)"/>
+  <text x="459" y="48" text-anchor="middle" fill="#8b949e" font-size="9">exec</text>
+  <!-- crun/runc -->
+  <rect x="505" y="25" width="160" height="65" rx="6" fill="rgba(247,129,102,0.1)" stroke="rgba(247,129,102,0.4)" stroke-width="1.5"/>
+  <text x="585" y="50" text-anchor="middle" fill="#f78166" font-weight="700" font-size="12">crun / runc</text>
+  <text x="585" y="65" text-anchor="middle" fill="#8b949e" font-size="9">OCI runtime</text>
+  <text x="585" y="78" text-anchor="middle" fill="#8b949e" font-size="9">clone(2) + namespaces</text>
+  <!-- Arrows down to container -->
+  <line x1="335" y1="90" x2="335" y2="145" stroke="#3fb950" stroke-width="1.5" stroke-dasharray="4" marker-end="url(#arr2)"/>
+  <line x1="585" y1="90" x2="585" y2="145" stroke="#f78166" stroke-width="1.5" stroke-dasharray="4" marker-end="url(#arr2)"/>
+  <!-- Container process -->
+  <rect x="235" y="147" width="410" height="55" rx="6" fill="rgba(121,192,255,0.1)" stroke="rgba(121,192,255,0.4)" stroke-width="1.5"/>
+  <text x="440" y="171" text-anchor="middle" fill="#79c0ff" font-weight="700" font-size="12">Container Process</text>
+  <text x="440" y="189" text-anchor="middle" fill="#8b949e" font-size="9">Runs in isolated namespaces (PID, NET, MNT, UTS, IPC, USER, CGROUP)</text>
+  <!-- Note about no daemon -->
+  <rect x="10" y="120" width="180" height="82" rx="6" fill="#161b22" stroke="#30363d"/>
+  <text x="100" y="142" text-anchor="middle" fill="#8b949e" font-size="9" font-weight="600" letter-spacing="0.5">KEY PROPERTIES</text>
+  <text x="22" y="160" fill="#e6edf3" font-size="9">No persistent daemon</text>
+  <text x="22" y="175" fill="#e6edf3" font-size="9">Container survives CLI exit</text>
+  <text x="22" y="190" fill="#e6edf3" font-size="9">Rootless via user namespaces</text>
+  <!-- Optional socket note -->
+  <rect x="235" y="225" width="410" height="32" rx="5" fill="#1c2128" stroke="#30363d"/>
+  <text x="440" y="245" text-anchor="middle" fill="#8b949e" font-size="9">Optional API socket: /run/user/$UID/podman/podman.sock (Docker API compatible)</text>
+</svg>`
     },
     {
       id: 'cpt-comparison',
