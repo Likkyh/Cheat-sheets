@@ -231,11 +231,11 @@ Filter logic (`applyFilter()`):
 
 ### Implemented and functional
 
-- **Homepage (`index.html`):** Card grid with 2 available sheets + 1 coming-soon (Docker). Live search, dark/light theme, keyboard shortcuts.
+- **Homepage (`index.html`):** Card grid with 3 tabs (Reference Sheets, Certifications, Installation Procedures). Live search, dark/light theme, keyboard shortcuts. Installation Procedures tab has 4 Coming Soon placeholders (Proxmox VE, pfSense/OPNsense, Ubuntu Server, Windows Server).
 - **Cisco IOS sheet (`ios-reference-sheet.html`):** ~300 commands across 4 top-level sections (SWITCHING, ROUTING, SERVICES, PROCEDURES). 15 step-by-step procedures. Device filter (L2/L3/Router/All). Collapsible sections. TOC sidebar with IntersectionObserver active-link tracking. Sidebar toggle. Copy-to-clipboard on every command syntax. Search overlay. Syntax tokenizer. Print stylesheet.
 - **Linux sheet (`linux-reference-sheet.html`):** ~400 commands across 11 sections (FILESYSTEM, FILE MANAGEMENT, TEXT PROCESSING, PROCESS MANAGEMENT, NETWORKING, USERS & PERMISSIONS, DISK & STORAGE, SYSTEM INFO, SYSTEMD, PACKAGE MANAGEMENT, ONE-LINERS). 13 procedures covering Ubuntu, Arch, and Fedora. Distro filter. Filesystem tree renderer. One-liner card renderer with copy buttons. All IOS sheet features also present.
 
 ### Not yet implemented
 
-- Docker cheat sheet (card shows "Coming Soon")
+- Installation procedure pages (Proxmox VE, pfSense/OPNsense, Ubuntu Server, Windows Server — cards show "Coming Soon")
 - Any backend, authentication, or dynamic data source

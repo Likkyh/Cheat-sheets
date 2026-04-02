@@ -308,6 +308,7 @@ footer a:hover { text-decoration: underline; }
   <div class="tab-bar">
     <button class="tab-btn active" data-tab="sheets">Reference Sheets</button>
     <button class="tab-btn" data-tab="certs">Certifications</button>
+    <button class="tab-btn" data-tab="installs">Installation Procedures</button>
     <span class="tab-spacer"></span>
     <span class="section-count" id="visible-count">3 items</span>
   </div>
@@ -438,6 +439,98 @@ footer a:hover { text-decoration: underline; }
     <div class="no-results" id="no-results-certs">No certifications match your search.</div>
   </div>
 
+  <!-- ===== TAB: Installation Procedures ===== -->
+  <div class="tab-pane" id="tab-installs">
+    <div class="card-grid">
+
+      <!-- Proxmox VE -->
+      <div class="sheet-card coming-soon" style="--card-accent: var(--green);" data-tags="proxmox ve hypervisor virtualization kvm lxc installation server homelab">
+        <div class="card-header-row">
+          <div class="card-icon">🖥️</div>
+          <div>
+            <div class="card-title">Proxmox VE</div>
+            <div class="card-subtitle">Hypervisor installation &amp; initial setup</div>
+          </div>
+        </div>
+        <div class="card-desc">Full Proxmox VE installation walkthrough: ISO preparation, disk partitioning, network configuration, storage pools, and post-install hardening.</div>
+        <div class="card-tags">
+          <span class="card-tag tag-linux">Virtualization</span>
+          <span class="card-tag tag-tools">KVM</span>
+          <span class="card-tag tag-protocols">Networking</span>
+        </div>
+        <div class="card-footer">
+          <span style="font-size:11px;color:var(--muted);font-weight:600;">○ Coming Soon</span>
+          <a href="#" class="card-btn">Open Guide <span class="arrow">→</span></a>
+        </div>
+      </div>
+
+      <!-- pfSense / OPNsense -->
+      <div class="sheet-card coming-soon" style="--card-accent: var(--orange);" data-tags="pfsense opnsense firewall router nat vpn installation network appliance">
+        <div class="card-header-row">
+          <div class="card-icon">🔥</div>
+          <div>
+            <div class="card-title">pfSense / OPNsense</div>
+            <div class="card-subtitle">Firewall appliance installation</div>
+          </div>
+        </div>
+        <div class="card-desc">Step-by-step firewall deployment: ISO install, interface assignment, DHCP/DNS, NAT rules, VPN setup, and firewall rule best practices.</div>
+        <div class="card-tags">
+          <span class="card-tag tag-security">Firewall</span>
+          <span class="card-tag tag-protocols">Networking</span>
+          <span class="card-tag tag-routing">VPN</span>
+        </div>
+        <div class="card-footer">
+          <span style="font-size:11px;color:var(--muted);font-weight:600;">○ Coming Soon</span>
+          <a href="#" class="card-btn">Open Guide <span class="arrow">→</span></a>
+        </div>
+      </div>
+
+      <!-- Ubuntu Server -->
+      <div class="sheet-card coming-soon" style="--card-accent: var(--purple);" data-tags="ubuntu server linux installation hardening ssh lts debian">
+        <div class="card-header-row">
+          <div class="card-icon">🐧</div>
+          <div>
+            <div class="card-title">Ubuntu Server</div>
+            <div class="card-subtitle">Server installation &amp; hardening</div>
+          </div>
+        </div>
+        <div class="card-desc">Complete Ubuntu Server setup: installation, static IP, SSH hardening, UFW firewall, automatic updates, user management, and security baseline.</div>
+        <div class="card-tags">
+          <span class="card-tag tag-linux">Linux</span>
+          <span class="card-tag tag-security">Security</span>
+          <span class="card-tag tag-tools">SSH</span>
+        </div>
+        <div class="card-footer">
+          <span style="font-size:11px;color:var(--muted);font-weight:600;">○ Coming Soon</span>
+          <a href="#" class="card-btn">Open Guide <span class="arrow">→</span></a>
+        </div>
+      </div>
+
+      <!-- Windows Server -->
+      <div class="sheet-card coming-soon" style="--card-accent: var(--blue);" data-tags="windows server active directory ad ds dns dhcp installation microsoft">
+        <div class="card-header-row">
+          <div class="card-icon">🪟</div>
+          <div>
+            <div class="card-title">Windows Server</div>
+            <div class="card-subtitle">AD DS, DNS, DHCP setup</div>
+          </div>
+        </div>
+        <div class="card-desc">Windows Server deployment guide: OS installation, Active Directory Domain Services, DNS zones, DHCP scopes, Group Policy basics, and initial security configuration.</div>
+        <div class="card-tags">
+          <span class="card-tag tag-tools">Microsoft</span>
+          <span class="card-tag tag-bgp">Active Directory</span>
+          <span class="card-tag tag-protocols">DNS</span>
+        </div>
+        <div class="card-footer">
+          <span style="font-size:11px;color:var(--muted);font-weight:600;">○ Coming Soon</span>
+          <a href="#" class="card-btn">Open Guide <span class="arrow">→</span></a>
+        </div>
+      </div>
+
+    </div>
+    <div class="no-results" id="no-results-installs">No procedures match your search.</div>
+  </div>
+
 </div>
 
 <!-- FOOTER -->
@@ -497,7 +590,7 @@ function runSearch() {
     card.style.display = match ? '' : 'none';
     if (match) visible++;
   });
-  const label = activePane.id === 'tab-certs' ? 'guide' : 'sheet';
+  const label = activePane.id === 'tab-certs' ? 'guide' : activePane.id === 'tab-installs' ? 'procedure' : 'sheet';
   visibleCount.textContent = visible + ' ' + label + (visible !== 1 ? 's' : '');
   if (noRes) noRes.classList.toggle('visible', visible === 0);
 }
