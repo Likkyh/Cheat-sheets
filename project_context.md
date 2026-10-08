@@ -239,3 +239,5 @@ Filter logic (`applyFilter()`):
 
 - Installation procedure pages (Proxmox VE, pfSense/OPNsense, Ubuntu Server, Windows Server — cards show "Coming Soon")
 - Any backend, authentication, or dynamic data source
+
+_Last reviewed: 2026-10-08_
